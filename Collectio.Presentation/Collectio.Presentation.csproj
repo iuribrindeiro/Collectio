@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Collectio.Application\Collectio.Application.csproj" />
+    <ProjectReference Include="..\Collectio.Infra.CrossCutting.Ioc\Collectio.Infra.CrossCutting.Ioc.csproj" />
+    <ProjectReference Include="..\Collectio.Infra.CrossCutting.Services\Collectio.Infra.CrossCutting.Services.csproj" />
+  </ItemGroup>
+
+
+</Project>
