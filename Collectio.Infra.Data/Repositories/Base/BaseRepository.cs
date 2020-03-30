@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Collectio.Infra.Data.Repositories.Base
 {
-    public class BaseRepository<T> : IRepository<T> where T : BaseEntity
+    public abstract class BaseRepository<T> : IRepository<T> where T : BaseEntity
     {
         private readonly ApplicationContext _applicationContext;
 

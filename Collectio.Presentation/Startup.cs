@@ -27,6 +27,7 @@ namespace Collectio.Presentation
             services.AddControllers(opt =>
             {
                 opt.Filters.Add<CustomExceptionFilter>();
+                opt.Filters.Add<CustomAsyncActionFilter>();
             }).AddNewtonsoftJson(opt =>
             {
                 opt.SerializerSettings.Formatting = Formatting.Indented;

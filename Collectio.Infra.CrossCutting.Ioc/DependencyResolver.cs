@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Linq;
+using AutoMapper;
 using Collectio.Application.Base;
 using Collectio.Application.Base.Commands;
 using Collectio.Application.Profiles;
@@ -9,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Collectio.Domain.Base;
+using Collectio.Domain.ClienteAggregate;
+using Collectio.Infra.Data.Repositories.Base;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Collectio.Infra.CrossCutting.Ioc
@@ -22,6 +27,38 @@ namespace Collectio.Infra.CrossCutting.Ioc
             serviceCollectio.AddScoped<ICommandQuerySender, CommandQuerySender>();
             serviceCollectio.AddDbContext<ApplicationContext>(e => e.UseSqlServer(configuration.GetConnectionString("Default")));
             serviceCollectio.AddScoped<IUnitOfWork, ApplicationContext>(e => e.GetService<ApplicationContext>());
+
+            serviceCollectio.RegisterRepositories();
+        }
+
+        private static void RegisterRepositories(this IServiceCollection serviceCollection)
+        {
+            var interfaceRepositoryTypes = typeof(IRepository<>).Assembly.GetTypes().Where(e => e.IsInterface);
+
+            var implementationRepositoryTypes = typeof(BaseRepository<>).Assembly.GetTypes()
+                .Where(t => t.IsClass && t != typeof(BaseRepository<>) && interfaceRepositoryTypes.Any(ir => t.Implements(ir)));
+
+            foreach (var implementationRepository in implementationRepositoryTypes)
+            {
+                var interfaceType =
+                    interfaceRepositoryTypes.FirstOrDefault(ir => implementationRepository.Implements(ir));
+                if (interfaceType.Implements(typeof(IRepository<>)))
+                {
+                    var iRepositoryInterface = interfaceType.GetInterfaces()
+                        .FirstOrDefault(i => i.Name == typeof(IRepository<>).Name);
+                    serviceCollection.AddScoped(iRepositoryInterface, implementationRepository);
+                }
+
+                serviceCollection.AddScoped(interfaceType, implementationRepository);
+            }
+        }
+
+        private static bool Implements(this Type @this, Type @interface)
+        {
+            if (@this == null || @interface == null) return false;
+            return @interface.GenericTypeArguments.Length > 0
+                ? @interface.IsAssignableFrom(@this)
+                : @this.GetInterfaces().Any(c => c.Name == @interface.Name);
         }
     }
 }

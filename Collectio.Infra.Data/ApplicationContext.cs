@@ -1,12 +1,14 @@
 ﻿using Collectio.Domain.Base;
 using Collectio.Infra.CrossCutting.Services;
 using Collectio.Infra.CrossCutting.Services.Interfaces;
+using Collectio.Infra.Data.EntitiyTypes.Base;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Collectio.Infra.Data.EntitiyTypes.Base;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Collectio.Infra.Data
 {
@@ -32,20 +34,29 @@ namespace Collectio.Infra.Data
             base.OnModelCreating(modelBuilder);
         }
 
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            UpdatePrivateFields();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
         public override int SaveChanges()
         {
-            var entities = ChangeTracker.Entries().Where(e => e.Entity is BaseEntity && e.State == EntityState.Modified && e.State == EntityState.Added);
+            UpdatePrivateFields();
+            return base.SaveChanges();
+        }
+
+        private void UpdatePrivateFields()
+        {
+            var entities = ChangeTracker.Entries().Where(e => e.Entity is BaseEntity && e.State == EntityState.Modified || e.State == EntityState.Added);
 
             foreach (var entity in entities)
             {
-                entity.CurrentValues["_dataAtualizacao"] = DateTime.Now;
-                entity.CurrentValues["_dataCriacao"] = entity.OriginalValues["_dataCriacao"] ?? (entity.Entity as BaseEntity).DataCriacao;
+                entity.CurrentValues["DataAtualizacao"] = DateTime.Now;
+                entity.CurrentValues["DataCriacao"] = entity.OriginalValues["DataCriacao"] ?? (entity.Entity as BaseEntity).DataCriacao;
                 if (entity.Entity is BaseTenantEntity)
-                    entity.CurrentValues["_tenantId"] = _tenantId;
+                    entity.CurrentValues["TenantId"] = _tenantId;
             }
-                
-
-            return base.SaveChanges();
         }
     }
 }
