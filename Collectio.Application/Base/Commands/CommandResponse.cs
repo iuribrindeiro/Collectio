@@ -6,6 +6,9 @@ namespace Collectio.Application.Base.Commands
 {
     public class CommandResponse
     {
+        protected CommandResponse() 
+            => Errors = new ReadOnlyDictionary<string, IReadOnlyCollection<string>>(new Dictionary<string, IReadOnlyCollection<string>>());
+
         public static R Success<R>() where R : CommandResponse => new CommandResponse() as R;
         public static R Success<R>(string message) where R : CommandResponse => new CommandResponse() { Message = message } as R;
 

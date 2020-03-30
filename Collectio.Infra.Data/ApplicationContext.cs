@@ -1,13 +1,16 @@
 ﻿using Collectio.Domain.Base;
+using Collectio.Infra.CrossCutting.Services;
+using Collectio.Infra.CrossCutting.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
-using Collectio.Infra.CrossCutting.Services;
+using Collectio.Infra.Data.EntitiyTypes.Base;
 
 namespace Collectio.Infra.Data
 {
-    public class ApplicationContext : DbContext
+    public class ApplicationContext : DbContext, IUnitOfWork
     {
         private readonly Guid _tenantId;
 
@@ -18,9 +21,14 @@ namespace Collectio.Infra.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(BaseEntityTypeConfiguration<>)));
 
-            modelBuilder.Entity<BaseTenantEntity>().HasQueryFilter(e => e.TenantId == _tenantId);
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes().Where(e => (bool)e.ClrType?.IsAssignableFrom(typeof(BaseTenantEntity))))
+            {
+                Expression<Func<BaseTenantEntity, bool>> filter = e => e.TenantId == _tenantId;
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+            }
+
             base.OnModelCreating(modelBuilder);
         }
 

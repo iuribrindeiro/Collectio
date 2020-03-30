@@ -1,19 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Collectio.Infra.CrossCutting.Ioc;
 using Collectio.Infra.CrossCutting.Services;
 using Collectio.Presentation.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System;
 
 namespace Collectio.Presentation
 {
@@ -32,14 +27,20 @@ namespace Collectio.Presentation
             services.AddControllers(opt =>
             {
                 opt.Filters.Add<CustomExceptionFilter>();
+            }).AddNewtonsoftJson(opt =>
+            {
+                opt.SerializerSettings.Formatting = Formatting.Indented;
+                //opt.SerializerSettings.ContractResolver = new DictionaryAsArrayResolver();
             });
             services.AddScoped<ITenantIdProvider, TenantIdProvider>(e =>
             {
                 var httpContextAccessor = e.GetService<HttpContextAccessor>();
-                return new TenantIdProvider(Guid.Parse(httpContextAccessor.HttpContext.Request.Headers["tenantId"]));
+                Guid tenantId;
+                Guid.TryParse(httpContextAccessor?.HttpContext?.Request?.Headers["tenantId"], out tenantId);
+                return new TenantIdProvider(tenantId);
             });
             services.AddLogging();
-            services.RegisterDependencies();
+            services.RegisterDependencies(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

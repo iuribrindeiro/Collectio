@@ -20,9 +20,9 @@ namespace Collectio.Application.Base.Commands
             {
                 try
                 {
-                    await HandleAsync(request);
+                    var result = await HandleAsync(request);
                     _logger.LogInformation($"{GetType().Name} executado com sucesso");
-                    return CommandResponse.Success<R>();
+                    return result;
                 }
                 catch (UnprocessableEntityException e)
                 {
@@ -42,6 +42,6 @@ namespace Collectio.Application.Base.Commands
             }
         }
 
-        protected abstract Task HandleAsync(T command);
+        protected abstract Task<R> HandleAsync(T command);
     }
 }

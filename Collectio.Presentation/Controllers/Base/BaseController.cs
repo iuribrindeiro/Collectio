@@ -37,7 +37,7 @@ namespace Collectio.Presentation.Controllers.Base
             var result = await _commandQuerySender.Send(command);
 
             if (result.IsSuccess)
-                return Ok();
+                return Ok(result);
 
             return _commandErrorParser[result.ErrorReason](result);
         }
