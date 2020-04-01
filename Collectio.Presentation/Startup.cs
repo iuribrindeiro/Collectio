@@ -24,18 +24,17 @@ namespace Collectio.Presentation
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddControllers(opt =>
             {
                 opt.Filters.Add<CustomExceptionFilter>();
-                opt.Filters.Add<CustomAsyncActionFilter>();
             }).AddNewtonsoftJson(opt =>
             {
                 opt.SerializerSettings.Formatting = Formatting.Indented;
-                //opt.SerializerSettings.ContractResolver = new DictionaryAsArrayResolver();
             });
             services.AddScoped<ITenantIdProvider, TenantIdProvider>(e =>
             {
-                var httpContextAccessor = e.GetService<HttpContextAccessor>();
+                var httpContextAccessor = e.GetService<IHttpContextAccessor>();
                 Guid tenantId;
                 Guid.TryParse(httpContextAccessor?.HttpContext?.Request?.Headers["tenantId"], out tenantId);
                 return new TenantIdProvider(tenantId);

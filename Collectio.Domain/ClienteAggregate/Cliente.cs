@@ -1,6 +1,10 @@
 ﻿using Collectio.Domain.Base;
+using Collectio.Domain.ClienteAggregate.Events;
+using Collectio.Domain.ClienteAggregate.Validators;
 using FluentValidation;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Collectio.Domain.ClienteAggregate
 {
@@ -26,29 +30,11 @@ namespace Collectio.Domain.ClienteAggregate
             => new ClienteValidator();
     }
 
-    public class ClienteUpdatedEvent : IDomainEvent
+    public class ClienteCreatedEventHandler : IDomainEventHandler<ClienteCreatedEvent>
     {
-        private Cliente _cliente;
-        public Cliente cliente => _cliente;
-
-        public ClienteUpdatedEvent(Cliente cliente) 
-            => _cliente = cliente;
-    }
-
-    public class ClienteCreatedEvent : IDomainEvent
-    {
-        private readonly Cliente _cliente;
-        public Cliente Cliente => _cliente;
-
-        public ClienteCreatedEvent(Cliente cliente) 
-            => _cliente = cliente;
-    }
-
-    public class ClienteValidator : AbstractValidator<Cliente>
-    {
-        public ClienteValidator()
+        public async Task Handle(ClienteCreatedEvent notification, CancellationToken cancellationToken)
         {
-            RuleFor(e => e.Nome).NotEmpty().NotNull();
+            throw new Exception("something bad happened");
         }
     }
 }

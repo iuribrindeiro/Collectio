@@ -4,15 +4,20 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Collectio.Infra.CrossCutting.Services.Interfaces;
 
 namespace Collectio.Application.Base.Commands
 {
     public abstract class AbstractCommandHandler<T, R> : IRequestHandler<T, R> where T : Command<R> where R : CommandResponse
     {
         protected readonly ILogger _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AbstractCommandHandler(ILogger logger) 
-            => _logger = logger;
+        public AbstractCommandHandler(ILogger logger, IUnitOfWork unitOfWork)
+        {
+            _logger = logger;
+            _unitOfWork = unitOfWork;
+        }
 
         public async Task<R> Handle(T request, CancellationToken cancellationToken)
         {
@@ -21,6 +26,7 @@ namespace Collectio.Application.Base.Commands
                 try
                 {
                     var result = await HandleAsync(request);
+                    await _unitOfWork.SaveChangesAsync();
                     _logger.LogInformation($"{GetType().Name} executado com sucesso");
                     return result;
                 }

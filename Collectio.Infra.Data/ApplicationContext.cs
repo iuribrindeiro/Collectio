@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Collectio.Infra.Data
@@ -18,6 +19,7 @@ namespace Collectio.Infra.Data
     {
         private readonly IDomainEventEmitter _domainEventEmitter;
         private readonly Guid _tenantId;
+        private IList<IDomainEvent> _eventsSent;
 
         public ApplicationContext(
             DbContextOptions<ApplicationContext> options, 
@@ -25,6 +27,7 @@ namespace Collectio.Infra.Data
         {
             _domainEventEmitter = domainEventEmitter;
             _tenantId = tenantIdProvider.TenantId;
+            _eventsSent = new List<IDomainEvent>();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,32 +43,30 @@ namespace Collectio.Infra.Data
             base.OnModelCreating(modelBuilder);
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            UpdatePrivateFields();
-            return base.SaveChangesAsync(cancellationToken);
+            await UpdatePrivateFields();
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
-        public override int SaveChanges()
+        private async Task UpdatePrivateFields()
         {
-            UpdatePrivateFields();
-            return base.SaveChanges();
-        }
-
-        private void UpdatePrivateFields()
-        {
+            var dataAtual = DateTime.Now;
             foreach (var entity in ModifiedAndAddedEntities())
             {
-                entity.CurrentValues["DataAtualizacao"] = DateTime.Now;
-                entity.CurrentValues["DataCriacao"] = entity.OriginalValues["DataCriacao"] ?? (entity.Entity as BaseEntity).DataCriacao;
+                var dataCriacaoOriginal = (entity.OriginalValues["DataCriacao"] as DateTime?);
+                entity.CurrentValues["DataAtualizacao"] = dataAtual;
+                entity.CurrentValues["DataCriacao"] = dataCriacaoOriginal != null && dataCriacaoOriginal != DateTime.MinValue ? dataCriacaoOriginal : dataAtual;
                 if (entity.Entity is BaseTenantEntity)
                     entity.CurrentValues["TenantId"] = _tenantId;
             }
 
-            _domainEventEmitter.PublishAsync(DomainEvents().ToArray());
+            var domainEvents = DomainEvents();
+            await _domainEventEmitter.PublishAsync(domainEvents.ToArray());
+            _eventsSent = domainEvents.ToList();
 
-            if (ModifiedAndAddedEntities().Any() || DomainEvents().Any())
-                UpdatePrivateFields();
+            if (ModifiedAndAddedEntities().Any() || domainEvents.Any(de => !_eventsSent.Contains(de)))
+                await UpdatePrivateFields();
         }
 
         private IEnumerable<EntityEntry> EntityEntries()
@@ -77,7 +78,9 @@ namespace Collectio.Infra.Data
         private IEnumerable<EntityEntry> ModifiedAndAddedEntities()
         {
             var entities = EntityEntries();
-            var modifiedAndAdded = entities.Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
+            var modifiedAndAdded = entities.Where(e => (e.State == EntityState.Modified || e.State == EntityState.Added) &&
+                                                       ((e.Entity as BaseEntity).DataCriacao == DateTime.MinValue || (e.Entity as BaseEntity).DataAtualizacao == DateTime.MinValue || 
+                                                        e.Entity is BaseTenantEntity && (e.Entity as BaseTenantEntity).TenantId == Guid.Empty));
             return modifiedAndAdded;
         }
 
