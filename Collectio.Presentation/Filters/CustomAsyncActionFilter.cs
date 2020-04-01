@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using System;
+﻿using Collectio.Infra.CrossCutting.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
-using Collectio.Infra.CrossCutting.Services.Interfaces;
 
 namespace Collectio.Presentation.Filters
 {
@@ -14,7 +13,7 @@ namespace Collectio.Presentation.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            await next();
+            var result = await next();
             await _unitOfWork.SaveChangesAsync();
         }
     }

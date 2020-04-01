@@ -4,11 +4,13 @@ using Collectio.Infra.CrossCutting.Services.Interfaces;
 using Collectio.Infra.Data.EntitiyTypes.Base;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Collectio.Infra.Data
 {
@@ -52,12 +54,7 @@ namespace Collectio.Infra.Data
 
         private void UpdatePrivateFields()
         {
-
-            var entities = ChangeTracker.Entries().Where(e => e.Entity is BaseEntity);
-            var modifiedAndAdded = entities.Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
-
-
-            foreach (var entity in modifiedAndAdded)
+            foreach (var entity in ModifiedAndAddedEntities())
             {
                 entity.CurrentValues["DataAtualizacao"] = DateTime.Now;
                 entity.CurrentValues["DataCriacao"] = entity.OriginalValues["DataCriacao"] ?? (entity.Entity as BaseEntity).DataCriacao;
@@ -65,10 +62,30 @@ namespace Collectio.Infra.Data
                     entity.CurrentValues["TenantId"] = _tenantId;
             }
 
-            foreach (var entityEntry in entities)
-            {
-                _domainEventEmitter.PublishAsync((entityEntry.Entity as BaseEntity).Events.ToArray());
-            }
+            _domainEventEmitter.PublishAsync(DomainEvents().ToArray());
+
+            if (ModifiedAndAddedEntities().Any() || DomainEvents().Any())
+                UpdatePrivateFields();
+        }
+
+        private IEnumerable<EntityEntry> EntityEntries()
+        {
+            var entities = ChangeTracker.Entries().Where(e => e.Entity is BaseEntity);
+            return entities;
+        }
+
+        private IEnumerable<EntityEntry> ModifiedAndAddedEntities()
+        {
+            var entities = EntityEntries();
+            var modifiedAndAdded = entities.Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
+            return modifiedAndAdded;
+        }
+
+        private IEnumerable<IDomainEvent> DomainEvents()
+        {
+            var entities = EntityEntries();
+            var domainEvents = entities.SelectMany(e => (e.Entity as BaseEntity).Events);
+            return domainEvents;
         }
     }
 }

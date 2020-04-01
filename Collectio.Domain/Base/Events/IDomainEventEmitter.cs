@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using MediatR;
 
 namespace Collectio.Domain.Base
 {
@@ -7,4 +8,7 @@ namespace Collectio.Domain.Base
         Task PublishAsync(IDomainEvent domainEvent);
         Task PublishAsync(IDomainEvent[] domainEvents);
     }
+
+    public interface IDomainEventHandler<T> : INotificationHandler<T> where T : IDomainEvent
+    {}
 }
