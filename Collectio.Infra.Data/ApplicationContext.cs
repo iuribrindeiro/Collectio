@@ -14,12 +14,16 @@ namespace Collectio.Infra.Data
 {
     public class ApplicationContext : DbContext, IUnitOfWork
     {
+        private readonly IDomainEventEmitter _domainEventEmitter;
         private readonly Guid _tenantId;
 
         public ApplicationContext(
             DbContextOptions<ApplicationContext> options, 
-            ITenantIdProvider tenantIdProvider) : base(options) 
-            => _tenantId = tenantIdProvider.TenantId;
+            ITenantIdProvider tenantIdProvider, IDomainEventEmitter domainEventEmitter) : base(options)
+        {
+            _domainEventEmitter = domainEventEmitter;
+            _tenantId = tenantIdProvider.TenantId;
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,14 +52,22 @@ namespace Collectio.Infra.Data
 
         private void UpdatePrivateFields()
         {
-            var entities = ChangeTracker.Entries().Where(e => e.Entity is BaseEntity && e.State == EntityState.Modified || e.State == EntityState.Added);
 
-            foreach (var entity in entities)
+            var entities = ChangeTracker.Entries().Where(e => e.Entity is BaseEntity);
+            var modifiedAndAdded = entities.Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
+
+
+            foreach (var entity in modifiedAndAdded)
             {
                 entity.CurrentValues["DataAtualizacao"] = DateTime.Now;
                 entity.CurrentValues["DataCriacao"] = entity.OriginalValues["DataCriacao"] ?? (entity.Entity as BaseEntity).DataCriacao;
                 if (entity.Entity is BaseTenantEntity)
                     entity.CurrentValues["TenantId"] = _tenantId;
+            }
+
+            foreach (var entityEntry in entities)
+            {
+                _domainEventEmitter.PublishAsync((entityEntry.Entity as BaseEntity).Events.ToArray());
             }
         }
     }
