@@ -16,10 +16,20 @@ namespace Collectio.Infra.Data.Repositories.Base
         public async Task SaveAsync(T entity) 
             => await _applicationContext.Set<T>().AddAsync(entity);
 
+        private async Task LoadEntity(T entity) 
+            => await FindAsync(entity.Id);
+
         public async Task UpdateAsync(T entity)
         {
-            if (_applicationContext.Entry(entity) != null && _applicationContext.Entry(entity).State != EntityState.Added)
+            if (_applicationContext.Entry(entity).IsKeySet)
+            {
+                var existingEntity = await FindAsync(entity.Id);
+                _applicationContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+            }
+            else
+            {
                 _applicationContext.Set<T>().Update(entity);
+            }
         }
 
         public Task<T> FindAsync(Guid id) 

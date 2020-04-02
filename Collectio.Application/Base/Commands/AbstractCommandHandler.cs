@@ -1,14 +1,14 @@
 ﻿using Collectio.Domain.Base.Exceptions;
+using Collectio.Infra.CrossCutting.Services.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Collectio.Infra.CrossCutting.Services.Interfaces;
 
 namespace Collectio.Application.Base.Commands
 {
-    public abstract class AbstractCommandHandler<T, R> : IRequestHandler<T, R> where T : Command<R> where R : CommandResponse
+    public abstract class AbstractCommandHandler<T, R> : IRequestHandler<T, R> where T : Command<R> where R : CommandResponse, new()
     {
         protected readonly ILogger _logger;
         private readonly IUnitOfWork _unitOfWork;
@@ -21,13 +21,14 @@ namespace Collectio.Application.Base.Commands
 
         public async Task<R> Handle(T request, CancellationToken cancellationToken)
         {
-            using (_logger.BeginScope($"{request.GetType().Name}"))
+            using (_logger.BeginScope($"{GetType().Name}"))
             {
                 try
                 {
+                    _logger.LogInformation($"Executando");
                     var result = await HandleAsync(request);
                     await _unitOfWork.SaveChangesAsync();
-                    _logger.LogInformation($"{GetType().Name} executado com sucesso");
+                    _logger.LogInformation($"Executado com sucesso");
                     return result;
                 }
                 catch (UnprocessableEntityException e)
@@ -42,7 +43,7 @@ namespace Collectio.Application.Base.Commands
                 }
                 catch (Exception e)
                 {
-                    _logger.LogCritical(e, $"Erro ao executar command handler {GetType().Name}");
+                    _logger.LogCritical(e, $"Erro ao executar command handler");
                     return CommandResponse.UnexpectedError<R>("Erro inesperado ao tentar executar a ação. Entre em contato com nosso suporte");
                 }
             }

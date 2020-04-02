@@ -13,7 +13,10 @@ namespace Collectio.Domain.Base
         public virtual async Task PublishAsync(IDomainEvent domainEvent)
             => await _mediator.Publish(domainEvent);
 
-        public virtual async Task PublishAsync(IDomainEvent[] domainEvents) 
-            => await _mediator.Publish(domainEvents);
+        public virtual async Task PublishAsync(IDomainEvent[] domainEvents)
+        {
+            foreach (var domainEvent in domainEvents) 
+                await PublishAsync(domainEvent);
+        }
     }
 }

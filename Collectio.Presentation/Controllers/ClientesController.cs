@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Collectio.Application.Base;
 using Collectio.Application.Commands;
+using Collectio.Application.Queries.Handlers;
 using Collectio.Presentation.Controllers.Base;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,5 +16,8 @@ namespace Collectio.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(CreateClienteCommand createClienteCommand) 
             => await Send(createClienteCommand);
+
+        public async Task<IActionResult> Get()
+            => new OkObjectResult(await Send(new ClienteQueryRequest()));
     }
 }

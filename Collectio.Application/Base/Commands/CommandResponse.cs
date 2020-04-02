@@ -6,13 +6,13 @@ namespace Collectio.Application.Base.Commands
 {
     public class CommandResponse
     {
-        protected CommandResponse() 
+        protected CommandResponse()
             => Errors = new ReadOnlyDictionary<string, ReadOnlyCollection<string>>(new Dictionary<string, ReadOnlyCollection<string>>());
 
-        public static R Success<R>() where R : CommandResponse => new CommandResponse() as R;
-        public static R Success<R>(string message) where R : CommandResponse => new CommandResponse() { Message = message } as R;
+        public static R Success<R>() where R : CommandResponse, new() => new R();
+        public static R Success<R>(string message) where R : CommandResponse, new() => new R() { Message = message };
 
-        public static R UnprocessableEntity<R>(string message, IReadOnlyDictionary<string, ReadOnlyCollection<string>> errors) where R : CommandResponse
+        public static R UnprocessableEntity<R>(string message, IReadOnlyDictionary<string, ReadOnlyCollection<string>> errors) where R : CommandResponse, new()
         {
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentNullException(nameof(message));
@@ -20,15 +20,15 @@ namespace Collectio.Application.Base.Commands
             if (errors == null)
                 throw new ArgumentNullException(nameof(errors));
 
-            return new CommandResponse()
+            return new R()
             {
                 ErrorReason = Commands.ErrorReason.UnprocessableEntity,
                 Message = message,
                 Errors = errors
-            } as R;
+            };
         }
 
-        public static R BusinessRulesFailure<R>(string message, IReadOnlyDictionary<string, ReadOnlyCollection<string>> errors) where R : CommandResponse
+        public static R BusinessRulesFailure<R>(string message, IReadOnlyDictionary<string, ReadOnlyCollection<string>> errors) where R : CommandResponse, new()
         {
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentNullException(nameof(message));
@@ -36,25 +36,25 @@ namespace Collectio.Application.Base.Commands
             if (errors == null)
                 throw new ArgumentNullException(nameof(errors));
 
-            return new CommandResponse()
+            return new R()
             {
                 ErrorReason = Commands.ErrorReason.BusinessRulesFailure,
                 Message = message,
                 Errors = errors
-            } as R;
+            };
         }
 
-        public static R UnexpectedError<R>(string message) where R : CommandResponse
+        public static R UnexpectedError<R>(string message) where R : CommandResponse, new()
         {
             if (string.IsNullOrWhiteSpace(message))
                 throw new ArgumentNullException(nameof(message));
 
-            return new CommandResponse()
+            return new R()
             {
                 ErrorReason = Commands.ErrorReason.UnexpectedError,
                 Message = message,
                 Errors = new ReadOnlyDictionary<string, ReadOnlyCollection<string>>(new Dictionary<string, ReadOnlyCollection<string>>())
-            } as R;
+            };
         }
 
         public string Message { get; protected set; }

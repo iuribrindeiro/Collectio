@@ -3,8 +3,12 @@ using Collectio.Domain.ClienteAggregate.Events;
 using Collectio.Domain.ClienteAggregate.Validators;
 using FluentValidation;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Collectio.Domain.Base.Exceptions;
 
 namespace Collectio.Domain.ClienteAggregate
 {
@@ -34,7 +38,16 @@ namespace Collectio.Domain.ClienteAggregate
     {
         public async Task Handle(ClienteCreatedEvent notification, CancellationToken cancellationToken)
         {
-            throw new Exception("something bad happened");
+            var errors = new List<string>()
+            {
+                "Isso ta errado..."
+            };
+            var dictio = new Dictionary<string, List<string>>()
+            {
+                { "Nome", errors }
+            };
+
+            //throw new UnprocessableEntityException(new ReadOnlyDictionary<string, ReadOnlyCollection<string>>(dictio.ToDictionary(e => e.Key, e => new ReadOnlyCollection<string>(e.Value))));
         }
     }
 }

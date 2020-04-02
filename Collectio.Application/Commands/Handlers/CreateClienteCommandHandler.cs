@@ -1,15 +1,14 @@
 ﻿using AutoMapper;
 using Collectio.Application.Base.Commands;
-using Collectio.Application.Commands.CommandsResponses;
 using Collectio.Domain.ClienteAggregate;
 using Collectio.Infra.CrossCutting.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
+using Collectio.Application.ViewModels;
 
 namespace Collectio.Application.Commands.Handlers
 {
-    public class CreateClienteCommandHandler : AbstractCommandHandler<CreateClienteCommand, CreateClienteCommandResponse>
+    public class CreateClienteCommandHandler : AbstractCommandHandler<CreateClienteCommand, CommandResponseData<ClienteViewModel>>
     {
         private readonly IMapper _mapper;
         private readonly IClientesRepository _clienteRepository;
@@ -21,23 +20,12 @@ namespace Collectio.Application.Commands.Handlers
             _clienteRepository = clienteRepository;
         }
 
-        protected override async Task<CreateClienteCommandResponse> HandleAsync(CreateClienteCommand command)
+        protected override async Task<CommandResponseData<ClienteViewModel>> HandleAsync(CreateClienteCommand command)
         {
-            var updateCommand = new UpdateClienteCommand()
-            {
-                Id = Guid.NewGuid(),
-                Nome = "Teste 2"
-            };
-
             var novoCliente = _mapper.Map<Cliente>(command);
-            var atualizaCliente = _mapper.Map<Cliente>(updateCommand);
-
             await _clienteRepository.SaveAsync(novoCliente);
-
-            _logger.LogInformation($"novo {novoCliente.Nome}; {novoCliente.Id}");
-            _logger.LogInformation($"atualiza {atualizaCliente.Nome}; {atualizaCliente.Id}");
-
-            return CreateClienteCommandResponse.Success(novoCliente);
+            
+            return CommandResponseData<ClienteViewModel>.Success(_mapper.Map<ClienteViewModel>(novoCliente));
         }
     }
 }
