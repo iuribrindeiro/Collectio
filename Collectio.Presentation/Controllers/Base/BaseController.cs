@@ -42,10 +42,10 @@ namespace Collectio.Presentation.Controllers.Base
             return _commandErrorParser[result.ErrorReason](result);
         }
 
-        protected async Task<IQueryable<R>> Send<R>(Query<R> query) where R : class
+        protected async Task<IActionResult> Send<R>(Query<R> query) where R : class
         {
             var result = await _commandQuerySender.Send<Query<R>, R>(query);
-            return result.Results;
+            return Ok(result.Results);
         }
     }
 }

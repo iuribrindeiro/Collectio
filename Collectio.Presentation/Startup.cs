@@ -1,6 +1,8 @@
 using Collectio.Infra.CrossCutting.Ioc;
 using Collectio.Infra.CrossCutting.Services;
 using Collectio.Presentation.Filters;
+using Collectio.Presentation.OData;
+using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +26,7 @@ namespace Collectio.Presentation
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOData();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddControllers(opt =>
             {
@@ -60,6 +63,8 @@ namespace Collectio.Presentation
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.Select().Filter().OrderBy().Count().MaxTop(25);
+                endpoints.MapODataRoute("odata", "odata", ModelProvider.GetEdmModel());
             });
         }
     }
