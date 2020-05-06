@@ -11,6 +11,7 @@ namespace Collectio.Domain.Base
         protected BaseEntity()
         {
             _id = Guid.NewGuid();
+            _dataCriacao = DateTime.Now;
             _errors = new Dictionary<string, List<string>>();
             _events = new List<IDomainEvent>();
             RunValidations();

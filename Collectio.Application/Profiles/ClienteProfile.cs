@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Collectio.Application.Base.Commands;
 using Collectio.Application.Commands;
 using Collectio.Application.ViewModels;
 using Collectio.Domain.ClienteAggregate;

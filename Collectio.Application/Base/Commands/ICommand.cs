@@ -2,7 +2,7 @@
 
 namespace Collectio.Application.Base.Commands
 {
-    public abstract class Command<R> : IRequest<R> where R : CommandResponse
+    public interface ICommand<R> : IRequest<R>
     {
     }
 }

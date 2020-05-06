@@ -3,6 +3,7 @@ using Collectio.Infra.CrossCutting.Services;
 using Collectio.Infra.CrossCutting.Services.Interfaces;
 using Collectio.Infra.Data.EntitiyTypes.Base;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Collectio.Infra.Data
 {
@@ -61,13 +60,15 @@ namespace Collectio.Infra.Data
                     entity.CurrentValues["TenantId"] = _tenantId;
             }
 
-            var domainEvents = DomainEvents();
-            await _domainEventEmitter.PublishAsync(domainEvents.ToArray());
-            _eventsSent = domainEvents.ToList();
+            await _domainEventEmitter.PublishAsync(PendingEvents().ToArray());
+            _eventsSent = _eventsSent.Concat(PendingEvents()).ToList();
 
-            if (ModifiedAndAddedEntities().Any() || domainEvents.Any(de => !_eventsSent.Contains(de)))
+            if (ModifiedAndAddedEntities().Any() || PendingEvents().Any())
                 await UpdatePrivateFields();
         }
+
+        private IEnumerable<IDomainEvent> PendingEvents() 
+            => DomainEvents().Where(es => !_eventsSent.Contains(es));
 
         private IEnumerable<EntityEntry> EntityEntries()
         {

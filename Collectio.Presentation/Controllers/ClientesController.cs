@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
-using Collectio.Application.Base;
+﻿using Collectio.Application.Base;
 using Collectio.Application.Commands;
 using Collectio.Application.Queries.Handlers;
 using Collectio.Presentation.Controllers.Base;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Collectio.Presentation.Controllers
 {

@@ -39,10 +39,19 @@ namespace Collectio.Presentation
             {
                 var httpContextAccessor = e.GetService<IHttpContextAccessor>();
                 Guid tenantId;
-                Guid.TryParse(httpContextAccessor?.HttpContext?.Request?.Headers["tenantId"], out tenantId);
+                Guid.TryParse("db3dabd7-d133-48d5-86ef-49ce0b3e47cc", out tenantId);
                 return new TenantIdProvider(tenantId);
             });
             services.AddLogging();
+
+            //services.AddAuthentication("Bearer")
+            //    .AddJwtBearer("Bearer", options =>
+            //    {
+            //        options.Authority = Configuration.GetSection("IdentityServer:Authority").Value;
+            //        options.RequireHttpsMetadata = Configuration.GetSection("IdentityServer").GetValue<bool>("RequireHttpsMetadata");
+            //        options.Audience = Configuration.GetSection("IdentityServer:ApiName").Value;
+            //    });
+
             services.RegisterDependencies(Configuration);
         }
 

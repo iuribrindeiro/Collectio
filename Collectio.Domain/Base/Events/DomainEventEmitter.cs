@@ -15,7 +15,7 @@ namespace Collectio.Domain.Base
 
         public virtual async Task PublishAsync(IDomainEvent[] domainEvents)
         {
-            foreach (var domainEvent in domainEvents) 
+            foreach (var domainEvent in domainEvents)
                 await PublishAsync(domainEvent);
         }
     }

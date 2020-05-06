@@ -13,7 +13,7 @@ namespace Collectio.Application.Base
         public CommandQuerySender(IMediator mediator) 
             => _mediator = mediator;
 
-        public Task<R> Send<R>(Command<R> command) where R : CommandResponse 
+        public Task<R> Send<R>(ICommand<R> command)
             => _mediator.Send(command);
 
         public Task<QueryResult<R>> Send<Q, R>(Q query) 

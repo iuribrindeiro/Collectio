@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Reflection;
+using MediatR.Pipeline;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Collectio.Infra.CrossCutting.Ioc
@@ -21,7 +22,8 @@ namespace Collectio.Infra.CrossCutting.Ioc
     {
         public static void RegisterDependencies(this IServiceCollection serviceCollectio, IConfiguration configuration)
         {
-            serviceCollectio.AddMediatR(typeof(AbstractCommandHandler<,>).Assembly, typeof(IDomainEventHandler<>).Assembly);
+            serviceCollectio.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingPipeline<,>));
+            serviceCollectio.AddMediatR(typeof(LoggingPipeline<,>).Assembly, typeof(IDomainEventHandler<>).Assembly);
             serviceCollectio.AddAutoMapper(e => e.DisableConstructorMapping(), Assembly.GetAssembly(typeof(ClienteProfile)));
             serviceCollectio.AddScoped<ICommandQuerySender, CommandQuerySender>();
             serviceCollectio.AddDbContext<ApplicationContext>(e => e.UseSqlServer(configuration.GetConnectionString("Default")));

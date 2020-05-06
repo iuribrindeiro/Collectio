@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Collectio.Application.Base;
+﻿using Collectio.Application.Base;
 using Collectio.Application.Base.Commands;
 using Collectio.Application.Base.Queries;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Collectio.Domain.Base.Exceptions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Collectio.Presentation.Controllers.Base
 {
@@ -18,28 +20,21 @@ namespace Collectio.Presentation.Controllers.Base
         public BaseController(ICommandQuerySender commandQuerySender)
             => _commandQuerySender = commandQuerySender;
 
-        protected IDictionary<ErrorReason?,
-            Func<CommandResponse, IActionResult>> _commandErrorParser = new Dictionary<ErrorReason?, Func<CommandResponse, IActionResult>>()
+        protected async Task<IActionResult> Send<R>(ICommand<R> command)
         {
-            {
-                ErrorReason.UnexpectedError, (result) => new ObjectResult(new {result.Message}){StatusCode = 500}
-            },
-            {
-                ErrorReason.BusinessRulesFailure, (result) => new BadRequestObjectResult(new {result.Message, result.Errors})
-            },
-            {
-                ErrorReason.UnprocessableEntity, (result) => new UnprocessableEntityObjectResult(new {result.Message, result.Errors})
-            }
-        };
-
-        protected async Task<IActionResult> Send<R>(Command<R> command) where R : CommandResponse
-        {
-            var result = await _commandQuerySender.Send(command);
-
-            if (result.IsSuccess)
+            try
+            {   
+                var result = await _commandQuerySender.Send(command);
                 return Ok(result);
-
-            return _commandErrorParser[result.ErrorReason](result);
+            }
+            catch (BusinessRulesException e)
+            {
+                return new BadRequestObjectResult(new {e.Message, e.Errors});
+            }
+            catch (UnprocessableEntityException e)
+            {
+                return new UnprocessableEntityObjectResult(new {e.Message, e.Errors});
+            }
         }
 
         protected async Task<IActionResult> Send<R>(Query<R> query) where R : class
