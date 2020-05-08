@@ -44,13 +44,13 @@ namespace Collectio.Presentation
             });
             services.AddLogging();
 
-            //services.AddAuthentication("Bearer")
-            //    .AddJwtBearer("Bearer", options =>
-            //    {
-            //        options.Authority = Configuration.GetSection("IdentityServer:Authority").Value;
-            //        options.RequireHttpsMetadata = Configuration.GetSection("IdentityServer").GetValue<bool>("RequireHttpsMetadata");
-            //        options.Audience = Configuration.GetSection("IdentityServer:ApiName").Value;
-            //    });
+            services.AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
+                {
+                    options.Authority = Configuration.GetSection("IdentityServer:Authority").Value;
+                    options.RequireHttpsMetadata = Configuration.GetSection("IdentityServer").GetValue<bool>("RequireHttpsMetadata");
+                    options.Audience = Configuration.GetSection("IdentityServer:ApiName").Value;
+                });
 
             services.RegisterDependencies(Configuration);
         }
@@ -61,13 +61,17 @@ namespace Collectio.Presentation
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(e => e.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
+            //TODO: Adicionar cors com o dominio de produção
 
             app.UseEndpoints(endpoints =>
             {

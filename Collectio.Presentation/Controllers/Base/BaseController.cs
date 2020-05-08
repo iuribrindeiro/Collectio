@@ -37,10 +37,10 @@ namespace Collectio.Presentation.Controllers.Base
             }
         }
 
-        protected async Task<IActionResult> Send<R>(Query<R> query) where R : class
+        protected async Task<IActionResult> Send<R>(IQuery<R> query) where R : class
         {
-            var result = await _commandQuerySender.Send<Query<R>, R>(query);
-            return Ok(result.Results);
+            var result = await _commandQuerySender.Send<IQuery<R>, R>(query);
+            return Ok(result);
         }
     }
 }

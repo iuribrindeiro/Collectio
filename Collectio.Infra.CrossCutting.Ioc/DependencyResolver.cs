@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Reflection;
+using Collectio.Application.Base.Queries;
 using MediatR.Pipeline;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 

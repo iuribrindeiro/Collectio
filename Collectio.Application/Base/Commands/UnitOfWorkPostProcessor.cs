@@ -14,7 +14,10 @@ namespace Collectio.Application.Base.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Process(C request, R response, CancellationToken cancellationToken) 
-            => await _unitOfWork.SaveChangesAsync();
+        public async Task Process(C request, R response, CancellationToken cancellationToken)
+        {
+            if (request is ICommand)
+                await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

@@ -3,6 +3,8 @@ using MediatR;
 
 namespace Collectio.Application.Base.Queries
 {
-    public abstract class Query<R> : IRequest<QueryResult<R>> where R : class
+    public interface IQuery { }
+
+    public interface IQuery<R> : IRequest<R>, IQuery
     {}
 }

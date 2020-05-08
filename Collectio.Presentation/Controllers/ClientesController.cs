@@ -5,9 +5,12 @@ using Collectio.Presentation.Controllers.Base;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Collectio.Application.Queries;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Collectio.Presentation.Controllers
 {
+    [Authorize]
     public class ClientesController : BaseController
     {
         public ClientesController(ICommandQuerySender commandQuerySender) : base(commandQuerySender) {}

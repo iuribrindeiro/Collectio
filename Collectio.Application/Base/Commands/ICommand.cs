@@ -2,7 +2,9 @@
 
 namespace Collectio.Application.Base.Commands
 {
-    public interface ICommand<R> : IRequest<R>
+    public interface ICommand { }
+
+    public interface ICommand<R> : IRequest<R>, ICommand
     {
     }
 }

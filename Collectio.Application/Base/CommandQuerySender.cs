@@ -1,8 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Collectio.Application.Base.Commands;
+﻿using Collectio.Application.Base.Commands;
 using Collectio.Application.Base.Queries;
 using MediatR;
+using System.Threading.Tasks;
 
 namespace Collectio.Application.Base
 {
@@ -16,9 +15,7 @@ namespace Collectio.Application.Base
         public Task<R> Send<R>(ICommand<R> command)
             => _mediator.Send(command);
 
-        public Task<QueryResult<R>> Send<Q, R>(Q query) 
-            where Q : Query<R>
-            where R : class 
+        public Task<R> Send<Q, R>(Q query) where Q : IQuery<R>
             => _mediator.Send(query);
     }
 }
