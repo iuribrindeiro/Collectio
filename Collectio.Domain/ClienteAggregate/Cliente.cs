@@ -4,15 +4,12 @@ using Collectio.Domain.ClienteAggregate.Validators;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Collectio.Domain.Base.Exceptions;
 
 namespace Collectio.Domain.ClienteAggregate
 {
-    public class Cliente : BaseTenantEntity
+    public class Cliente : BaseTenantEntity, IAggregateRoot
     {
         //TO CREATE
         public Cliente(string nome) : base()
@@ -44,7 +41,7 @@ namespace Collectio.Domain.ClienteAggregate
             };
             var dictio = new Dictionary<string, List<string>>()
             {
-                { "Nome", errors }
+                { "Banco", errors }
             };
 
             //throw new UnprocessableEntityException(new ReadOnlyDictionary<string, ReadOnlyCollection<string>>(dictio.ToDictionary(e => e.Key, e => new ReadOnlyCollection<string>(e.Value))));

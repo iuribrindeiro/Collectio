@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace Collectio.Domain.Base
 {
-    public interface IRepository<T> where T : BaseEntity
+    public interface IAggregateRoot { }
+
+    public interface IRepository<T> where T : IAggregateRoot
     {
         Task SaveAsync(T entity);
         Task UpdateAsync(T entity);

@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Folder Include="ClienteAggregate\EventHandlers\" />
-    <Folder Include="CobrancaAggregate\" />
     <Folder Include="ContaBancariaAggregate\" />
     <Folder Include="RecorrenciaAggregate\" />
   </ItemGroup>

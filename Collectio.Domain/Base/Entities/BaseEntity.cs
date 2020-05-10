@@ -65,5 +65,8 @@ namespace Collectio.Domain.Base
         }
 
         protected abstract IValidator ValidatorFactory();
+
+        public static implicit operator bool(BaseEntity e)
+            => e != null;
     }
 }

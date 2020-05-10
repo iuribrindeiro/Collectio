@@ -33,7 +33,7 @@ namespace Collectio.Infra.Data.Migrations
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Nome")
+                    b.Property<string>("Banco")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

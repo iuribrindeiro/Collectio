@@ -38,8 +38,7 @@ namespace Collectio.Presentation
             services.AddScoped<ITenantIdProvider, TenantIdProvider>(e =>
             {
                 var httpContextAccessor = e.GetService<IHttpContextAccessor>();
-                Guid tenantId;
-                Guid.TryParse("db3dabd7-d133-48d5-86ef-49ce0b3e47cc", out tenantId);
+                Guid.TryParse(httpContextAccessor.HttpContext?.User?.FindFirst("usb")?.Value, out Guid tenantId);
                 return new TenantIdProvider(tenantId);
             });
             services.AddLogging();
@@ -52,6 +51,10 @@ namespace Collectio.Presentation
                     options.Audience = Configuration.GetSection("IdentityServer:ApiName").Value;
                 });
 
+            services.AddCors(e => e.AddPolicy("default",
+                c => c.WithOrigins(Configuration.GetValue<string>("CollectioFrontUri")).AllowAnyHeader()
+                    .AllowAnyMethod()));
+
             services.RegisterDependencies(Configuration);
         }
 
@@ -61,17 +64,14 @@ namespace Collectio.Presentation
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseCors(e => e.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors("default");
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            //TODO: Adicionar cors com o dominio de produção
 
             app.UseEndpoints(endpoints =>
             {

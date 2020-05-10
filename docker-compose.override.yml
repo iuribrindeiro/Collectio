@@ -12,6 +12,7 @@ services:
     depends_on:
       - sql-server
     environment:
+      - ASPNETCORE_CollectioFrontUri=http://localhost:8080
       - ASPNETCORE_IdentityServer__Authority=http://localhost:80
       - ASPNETCORE_IdentityServer__RequireHttpsMetadata=false
       - ASPNETCORE_ConnectionStrings__DefaultConnection=Server=sql-server;Database=Collectio;User Id=sa;Password=Administrator*123
