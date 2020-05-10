@@ -29,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Collectio.Application", "Co
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.2.2 - Services", "4.2.2 - Services", "{A39BAB81-057D-443C-9C39-A8F254A17AEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collectio.Infra.CrossCutting.Services", "Collectio.Infra.CrossCutting.Services\Collectio.Infra.CrossCutting.Services.csproj", "{C2B36A7E-0296-4764-847F-697DA9A1D439}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Collectio.Infra.CrossCutting.Services", "Collectio.Infra.CrossCutting.Services\Collectio.Infra.CrossCutting.Services.csproj", "{C2B36A7E-0296-4764-847F-697DA9A1D439}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{539D53A2-CA18-4B50-BD0C-DCA7B7C0B9CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,10 @@ Global
 		{C2B36A7E-0296-4764-847F-697DA9A1D439}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2B36A7E-0296-4764-847F-697DA9A1D439}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2B36A7E-0296-4764-847F-697DA9A1D439}.Release|Any CPU.Build.0 = Release|Any CPU
+		{539D53A2-CA18-4B50-BD0C-DCA7B7C0B9CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{539D53A2-CA18-4B50-BD0C-DCA7B7C0B9CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{539D53A2-CA18-4B50-BD0C-DCA7B7C0B9CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{539D53A2-CA18-4B50-BD0C-DCA7B7C0B9CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

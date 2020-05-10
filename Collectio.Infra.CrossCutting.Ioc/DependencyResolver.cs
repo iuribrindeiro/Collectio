@@ -14,6 +14,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Collectio.Application.Base.Queries;
+using Collectio.Infra.CrossCutting.Services;
 using MediatR.Pipeline;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
@@ -23,11 +24,12 @@ namespace Collectio.Infra.CrossCutting.Ioc
     {
         public static void RegisterDependencies(this IServiceCollection serviceCollectio, IConfiguration configuration)
         {
+            serviceCollectio.AddScoped<IDatabaseMigrator, DatabaeMigrator>();
             serviceCollectio.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingPipeline<,>));
             serviceCollectio.AddMediatR(typeof(LoggingPipeline<,>).Assembly, typeof(IDomainEventHandler<>).Assembly);
             serviceCollectio.AddAutoMapper(e => e.DisableConstructorMapping(), Assembly.GetAssembly(typeof(ClienteProfile)));
             serviceCollectio.AddScoped<ICommandQuerySender, CommandQuerySender>();
-            serviceCollectio.AddDbContext<ApplicationContext>(e => e.UseSqlServer(configuration.GetConnectionString("Default")));
+            serviceCollectio.AddDbContext<ApplicationContext>(e => e.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             serviceCollectio.AddScoped<IUnitOfWork, ApplicationContext>(e => e.GetService<ApplicationContext>());
             serviceCollectio.AddScoped<IDomainEventEmitter, DomainEventEmitter>();
 
