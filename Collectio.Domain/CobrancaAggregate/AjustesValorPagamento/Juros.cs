@@ -1,6 +1,5 @@
-﻿using System;
-using Collectio.Domain.Base;
-using FluentValidation;
+﻿using Collectio.Domain.Base;
+using System;
 
 namespace Collectio.Domain.CobrancaAggregate.AjustesValorPagamento
 {
@@ -20,9 +19,6 @@ namespace Collectio.Domain.CobrancaAggregate.AjustesValorPagamento
             _valor = valor;
             _periodo = periodo;
         }
-
-        protected override IValidator ValidatorFactory() 
-            => new AjusteValorPagamentoValidator<Juros>();
 
         public decimal Valor => _valor;
         public PeriodoAjuste Periodo => _periodo;

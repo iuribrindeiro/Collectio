@@ -31,10 +31,8 @@ namespace Collectio.Application.Commands.Handlers
             var cobranca = new Cobranca(1, DateTime.Today,
                 new Pagador("TEste", cpfCnpjValueObject, endereco),
                 new Emissor("Iuri", cpfCnpjValueObject, endereco),
-                new ContaBancaria("Conta do Banco do Brasil Fake", "BB", new AgenciaContaValueObject("12345", "1234")),
-                FormaPagamento.Boleto);
+                new ContaBancaria("Conta do Banco do Brasil Fake", "BB", new AgenciaContaValueObject("12345", "1234")), FormaPagamentoValueObject.Boleto());
 
-            var lol = cobranca.Errors;
             var novoCliente = _mapper.Map<Cliente>(request);
             novoCliente = null;
             await _clienteRepository.SaveAsync(novoCliente);

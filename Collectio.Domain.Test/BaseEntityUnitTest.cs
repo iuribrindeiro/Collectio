@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using Collectio.Domain.Base;
-using FluentValidation;
+﻿using Collectio.Domain.Base;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace Collectio.Domain.Test
 {

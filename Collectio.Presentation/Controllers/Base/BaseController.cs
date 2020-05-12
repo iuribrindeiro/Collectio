@@ -22,19 +22,8 @@ namespace Collectio.Presentation.Controllers.Base
 
         protected async Task<IActionResult> Send<R>(ICommand<R> command)
         {
-            try
-            {   
-                var result = await _commandQuerySender.Send(command);
-                return Ok(result);
-            }
-            catch (BusinessRulesException e)
-            {
-                return new BadRequestObjectResult(new {e.Message, e.Errors});
-            }
-            catch (UnprocessableEntityException e)
-            {
-                return new UnprocessableEntityObjectResult(new {e.Message, e.Errors});
-            }
+            var result = await _commandQuerySender.Send(command);
+            return Ok(result);
         }
 
         protected async Task<IActionResult> Send<R>(IQuery<R> query) where R : class

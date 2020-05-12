@@ -1,11 +1,10 @@
-﻿using FluentValidation;
+﻿using Collectio.Application.Base.Commands.Exceptions;
+using FluentValidation;
 using MediatR;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Collectio.Application.Base.Commands.Exceptions;
 
 namespace Collectio.Application.Base.Commands
 {

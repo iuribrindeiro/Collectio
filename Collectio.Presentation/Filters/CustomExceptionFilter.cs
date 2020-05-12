@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using Collectio.Application.Base.Commands.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -14,9 +15,18 @@ namespace Collectio.Presentation.Filters
 
         public void OnException(ExceptionContext context)
         {
-            _logger.LogCritical(context.Exception, "Exceção não tratada");
-            var message = "Erro inesperado ao tentar executar a ação. Entre em contato com nosso suporte";
-            context.Result = new ObjectResult(new { message }) { StatusCode = 500 };
+            if (context.Exception is ValidationCommandException validationCommandException)
+            {
+                context.Result = new UnprocessableEntityObjectResult(new { message = validationCommandException.Message, errors = validationCommandException.CommandPropertyErrors });
+            } else if (context.Exception is BusinessRuleCommandException businessRuleCommandException)
+            {
+                context.Result = new BadRequestObjectResult(new { message = businessRuleCommandException.Message });
+            }
+            else
+            {
+                var message = "Erro inesperado ao tentar executar a ação. Entre em contato com nosso suporte";
+                context.Result = new ObjectResult(new { message }) { StatusCode = 500 };
+            }
         }
     }
 }

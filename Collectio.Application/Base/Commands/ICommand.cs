@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Collectio.Domain.Base;
-using MediatR;
+﻿using MediatR;
 
 namespace Collectio.Application.Base.Commands
 {

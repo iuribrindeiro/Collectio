@@ -1,6 +1,5 @@
 ﻿using Collectio.Domain.Base;
 using Collectio.Domain.Base.ValueObjects;
-using FluentValidation;
 using System;
 
 namespace Collectio.Domain.CobrancaAggregate.Entidades
@@ -24,9 +23,6 @@ namespace Collectio.Domain.CobrancaAggregate.Entidades
             _cpfCnpj = cpfCnpj;
             _endereco = endereco;
         }
-
-        protected override IValidator ValidatorFactory()
-            => new EntidadeValidator<Pagador>();
 
         public string Nome => _nome;
         public CpfCnpjValueObject CpfCnpj => _cpfCnpj;

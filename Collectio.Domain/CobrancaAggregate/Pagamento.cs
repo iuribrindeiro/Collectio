@@ -1,6 +1,4 @@
-﻿using System;
-using Collectio.Domain.Base;
-using FluentValidation;
+﻿using Collectio.Domain.Base;
 
 namespace Collectio.Domain.CobrancaAggregate.Pagamentos
 {
@@ -14,8 +12,5 @@ namespace Collectio.Domain.CobrancaAggregate.Pagamentos
         {
             _valor = valor;
         }
-
-        protected override IValidator ValidatorFactory() 
-            => new PagamentoValidator();
     }
 }

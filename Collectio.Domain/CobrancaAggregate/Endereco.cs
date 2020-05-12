@@ -1,5 +1,4 @@
 ﻿using Collectio.Domain.Base;
-using FluentValidation;
 
 namespace Collectio.Domain.CobrancaAggregate.Entidades
 {
@@ -28,8 +27,5 @@ namespace Collectio.Domain.CobrancaAggregate.Entidades
             _cidade = cidade;
             _estado = estado;
         }
-
-        protected override IValidator ValidatorFactory() 
-            => new EnderecoValidator();
     }
 }

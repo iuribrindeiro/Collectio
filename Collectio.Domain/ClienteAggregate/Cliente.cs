@@ -1,7 +1,5 @@
 ﻿using Collectio.Domain.Base;
 using Collectio.Domain.ClienteAggregate.Events;
-using Collectio.Domain.ClienteAggregate.Validators;
-using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -26,9 +24,6 @@ namespace Collectio.Domain.ClienteAggregate
         }
 
         public string Nome { get; set; }
-
-        protected override IValidator ValidatorFactory() 
-            => new ClienteValidator();
     }
 
     public class ClienteCreatedEventHandler : IDomainEventHandler<ClienteCreatedEvent>

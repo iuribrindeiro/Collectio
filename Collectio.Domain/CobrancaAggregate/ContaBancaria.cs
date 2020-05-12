@@ -1,6 +1,5 @@
 ﻿using Collectio.Domain.Base;
 using Collectio.Domain.Base.ValueObjects;
-using FluentValidation;
 
 namespace Collectio.Domain.CobrancaAggregate.ContaBancarias
 {
@@ -20,8 +19,5 @@ namespace Collectio.Domain.CobrancaAggregate.ContaBancarias
             _banco = banco;
             _agenciaConta = agenciaConta;
         }
-
-        protected override IValidator ValidatorFactory() 
-            => new ContaBancariaValidator();
     }
 }
