@@ -1,15 +1,35 @@
-﻿using Collectio.Domain.Base.ValueObjects;
+﻿using Collectio.Domain.Base;
+using Collectio.Domain.Base.ValueObjects;
 using FluentValidation;
+using System;
 
 namespace Collectio.Domain.CobrancaAggregate.Entidades
 {
-    public class Pagador : Entidade
+    public class Pagador : BaseTenantEntity, IEntidade
     {
-        public Pagador(string nome, CpfCnpjValueObject cpfCnpj, Endereco.Endereco endereco) : base(nome, cpfCnpj, endereco)
+        private Endereco _endereco;
+        private CpfCnpjValueObject _cpfCnpj;
+        private string _nome;
+
+        public Pagador(string nome, CpfCnpjValueObject cpfCnpj, Endereco endereco)
         {
+            _nome = nome;
+            _cpfCnpj = cpfCnpj;
+            _endereco = endereco;
+        }
+
+        public Pagador(Guid id, string nome, CpfCnpjValueObject cpfCnpj, Endereco endereco) : base(id)
+        {
+            _nome = nome;
+            _cpfCnpj = cpfCnpj;
+            _endereco = endereco;
         }
 
         protected override IValidator ValidatorFactory()
             => new EntidadeValidator<Pagador>();
+
+        public string Nome => _nome;
+        public CpfCnpjValueObject CpfCnpj => _cpfCnpj;
+        public Endereco Endereco => _endereco;
     }
 }

@@ -2,6 +2,9 @@
 {
     public enum StatusCobranca
     {
+        AguardandoCriacaoFormaPagamento,
+        CriandoFormaPagamento,
+        ErroCriarFormaPagamento,
         Pago,
         Vencido,
         Pendente

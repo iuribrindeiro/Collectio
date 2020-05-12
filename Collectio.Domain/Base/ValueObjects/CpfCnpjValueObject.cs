@@ -9,9 +9,9 @@
             => _value = cpfCnpj;
 
         public static bool operator ==(CpfCnpjValueObject a, CpfCnpjValueObject b)
-            => a.Value == b.Value;
+            => a?.Value == b?.Value;
 
         public static bool operator !=(CpfCnpjValueObject a, CpfCnpjValueObject b)
-            => a.Value != b.Value;
+            => a?.Value != b?.Value;
     }
 }

@@ -2,7 +2,7 @@
 using Collectio.Domain.Base;
 using FluentValidation;
 
-namespace Collectio.Domain.CobrancaAggregate.Pagamento
+namespace Collectio.Domain.CobrancaAggregate.Pagamentos
 {
     public class Pagamento : BaseTenantEntity
     {

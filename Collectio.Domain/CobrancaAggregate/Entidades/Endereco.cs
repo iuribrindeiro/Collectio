@@ -1,7 +1,7 @@
 ﻿using Collectio.Domain.Base;
 using FluentValidation;
 
-namespace Collectio.Domain.CobrancaAggregate.Endereco
+namespace Collectio.Domain.CobrancaAggregate.Entidades
 {
     public class Endereco : BaseTenantEntity
     {

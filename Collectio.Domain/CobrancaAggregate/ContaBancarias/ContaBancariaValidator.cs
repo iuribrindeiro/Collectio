@@ -1,14 +1,15 @@
 ﻿using Collectio.Domain.Base.Validators;
 using FluentValidation;
 
-namespace Collectio.Domain.CobrancaAggregate.ContaBancaria
+namespace Collectio.Domain.CobrancaAggregate.ContaBancarias
 {
     public class ContaBancariaValidator : AbstractValidator<ContaBancaria>
     {
         public ContaBancariaValidator()
         {
-            RuleFor(c => c.Nome).NotEmpty();
-            RuleFor(c => c.ContaBanco).IsValid();
+            RuleFor(c => c.Descricao).NotEmpty();
+            RuleFor(c => c.Banco).NotEmpty();
+            RuleFor(c => c.AgenciaConta).IsValid();
         }
     }
 }

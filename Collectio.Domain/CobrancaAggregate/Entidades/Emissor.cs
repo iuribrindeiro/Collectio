@@ -1,18 +1,35 @@
 ﻿using System;
+using Collectio.Domain.Base;
 using Collectio.Domain.Base.ValueObjects;
 using FluentValidation;
 
 namespace Collectio.Domain.CobrancaAggregate.Entidades
 {
-    public class Emissor : Entidade
+    public class Emissor : BaseTenantEntity, IEntidade
     {
-        public Emissor(string nome, CpfCnpjValueObject cpfCnpj, Endereco.Endereco endereco) : base(nome, cpfCnpj, endereco)
+        private string _nome;
+        private CpfCnpjValueObject _cpfCnpj;
+        private Endereco _endereco;
+
+        public Emissor(string nome, CpfCnpjValueObject cpfCnpj, Endereco endereco)
         {
+            _nome = nome;
+            _cpfCnpj = cpfCnpj;
+            _endereco = endereco;
         }
 
-        protected override IValidator ValidatorFactory()
+        public Emissor(Guid id, string nome, CpfCnpjValueObject cpfCnpj, Endereco endereco) : base(id)
         {
-            throw new NotImplementedException();
+            _nome = nome;
+            _cpfCnpj = cpfCnpj;
+            _endereco = endereco;
         }
+
+        protected override IValidator ValidatorFactory() 
+            => new EntidadeValidator<Emissor>();
+
+        public string Nome => _nome;
+        public CpfCnpjValueObject CpfCnpj => _cpfCnpj;
+        public Endereco Endereco => _endereco;
     }
 }

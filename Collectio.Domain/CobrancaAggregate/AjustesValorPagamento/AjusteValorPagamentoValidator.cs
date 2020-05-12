@@ -3,7 +3,7 @@
 namespace Collectio.Domain.CobrancaAggregate.AjustesValorPagamento
 {
     public class AjusteValorPagamentoValidator<T> : AbstractValidator<T>
-        where T : AjusteValorPagamento
+        where T : IAjusteValorPagamento
     {
         public AjusteValorPagamentoValidator()
         {

@@ -1,11 +1,10 @@
 ﻿using Collectio.Domain.Base.Validators;
-using Collectio.Domain.CobrancaAggregate.Endereco;
 using FluentValidation;
 
 namespace Collectio.Domain.CobrancaAggregate.Entidades
 {
     public class EntidadeValidator<T> : AbstractValidator<T>
-        where T : Entidade
+        where T : IEntidade
     {
         public EntidadeValidator()
         {

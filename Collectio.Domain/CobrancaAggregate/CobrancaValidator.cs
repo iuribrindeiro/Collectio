@@ -1,7 +1,7 @@
 ﻿using Collectio.Domain.CobrancaAggregate.AjustesValorPagamento;
-using Collectio.Domain.CobrancaAggregate.ContaBancaria;
+using Collectio.Domain.CobrancaAggregate.ContaBancarias;
 using Collectio.Domain.CobrancaAggregate.Entidades;
-using Collectio.Domain.CobrancaAggregate.Pagamento;
+using Collectio.Domain.CobrancaAggregate.Pagamentos;
 using FluentValidation;
 
 namespace Collectio.Domain.CobrancaAggregate
@@ -15,7 +15,7 @@ namespace Collectio.Domain.CobrancaAggregate
             RuleFor(e => e.Pagador).SetValidator(new EntidadeValidator<Pagador>());
             RuleFor(e => e.Emissor).SetValidator(new EntidadeValidator<Emissor>());
             RuleFor(e => e.Pagamento).SetValidator(new PagamentoValidator());
-            RuleFor(e => e.ContaBancaria).SetValidator(new ContaBancariaValidator());
+            RuleFor(e => e.ContaBancaria).SetValidator(new ContaBancariaValidator()).NotNull();
             RuleFor(e => e.Juros).SetValidator(new AjusteValorPagamentoValidator<Juros>());
             RuleFor(e => e.Multa).SetValidator(new AjusteValorPagamentoValidator<Multa>());
             RuleFor(e => e.Desconto).SetValidator(new AjusteValorPagamentoValidator<Desconto>());

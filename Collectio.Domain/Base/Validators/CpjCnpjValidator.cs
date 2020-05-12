@@ -7,7 +7,7 @@ namespace Collectio.Domain.Base.Validators
     {
         public static IRuleBuilderOptions<T, R> IsValid<T, R>(this IRuleBuilder<T, R> ruleBuilder)
             where R : CpfCnpjValueObject
-            => ruleBuilder.Must(e => e.Value.IsCnpj() || e.Value.IsCpf()).WithMessage("CNPJ inválido");
+            => ruleBuilder.Must(e => e != null ? e.Value.IsCnpj() || e.Value.IsCpf() : false).WithMessage("CNPJ inválido");
 
         public static bool IsCnpj(this string cnpj)
         {

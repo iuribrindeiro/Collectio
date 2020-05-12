@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Collectio.Presentation.Controllers
 {
-    [Authorize]
     public class ClientesController : BaseController
     {
         public ClientesController(ICommandQuerySender commandQuerySender) : base(commandQuerySender) {}

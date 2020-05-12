@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Collectio.Domain.CobrancaAggregate.Endereco
+namespace Collectio.Domain.CobrancaAggregate.Entidades
 {
     public class EnderecoValidator : AbstractValidator<Endereco>
     {

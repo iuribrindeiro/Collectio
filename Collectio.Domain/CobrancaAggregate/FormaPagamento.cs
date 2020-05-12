@@ -1,6 +1,6 @@
 ﻿namespace Collectio.Domain.CobrancaAggregate
 {
-    public enum FormaPagamentoCobranca
+    public enum FormaPagamento
     {
         Cartao,
         Boleto
