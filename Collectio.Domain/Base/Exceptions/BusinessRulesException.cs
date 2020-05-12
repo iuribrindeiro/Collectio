@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
 
 namespace Collectio.Domain.Base.Exceptions
 {
-    public class BusinessRulesException : MultipleErrorsException
+    public class BusinessRulesException : Exception
     {
-        public BusinessRulesException(string message, IReadOnlyDictionary<string, ReadOnlyCollection<string>> errors) : base(message, errors)
-        {}
+        private BusinessRulesException() {}
 
-        public BusinessRulesException(string message) : base(message)
-        {}
+        public BusinessRulesException(string message) : base(message) {}
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Collectio.Application.Base.Commands.Exceptions;
 using Collectio.Domain.Base.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -29,10 +30,10 @@ namespace Collectio.Application.Base.Commands
                         _logger.LogInformation($"Resultado: ${JsonConvert.SerializeObject(result)}");
                     return result;
                 }
-                catch (MultipleErrorsException ex)
+                catch (BusinessRulesException ex)
                 {
                     _logger.LogWarning(ex, "Falha ao executar handler");
-                    throw;
+                    throw new BusinessRuleCommandException(ex.Message);
                 }
                 catch (Exception ex)
                 {
