@@ -75,11 +75,26 @@ namespace Collectio.Domain.Test
             Assert.AreEqual(_cobrancaCartao.Events.Count(e => e is FormaPagamentoAlteradaEvent), 0);
             Assert.AreEqual(_cobrancaBoleto.Events.Count(e => e is FormaPagamentoAlteradaEvent), 0);
 
+            var formaPagamentoCartaoAnterior = _cobrancaCartao.FormaPagamento;
+            var formaPagamentoBoletoAnterior = _cobrancaBoleto.FormaPagamento;
+
             _cobrancaBoleto.AlterarFormaPagamento(Cobranca.FormaPagamentoValueObject.Cartao());
             _cobrancaCartao.AlterarFormaPagamento(Cobranca.FormaPagamentoValueObject.Boleto());
 
-            Assert.AreEqual(_cobrancaCartao.Events.Count(e => e is FormaPagamentoAlteradaEvent), 1);
-            Assert.AreEqual(_cobrancaBoleto.Events.Count(e => e is FormaPagamentoAlteradaEvent), 1);
+            var cobrancaCartaoEvent = _cobrancaCartao.Events
+                .Where(e => e is FormaPagamentoAlteradaEvent)
+                .Cast<FormaPagamentoAlteradaEvent>()
+                .SingleOrDefault();
+            var cobrancaBoletoEvent = _cobrancaBoleto.Events
+                .Where(e => e is FormaPagamentoAlteradaEvent)
+                .Cast<FormaPagamentoAlteradaEvent>()
+                .SingleOrDefault();
+
+
+            Assert.AreEqual(cobrancaBoletoEvent?.FormaPagamentoAnterior, formaPagamentoBoletoAnterior);
+            Assert.AreEqual(cobrancaCartaoEvent?.FormaPagamentoAnterior, formaPagamentoCartaoAnterior);
+            Assert.AreEqual(cobrancaBoletoEvent?.Cobranca, _cobrancaBoleto);
+            Assert.AreEqual(cobrancaCartaoEvent?.Cobranca, _cobrancaCartao);
         }
 
         [Test]
@@ -89,7 +104,7 @@ namespace Collectio.Domain.Test
             Assert.AreEqual(CobrancaBuilder.BuildCobrancaBoleto().Events.Count(e => e is CobrancaCriadaEvent), 1);
         }
 
-        [Test, Sequential]
+        [Test]
         public void StatusProcessamentoDeveSerIgualDeAcordoComSolicitado([Values(
                 StatusFormaPagamento.AguardandoInicioProcessamento, StatusFormaPagamento.Processando, 
                 StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
@@ -144,6 +159,40 @@ namespace Collectio.Domain.Test
 
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString()));
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+            }
+        }
+
+        [Test]
+        public void AoMudarStatusFormaPagamentoDeveAdicionarEventoNaCobranca([Values(StatusFormaPagamento.Processando,
+            StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
+        {
+            if (statusFormaPagamento == StatusFormaPagamento.Processando)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                Assert.AreEqual(_cobrancaBoleto.Events
+                    .Where(e => e is IniciadoProcessamentoFormaPagamentoEvent)
+                    .Cast<IniciadoProcessamentoFormaPagamentoEvent>()
+                    .SingleOrDefault()?.Cobranca, _cobrancaBoleto);
+            }
+            else if (statusFormaPagamento == StatusFormaPagamento.Criado)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString());
+
+                Assert.AreEqual(_cobrancaBoleto.Events
+                    .Where(e => e is FormaPagamentoProcessadaEvent)
+                    .Cast<FormaPagamentoProcessadaEvent>()
+                    .SingleOrDefault()?.Cobranca, _cobrancaBoleto);
+            }
+            else if (statusFormaPagamento == StatusFormaPagamento.Erro)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                _cobrancaBoleto.ErroCriarFormaPagamento();
+
+                Assert.AreEqual(_cobrancaBoleto.Events
+                    .Where(e => e is FalhaAoProcessarFormaPagamentoEvent)
+                    .Cast<FalhaAoProcessarFormaPagamentoEvent>()
+                    .SingleOrDefault()?.Cobranca, _cobrancaBoleto);
             }
         }
 

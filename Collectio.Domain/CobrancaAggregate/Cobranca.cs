@@ -7,7 +7,7 @@ using Collectio.Domain.CobrancaAggregate.Exceptions;
 
 namespace Collectio.Domain.CobrancaAggregate
 {
-    public class Cobranca : BaseTenantEntity, IAggregateRoot
+    public sealed class Cobranca : BaseTenantEntity, IAggregateRoot
     {
         private decimal _valor;
         private DateTime _vencimento;
@@ -22,7 +22,7 @@ namespace Collectio.Domain.CobrancaAggregate
 
         public decimal Valor => _valor;
         public DateTime Vencimento => _vencimento;
-        public virtual StatusCobranca Status => Pagamento ? StatusCobranca.Pago : Vencimento < DateTime.Today ? StatusCobranca.Vencido : StatusCobranca.Pendente;
+        public StatusCobranca Status => Pagamento ? StatusCobranca.Pago : Vencimento < DateTime.Today ? StatusCobranca.Vencido : StatusCobranca.Pendente;
         public Pagamento Pagamento => _pagamento;
         public JurosValueObject Juros => _juros;
         public MultaValueObject Multa => _multa;
@@ -58,6 +58,9 @@ namespace Collectio.Domain.CobrancaAggregate
             AddEvent(new CobrancaCriadaEvent(this));
         }
 
+        public void RealizarPagamento(decimal valor) 
+            => _pagamento = new Pagamento(valor);
+
         public void AlterarFormaPagamento(FormaPagamentoValueObject formaPagamento)
         {
             if (FormaPagamento != formaPagamento && FormaPagamento.ProcessamentoPendente)
@@ -69,14 +72,23 @@ namespace Collectio.Domain.CobrancaAggregate
             AddEvent(new FormaPagamentoAlteradaEvent(this, formaPagamentoAnterior));
         }
 
-        public void IniciarProcessamentoFormaPagamento() 
-            => _formaPagamento.IniciarProcessamento();
+        public void IniciarProcessamentoFormaPagamento()
+        {
+            _formaPagamento.IniciarProcessamento();
+            AddEvent(new IniciadoProcessamentoFormaPagamentoEvent(this));
+        }
 
         public void FinalizaProcessamentoFormaPagamento(string id)
-            => _formaPagamento.FinalizaProcessamento(id);
+        {
+            _formaPagamento.FinalizaProcessamento(id);
+            AddEvent(new FormaPagamentoProcessadaEvent(this));
+        }
 
         public void ErroCriarFormaPagamento()
-            => _formaPagamento.ErroCriarFormaPagamento();
+        {
+            _formaPagamento.ErroCriarFormaPagamento();
+            AddEvent(new FalhaAoProcessarFormaPagamentoEvent(this));
+        }
 
 
         public class FormaPagamentoValueObject
