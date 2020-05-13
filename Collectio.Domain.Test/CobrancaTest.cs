@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Collectio.Domain.CobrancaAggregate;
 using Collectio.Domain.CobrancaAggregate.AjustesValorPagamento;
 using Collectio.Domain.CobrancaAggregate.Events;
@@ -40,7 +41,7 @@ namespace Collectio.Domain.Test
         }
 
         [Test]
-        public void NaoConsigoAlterarAFormaDePagamentoCasoAindaEstejaIniciandoProcessamento()
+        public void NaoConsigoAlterarAFormaDePagamentoCasoAindaEstejaProcessando()
         {
             _cobrancaCartao.IniciarProcessamentoFormaPagamento();
             _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
@@ -86,6 +87,78 @@ namespace Collectio.Domain.Test
         {
             Assert.AreEqual(CobrancaBuilder.BuildCobrancaCartao().Events.Count(e => e is CobrancaCriadaEvent), 1);
             Assert.AreEqual(CobrancaBuilder.BuildCobrancaBoleto().Events.Count(e => e is CobrancaCriadaEvent), 1);
+        }
+
+        [Test, Sequential]
+        public void StatusProcessamentoDeveSerIgualDeAcordoComSolicitado([Values(
+                StatusFormaPagamento.AguardandoInicioProcessamento, StatusFormaPagamento.Processando, 
+                StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
+        {
+            var cobranca = _cobrancaBoleto;
+
+            if (statusFormaPagamento == StatusFormaPagamento.AguardandoInicioProcessamento)
+            {
+                cobranca = CobrancaBuilder.BuildCobrancaCartao();
+            }
+            else if (statusFormaPagamento == StatusFormaPagamento.Processando)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+            } else if (statusFormaPagamento == StatusFormaPagamento.Criado)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString());
+            } else if (statusFormaPagamento == StatusFormaPagamento.Erro)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                _cobrancaBoleto.ErroCriarFormaPagamento();
+            }
+
+            Assert.AreEqual(cobranca.FormaPagamento.Status, statusFormaPagamento);
+        }
+
+        [Test]
+        public void AoTentarMudarStatusFormaPagamentoQuandoStatusNaoForPermitidoDeveLancarExcecao([Values(StatusFormaPagamento.AguardandoInicioProcessamento, StatusFormaPagamento.Processando,
+            StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
+        {
+            if (statusFormaPagamento == StatusFormaPagamento.AguardandoInicioProcessamento)
+            {
+                Assert.Throws<FormaPagamentoAguardandoInicioProcessamentoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString()));
+                Assert.Throws<FormaPagamentoAguardandoInicioProcessamentoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+            }
+            else if (statusFormaPagamento == StatusFormaPagamento.Processando)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                Assert.Throws<ProcessoFormaPagamentoJaIniciadoException>(() => _cobrancaBoleto.IniciarProcessamentoFormaPagamento());
+                
+            } else if (statusFormaPagamento == StatusFormaPagamento.Criado)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString());
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString()));
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.IniciarProcessamentoFormaPagamento());
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+            } else if (statusFormaPagamento == StatusFormaPagamento.Erro)
+            {
+                _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+                _cobrancaBoleto.ErroCriarFormaPagamento();
+
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString()));
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+            }
+        }
+
+        [Test]
+        public void ConsigoFinalizarUmProcessamentoFormaPagamento()
+        {
+            _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+            Assert.DoesNotThrow(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString()));
+        }
+
+        [Test]
+        public void ConsigoDefinirComoErroUmProcessamentoFormaPagamento()
+        {
+            _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
+            Assert.DoesNotThrow(() => _cobrancaBoleto.ErroCriarFormaPagamento());
         }
 
         public class CobrancaBuilder

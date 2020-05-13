@@ -18,12 +18,11 @@ namespace Collectio.Domain.CobrancaAggregate
         private JurosValueObject _juros;
         private DescontoValueObject _desconto;
         private MultaValueObject _multa;
-        private StatusCobranca _status;
         private FormaPagamentoValueObject _formaPagamento;
 
         public decimal Valor => _valor;
         public DateTime Vencimento => _vencimento;
-        public virtual StatusCobranca Status => _status;
+        public virtual StatusCobranca Status => Pagamento ? StatusCobranca.Pago : Vencimento < DateTime.Today ? StatusCobranca.Vencido : StatusCobranca.Pendente;
         public Pagamento Pagamento => _pagamento;
         public JurosValueObject Juros => _juros;
         public MultaValueObject Multa => _multa;
@@ -76,6 +75,10 @@ namespace Collectio.Domain.CobrancaAggregate
         public void FinalizaProcessamentoFormaPagamento(string id)
             => _formaPagamento.FinalizaProcessamento(id);
 
+        public void ErroCriarFormaPagamento()
+            => _formaPagamento.ErroCriarFormaPagamento();
+
+
         public class FormaPagamentoValueObject
         {
             private string _formaPagamentoId;
@@ -98,22 +101,47 @@ namespace Collectio.Domain.CobrancaAggregate
             public static FormaPagamentoValueObject Boleto()
                 => new FormaPagamentoValueObject(TipoFormaPagamento.Boleto);
 
-            public bool ProcessamentoPendente 
+            public bool ProcessamentoPendente
                 => !ProcessamentoConcluido;
 
             public bool ProcessamentoConcluido =>
                 _status == StatusFormaPagamento.Criado || _status == StatusFormaPagamento.Erro;
 
             internal void IniciarProcessamento()
-                => _status = StatusFormaPagamento.Processando;
+            {
+                if (Status == StatusFormaPagamento.Processando)
+                    throw new ProcessoFormaPagamentoJaIniciadoException();
+
+                if (Status == StatusFormaPagamento.Criado)
+                    throw new ProcessoFormaPagamentoJaFinalizadoException();
+
+                _status = StatusFormaPagamento.Processando;
+            }
 
             internal void FinalizaProcessamento(string id)
             {
+                if (Status == StatusFormaPagamento.AguardandoInicioProcessamento)
+                    throw new FormaPagamentoAguardandoInicioProcessamentoException();
+
+                if (Status == StatusFormaPagamento.Criado || Status == StatusFormaPagamento.Erro)
+                    throw new ProcessoFormaPagamentoJaFinalizadoException();
+
                 _formaPagamentoId = id;
                 _status = StatusFormaPagamento.Criado;
             }
 
-            public static bool operator ==(FormaPagamentoValueObject a, FormaPagamentoValueObject b) 
+            internal void ErroCriarFormaPagamento()
+            {
+                if (Status == StatusFormaPagamento.AguardandoInicioProcessamento)
+                    throw new FormaPagamentoAguardandoInicioProcessamentoException();
+
+                if (Status == StatusFormaPagamento.Criado || Status == StatusFormaPagamento.Erro)
+                    throw new ProcessoFormaPagamentoJaFinalizadoException();
+
+                _status = StatusFormaPagamento.Erro;
+            }
+
+            public static bool operator ==(FormaPagamentoValueObject a, FormaPagamentoValueObject b)
                 => !(a != b);
 
             public static bool operator !=(FormaPagamentoValueObject a, FormaPagamentoValueObject b)
