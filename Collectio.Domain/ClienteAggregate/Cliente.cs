@@ -16,13 +16,6 @@ namespace Collectio.Domain.ClienteAggregate
             AddEvent(new ClienteCreatedEvent(this));
         }
 
-        //TO UPDATE
-        public Cliente(Guid id, string nome) : base(id)
-        {
-            Nome = nome;
-            AddEvent(new ClienteUpdatedEvent(this));
-        }
-
         public string Nome { get; set; }
     }
 

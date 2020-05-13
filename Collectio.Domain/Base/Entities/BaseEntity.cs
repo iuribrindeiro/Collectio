@@ -12,12 +12,6 @@ namespace Collectio.Domain.Base
             _events = new List<IDomainEvent>();
         }
 
-        public BaseEntity(Guid id)
-        {
-            _id = id;
-            _events = new List<IDomainEvent>();
-        }
-
         private Guid _id;
         private DateTime _dataCriacao;
         private DateTime _dataAtualizacao;

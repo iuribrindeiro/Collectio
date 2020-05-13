@@ -4,7 +4,7 @@ namespace Collectio.Domain.CobrancaAggregate.AjustesValorPagamento
 {
     public interface IAjusteValorPagamento
     {
-        decimal Valor { get; }
+        decimal Percentagem { get; }
         PeriodoAjuste Periodo { get; }
     }
 }

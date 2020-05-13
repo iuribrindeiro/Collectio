@@ -1,90 +1,124 @@
 ﻿using Collectio.Domain.Base;
 using Collectio.Domain.CobrancaAggregate.AjustesValorPagamento;
-using Collectio.Domain.CobrancaAggregate.ContaBancarias;
-using Collectio.Domain.CobrancaAggregate.Entidades;
 using Collectio.Domain.CobrancaAggregate.Pagamentos;
 using System;
+using Collectio.Domain.CobrancaAggregate.Events;
+using Collectio.Domain.CobrancaAggregate.Exceptions;
 
 namespace Collectio.Domain.CobrancaAggregate
 {
-    public enum StatusFormaPagamento
-    {
-        Criando,
-        Criado,
-        Erro
-    }
-
-    public class FormaPagamentoValueObject
-    {
-        private TipoFormaPagamento _tipo;
-        private string _formaPagamentoId;
-        private StatusFormaPagamento _status;
-
-        public TipoFormaPagamento Tipo => _tipo;
-        public string FormaPagamentoId => _formaPagamentoId;
-        public StatusFormaPagamento Status => _status;
-
-        private FormaPagamentoValueObject(TipoFormaPagamento tipo)
-        {
-            _tipo = tipo;
-            _status = StatusFormaPagamento.Criando;
-        }
-
-        public void ConfirmarCriacao(string formaPagamentoId)
-        {
-            _formaPagamentoId = formaPagamentoId;
-            _status = StatusFormaPagamento.Criado;
-        }
-
-        public void FalhaCriacao() 
-            => _status = StatusFormaPagamento.Erro;
-
-        public static FormaPagamentoValueObject Cartao() 
-            => new FormaPagamentoValueObject(TipoFormaPagamento.Cartao);
-
-        public static FormaPagamentoValueObject Boleto()
-            => new FormaPagamentoValueObject(TipoFormaPagamento.Boleto);
-    }
-
     public class Cobranca : BaseTenantEntity, IAggregateRoot
     {
         private decimal _valor;
         private DateTime _vencimento;
-        private Pagador _pagador;
-        private Emissor _emissor;
+        private string _pagadorId;
+        private string _emissorId;
         private Pagamento _pagamento;
-        private ContaBancaria _contaBancaria;
-        private Juros _juros;
-        private Desconto _desconto;
-        private Multa _multa;
+        private string _contaBancariaId;
+        private JurosValueObject _juros;
+        private DescontoValueObject _desconto;
+        private MultaValueObject _multa;
         private StatusCobranca _status;
         private FormaPagamentoValueObject _formaPagamento;
 
         public decimal Valor => _valor;
         public DateTime Vencimento => _vencimento;
-        public Pagador Pagador => _pagador;
-        public Emissor Emissor => _emissor;
-        public Pagamento Pagamento => _pagamento;
-        public ContaBancaria ContaBancaria => _contaBancaria;
-        public Juros Juros => _juros;
-        public Multa Multa => _multa;
-        public Desconto Desconto => _desconto;
         public virtual StatusCobranca Status => _status;
+        public Pagamento Pagamento => _pagamento;
+        public JurosValueObject Juros => _juros;
+        public MultaValueObject Multa => _multa;
+        public DescontoValueObject Desconto => _desconto;
         public FormaPagamentoValueObject FormaPagamento => _formaPagamento;
+        public string PagadorId => _pagadorId;
+        public string EmissorId => _emissorId;
+        public string ContaBancariaId => _contaBancariaId;
 
-        public Cobranca(decimal valor, DateTime vencimento, Pagador pagador,
-            Emissor emissor, ContaBancaria contaBancaria, FormaPagamentoValueObject formaPagamento,
-            Juros juros = null, Multa multa = null, Desconto desconto = null)
+
+        public static Cobranca Cartao(decimal valor, DateTime vencimento, string pagadorId,
+            string emissorId, string contaBancariaId, JurosValueObject juros = null, MultaValueObject multa = null, DescontoValueObject desconto = null) 
+            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, FormaPagamentoValueObject.Cartao(), juros, multa, desconto);
+
+        public static Cobranca Boleto(decimal valor, DateTime vencimento, string pagadorId,
+            string emissorId, string contaBancariaId, JurosValueObject juros = null, MultaValueObject multa = null, DescontoValueObject desconto = null)
+            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, FormaPagamentoValueObject.Boleto(), juros, multa, desconto);
+
+        private Cobranca(decimal valor, DateTime vencimento, string pagadorId,
+            string emissorId, string contaBancariaId, FormaPagamentoValueObject formaPagamento,
+            JurosValueObject juros = null, MultaValueObject multa = null, DescontoValueObject desconto = null)
         {
             _valor = valor;
             _vencimento = vencimento;
-            _pagador = pagador;
-            _emissor = emissor;
-            _contaBancaria = contaBancaria;
+            _pagadorId = pagadorId;
+            _emissorId = emissorId;
+            _contaBancariaId = contaBancariaId;
             _formaPagamento = formaPagamento;
             _juros = juros;
             _multa = multa;
             _desconto = desconto;
+
+            AddEvent(new CobrancaCriadaEvent(this));
+        }
+
+        public void AlterarFormaPagamento(FormaPagamentoValueObject formaPagamento)
+        {
+            if (FormaPagamento != formaPagamento && FormaPagamento.ProcessamentoPendente)
+                throw new FormaPagamentoAindaEmProcessamentoException(formaPagamento);
+
+            var formaPagamentoAnterior = _formaPagamento;
+
+            _formaPagamento = formaPagamento;
+            AddEvent(new FormaPagamentoAlteradaEvent(this, formaPagamentoAnterior));
+        }
+
+        public void IniciarProcessamentoFormaPagamento() 
+            => _formaPagamento.IniciarProcessamento();
+
+        public void FinalizaProcessamentoFormaPagamento(string id)
+            => _formaPagamento.FinalizaProcessamento(id);
+
+        public class FormaPagamentoValueObject
+        {
+            private string _formaPagamentoId;
+            private TipoFormaPagamento _tipo;
+            private StatusFormaPagamento _status;
+
+            public string FormaPagamentoId => _formaPagamentoId;
+            public TipoFormaPagamento Tipo => _tipo;
+            public StatusFormaPagamento Status => _status;
+
+            private FormaPagamentoValueObject(TipoFormaPagamento tipo)
+            {
+                _tipo = tipo;
+                _status = StatusFormaPagamento.AguardandoInicioProcessamento;
+            }
+
+            public static FormaPagamentoValueObject Cartao()
+                => new FormaPagamentoValueObject(TipoFormaPagamento.Cartao);
+
+            public static FormaPagamentoValueObject Boleto()
+                => new FormaPagamentoValueObject(TipoFormaPagamento.Boleto);
+
+            public bool ProcessamentoPendente 
+                => !ProcessamentoConcluido;
+
+            public bool ProcessamentoConcluido =>
+                _status == StatusFormaPagamento.Criado || _status == StatusFormaPagamento.Erro;
+
+            internal void IniciarProcessamento()
+                => _status = StatusFormaPagamento.Processando;
+
+            internal void FinalizaProcessamento(string id)
+            {
+                _formaPagamentoId = id;
+                _status = StatusFormaPagamento.Criado;
+            }
+
+            public static bool operator ==(FormaPagamentoValueObject a, FormaPagamentoValueObject b) 
+                => !(a != b);
+
+            public static bool operator !=(FormaPagamentoValueObject a, FormaPagamentoValueObject b)
+                => ((a?.FormaPagamentoId == null && a?.FormaPagamentoId == null) ||
+                    (a?.FormaPagamentoId != b?.FormaPagamentoId)) && (a?.Tipo != b?.Tipo);
         }
     }
 }
