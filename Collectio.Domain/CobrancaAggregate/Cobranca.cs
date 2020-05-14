@@ -58,6 +58,27 @@ namespace Collectio.Domain.CobrancaAggregate
             AddEvent(new CobrancaCriadaEvent(this));
         }
 
+        public Cobranca AlterarValorVencimento(decimal valor, DateTime vencimento, 
+            JurosValueObject juros = null, 
+            MultaValueObject multa = null, 
+            DescontoValueObject desconto = null)
+        {
+            _valor = valor;
+            _vencimento = vencimento;
+            _juros = juros;
+            _multa = multa;
+            _desconto = desconto;
+            return this;
+        }
+
+        public Cobranca AlterarEmissaoPagador(string emissorId, string pagadorId, string contaBancariaId)
+        {
+            _emissorId = emissorId;
+            _pagadorId = pagadorId;
+            _contaBancariaId = contaBancariaId;
+            return this;
+        }
+
         public Cobranca RealizarPagamento(decimal valor)
         {
             if (FormaPagamento.ProcessamentoPendente || FormaPagamento.Status == StatusFormaPagamento.Erro)

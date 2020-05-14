@@ -38,7 +38,7 @@ namespace Collectio.Presentation
             services.AddScoped<ITenantIdProvider, TenantIdProvider>(e =>
             {
                 var httpContextAccessor = e.GetService<IHttpContextAccessor>();
-                Guid.TryParse(httpContextAccessor.HttpContext?.User?.FindFirst("usb")?.Value, out Guid tenantId);
+                Guid.TryParse(httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value, out Guid tenantId);
                 return new TenantIdProvider(tenantId);
             });
             services.AddLogging();

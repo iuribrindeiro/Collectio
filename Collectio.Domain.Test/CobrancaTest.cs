@@ -246,6 +246,20 @@ namespace Collectio.Domain.Test
             _cobrancaCartao.ErroCriarFormaPagamento();
             Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
         }
+
+        [Test]
+        public void ConsigoAlterarValorVencimento()
+        {
+            _cobrancaFormaPagamentoFinalizada.AlterarValorVencimento(25, DateTime.Today.AddDays(22),
+                JurosValueObject.AoDia(12), MultaValueObject.AoMes(22), DescontoValueObject.AoAno(5));
+        }
+
+        [Test]
+        public void ConsigoAlterarDadosEmissaoPagador()
+        {
+            _cobrancaFormaPagamentoFinalizada.AlterarEmissaoPagador(Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+        }
     }
 
     public static class CobrancaBuilder
