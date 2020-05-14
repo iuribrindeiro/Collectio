@@ -13,12 +13,16 @@ namespace Collectio.Domain.Test
     {
         private Cobranca _cobrancaBoleto;
         private Cobranca _cobrancaCartao;
+        private Cobranca _cobrancaFormaPagamentoFinalizada;
 
         [SetUp]
         public void Setup()
         {
             _cobrancaBoleto = CobrancaBuilder.BuildCobrancaBoleto();
             _cobrancaCartao = CobrancaBuilder.BuildCobrancaCartao();
+            _cobrancaFormaPagamentoFinalizada = CobrancaBuilder
+                .BuildCobrancaBoleto()
+                .ComFormaPagamentoFinalizada();
         }
 
         [Test]
@@ -197,6 +201,16 @@ namespace Collectio.Domain.Test
         }
 
         [Test]
+        public void AoAdicionarPagamentoDeveAdicionarEventoNaCobranca()
+        {
+            _cobrancaFormaPagamentoFinalizada.RealizarPagamento(200);
+            Assert.AreEqual(_cobrancaFormaPagamentoFinalizada.Events
+                .Where(e => e is PagamentoRealizadoEvent)
+                .Cast<PagamentoRealizadoEvent>()
+                .SingleOrDefault()?.Cobranca, _cobrancaFormaPagamentoFinalizada);
+        }
+
+        [Test]
         public void ConsigoFinalizarUmProcessamentoFormaPagamento()
         {
             _cobrancaBoleto.IniciarProcessamentoFormaPagamento();
@@ -210,17 +224,45 @@ namespace Collectio.Domain.Test
             Assert.DoesNotThrow(() => _cobrancaBoleto.ErroCriarFormaPagamento());
         }
 
-        public class CobrancaBuilder
+        [Test]
+        public void ConsigoRealizarPagamentoCobranca()
         {
-            public static Cobranca BuildCobrancaBoleto() =>
-                Cobranca.Boleto(valor: 200, vencimento: DateTime.Today,
-                    pagadorId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
-                    contaBancariaId: Guid.NewGuid().ToString());
-
-            public static Cobranca BuildCobrancaCartao() =>
-                Cobranca.Cartao(valor: 200, vencimento: DateTime.Today,
-                    pagadorId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
-                    contaBancariaId: Guid.NewGuid().ToString());
+            _cobrancaFormaPagamentoFinalizada.RealizarPagamento(200);
+            _cobrancaFormaPagamentoFinalizada.RealizarPagamento(200);
         }
+
+        [Test]
+        public void DeveLancarExcecaoAoTentarRealizarPagamentoDeValorMenorCobranca()
+        {
+            Assert.Throws<ValorPagamentoMenorValorCobrancaException>(() => _cobrancaFormaPagamentoFinalizada.RealizarPagamento(0));
+        }
+
+        [Test]
+        public void DeveLancarExcecaoAoTentarRealizarPagamentoComFormaPagamentoNaoFinalizada()
+        {
+            Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
+            _cobrancaCartao.IniciarProcessamentoFormaPagamento();
+            Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
+            _cobrancaCartao.ErroCriarFormaPagamento();
+            Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
+        }
+    }
+
+    public static class CobrancaBuilder
+    {
+        public static Cobranca ComFormaPagamentoFinalizada(this Cobranca cobranca)
+            => cobranca
+                .IniciarProcessamentoFormaPagamento()
+                .FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString());
+
+        public static Cobranca BuildCobrancaBoleto() =>
+            Cobranca.Boleto(valor: 200, vencimento: DateTime.Today,
+                pagadorId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
+                contaBancariaId: Guid.NewGuid().ToString());
+
+        public static Cobranca BuildCobrancaCartao() =>
+            Cobranca.Cartao(valor: 200, vencimento: DateTime.Today,
+                pagadorId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
+                contaBancariaId: Guid.NewGuid().ToString());
     }
 }

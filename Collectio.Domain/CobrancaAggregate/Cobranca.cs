@@ -58,10 +58,20 @@ namespace Collectio.Domain.CobrancaAggregate
             AddEvent(new CobrancaCriadaEvent(this));
         }
 
-        public void RealizarPagamento(decimal valor) 
-            => _pagamento = new Pagamento(valor);
+        public Cobranca RealizarPagamento(decimal valor)
+        {
+            if (FormaPagamento.ProcessamentoPendente || FormaPagamento.Status == StatusFormaPagamento.Erro)
+                throw new FormaPagamentoNaoProcessadaException();
 
-        public void AlterarFormaPagamento(FormaPagamentoValueObject formaPagamento)
+            if (Math.Abs(valor - Valor) >= 0.01m)
+                throw new ValorPagamentoMenorValorCobrancaException(Valor, valor);
+
+            _pagamento = new Pagamento(valor);
+            AddEvent(new PagamentoRealizadoEvent(this));
+            return this;
+        }
+
+        public Cobranca AlterarFormaPagamento(FormaPagamentoValueObject formaPagamento)
         {
             if (FormaPagamento != formaPagamento && FormaPagamento.ProcessamentoPendente)
                 throw new FormaPagamentoAindaEmProcessamentoException(formaPagamento);
@@ -70,24 +80,29 @@ namespace Collectio.Domain.CobrancaAggregate
 
             _formaPagamento = formaPagamento;
             AddEvent(new FormaPagamentoAlteradaEvent(this, formaPagamentoAnterior));
+
+            return this;
         }
 
-        public void IniciarProcessamentoFormaPagamento()
+        public Cobranca IniciarProcessamentoFormaPagamento()
         {
             _formaPagamento.IniciarProcessamento();
             AddEvent(new IniciadoProcessamentoFormaPagamentoEvent(this));
+            return this;
         }
 
-        public void FinalizaProcessamentoFormaPagamento(string id)
+        public Cobranca FinalizaProcessamentoFormaPagamento(string id)
         {
             _formaPagamento.FinalizaProcessamento(id);
             AddEvent(new FormaPagamentoProcessadaEvent(this));
+            return this;
         }
 
-        public void ErroCriarFormaPagamento()
+        public Cobranca ErroCriarFormaPagamento()
         {
             _formaPagamento.ErroCriarFormaPagamento();
             AddEvent(new FalhaAoProcessarFormaPagamentoEvent(this));
+            return this;
         }
 
 
