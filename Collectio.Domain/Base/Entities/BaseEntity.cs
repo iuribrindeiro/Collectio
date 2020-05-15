@@ -30,5 +30,11 @@ namespace Collectio.Domain.Base
 
         public static implicit operator bool(BaseEntity e)
             => e != null;
+
+        public static bool operator ==(BaseEntity a, BaseEntity b) 
+            => a?.Id == b?.Id;
+
+        public static bool operator !=(BaseEntity a, BaseEntity b)
+            => a?.Id != b?.Id;
     }
 }

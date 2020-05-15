@@ -1,13 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="ClienteAggregate\EventHandlers\" />
+    <Compile Remove="ClienteAggregate\EventHandlers\**" />
+    <EmbeddedResource Remove="ClienteAggregate\EventHandlers\**" />
+    <None Remove="ClienteAggregate\EventHandlers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="ClienteAggregate\Validators\" />
     <Folder Include="ContaBancariaAggregate\" />
+    <Folder Include="BoletoAggregate\" />
     <Folder Include="RecorrenciaAggregate\" />
   </ItemGroup>
 
