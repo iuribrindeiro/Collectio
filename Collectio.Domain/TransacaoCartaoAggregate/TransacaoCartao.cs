@@ -1,6 +1,6 @@
 ﻿using Collectio.Domain.Base;
 using Collectio.Domain.TransacaoCartaoAggregate.Events;
-using System;
+using Collectio.Domain.TransacaoCartaoAggregate.Exceptions;
 
 namespace Collectio.Domain.TransacaoCartaoAggregate
 {
@@ -27,70 +27,115 @@ namespace Collectio.Domain.TransacaoCartaoAggregate
             _pagadorId = pagadorId;
             _valor = valor;
             _cartao = cartao;
-            _status = StatusTransacaoCartaoValueObject.Processando();
+            _status = StatusTransacaoCartaoValueObject.CriandoTokenCartao();
 
             AddEvent(new TransacaoCartaoCriadaEvent(this));
         }
 
-        public TransacaoCartao AprovarTransacao(string transacaoId)
+        private TransacaoCartao(string idCobranca, string emissorId, string pagadorId, decimal valor, StatusTransacaoCartaoValueObject statusTransacao, TransacaoCartao transacaoCartaoAnterior)
+        {
+            _idCobranca = idCobranca;
+            _emissorId = emissorId;
+            _pagadorId = pagadorId;
+            _valor = valor;
+            _status = statusTransacao;
+            AddEvent(new ReprocessandoTransacaoCartaoEvent(this, transacaoCartaoAnterior));
+        }
+
+        public TransacaoCartao Processando(string tokenCartao)
+        {
+            _status.Processando(tokenCartao);
+            AddEvent(new ProcessandoTransacaoCartaoEvent(this));
+            return this;
+        }
+
+        public TransacaoCartao Aprovar(string transacaoId)
         {
             _status.Aprovar(transacaoId);
             AddEvent(new TransacaoCartaoAprovadaEvent(this));
             return this;
         }
 
-        public TransacaoCartao ErroTransacao(string mensagemErro)
+        public TransacaoCartao DefinirErro(string mensagemErro, string transacaoId)
         {
-            _status.DefinirErro(mensagemErro);
+            _status.DefinirErro(mensagemErro, transacaoId);
             AddEvent(new ErroTransacaoCartaoEvent(this));
             return this;
         }
+
+        public TransacaoCartao Reprocessar(string emissorId, string pagadorId, decimal valor) 
+            => new TransacaoCartao(IdCobranca, emissorId, pagadorId, valor, Status.Reprocessar(), this);
 
         public class StatusTransacaoCartaoValueObject
         {
             private StatusTransacaoCartao _status;
             private string _mensagemErro;
             private string _transacaoId;
+            private string _tokenCartao;
 
+            public string TokenCartao => _tokenCartao;
             public string MensagemErro => _mensagemErro;
             public string TransacaoId => _transacaoId;
             public StatusTransacaoCartao Status => _status;
 
-            internal static StatusTransacaoCartaoValueObject Processando() 
+            internal static StatusTransacaoCartaoValueObject CriandoTokenCartao() 
                 => new StatusTransacaoCartaoValueObject();
 
             private StatusTransacaoCartaoValueObject()
             {
-                _status = StatusTransacaoCartao.Procesando;
+                _status = StatusTransacaoCartao.CriandoTokenCartao;
             }
 
-            internal void Aprovar(string transacaoId)
+            private StatusTransacaoCartaoValueObject(string tokenCartao)
             {
-                ValidarAlteracaoStatusFinalizado();
+                _status = StatusTransacaoCartao.Procesando;
+                _tokenCartao = tokenCartao;
+            }
+
+            internal StatusTransacaoCartaoValueObject Reprocessar()
+            {
+                if (Status != StatusTransacaoCartao.Erro)
+                    throw new ImpossivelReprocessarTransacaoException();
+
+                return new StatusTransacaoCartaoValueObject(TokenCartao);
+            }
+
+            internal StatusTransacaoCartaoValueObject Processando(string tokenCartao)
+            {
+                if (Status != StatusTransacaoCartao.CriandoTokenCartao)
+                    throw new ImpossivelIniciarProcessamentoTransacaoException();
+
+                _tokenCartao = tokenCartao;
+                _status = StatusTransacaoCartao.Procesando;
+                return this;
+            }
+
+            internal StatusTransacaoCartaoValueObject Aprovar(string transacaoId)
+            {
+                if (Status != StatusTransacaoCartao.Procesando)
+                    throw new ImpossivelAprovarTransacaoException();
+
                 _transacaoId = transacaoId;
                 _status = StatusTransacaoCartao.Aprovada;
+                return this;
             }
 
-            internal void DefinirErro(string mensagemErro)
+            internal StatusTransacaoCartaoValueObject DefinirErro(string mensagemErro, string transacaoId)
             {
-                ValidarAlteracaoStatusFinalizado();
+                if (Status != StatusTransacaoCartao.Procesando)
+                    throw new ImpossivelDefinirErroTransacaoException();
+
                 _status = StatusTransacaoCartao.Erro;
                 _mensagemErro = mensagemErro;
-            }
-
-            private void ValidarAlteracaoStatusFinalizado()
-            {
-                if (Status == StatusTransacaoCartao.Aprovada)
-                    throw new Exception("Transacao já finalizada");
-
-                if (Status == StatusTransacaoCartao.Erro)
-                    throw new Exception("Transacao já definida como erro");
+                _transacaoId = transacaoId;
+                return this;
             }
         }
     }
 
     public enum StatusTransacaoCartao
     {
+        CriandoTokenCartao,
         Procesando,
         Aprovada,
         Erro
