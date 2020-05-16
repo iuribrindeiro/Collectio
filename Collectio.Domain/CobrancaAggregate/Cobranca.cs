@@ -21,6 +21,9 @@ namespace Collectio.Domain.CobrancaAggregate
         public StatusCobranca Status => Pagamento ? StatusCobranca.Pago : 
             Vencimento < DateTime.Today ? StatusCobranca.Vencido : 
             StatusCobranca.Pendente;
+
+        public bool FormaPagamentoBoleto => _formaPagamento.FormaPagamentoBoleto;
+        public bool FormaPagamentoCartao => _formaPagamento.FormaPagamentoCartao;
         public Pagamento Pagamento => _pagamento;
         public FormaPagamentoValueObject FormaPagamento => _formaPagamento;
         public string PagadorId => _pagadorId;
@@ -28,11 +31,11 @@ namespace Collectio.Domain.CobrancaAggregate
         public string ContaBancariaId => _contaBancariaId;
 
 
-        public static Cobranca Cartao(decimal valor, DateTime vencimento, string pagadorId, string emissorId, string contaBancariaId, string cobrancaCartaoId)
-            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, FormaPagamentoValueObject.Cartao(cobrancaCartaoId));
+        public static Cobranca Cartao(decimal valor, DateTime vencimento, string pagadorId, string emissorId, string contaBancariaId)
+            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, FormaPagamentoValueObject.Cartao());
 
-        public static Cobranca Boleto(decimal valor, DateTime vencimento, string pagadorId,  string emissorId, string contaBancariaId, string cobrancaBoletoId)
-            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, FormaPagamentoValueObject.Boleto(cobrancaBoletoId));
+        public static Cobranca Boleto(decimal valor, DateTime vencimento, string pagadorId,  string emissorId, string contaBancariaId)
+            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, FormaPagamentoValueObject.Boleto());
 
         private Cobranca(decimal valor, DateTime vencimento, string pagadorId,
             string emissorId, string contaBancariaId, FormaPagamentoValueObject formaPagamento)
@@ -61,6 +64,12 @@ namespace Collectio.Domain.CobrancaAggregate
             var pagadorIdAnterior = _pagadorId;
             var contaBancariaIdAnterior = _contaBancariaId;
 
+            var valoresPagamentoMudaram = ValoresPagamentoMudaram(valor, emissorId, pagadorId, contaBancariaId, 
+                valorAnterior, emissorIdAnterior, pagadorIdAnterior, contaBancariaIdAnterior);
+
+            if (valoresPagamentoMudaram) 
+                RegerarFormaPagamento();
+
             _valor = valor;
             _vencimento = vencimento;
             _emissorId = emissorId;
@@ -70,6 +79,13 @@ namespace Collectio.Domain.CobrancaAggregate
             AddEvent(new CobrancaAlteradaEvent(valorAnterior, vencimentoAnterior, pagadorIdAnterior, emissorIdAnterior, contaBancariaIdAnterior, this));
             return this;
         }
+
+        private static bool ValoresPagamentoMudaram(
+            decimal valor, string emissorId, string pagadorId, 
+            string contaBancariaId, decimal valorAnterior, string emissorIdAnterior, 
+            string pagadorIdAnterior, string contaBancariaIdAnterior) 
+            => valor != valorAnterior || emissorId != emissorIdAnterior ||
+            pagadorId != pagadorIdAnterior || contaBancariaId != contaBancariaIdAnterior;
 
         public Cobranca AlterarFormaPagamento(FormaPagamentoValueObject formaPagamento)
         {
@@ -94,7 +110,7 @@ namespace Collectio.Domain.CobrancaAggregate
             return this;
         }
 
-        public Cobranca RegerarFormaPagamento(string id)
+        public Cobranca RegerarFormaPagamento()
         {
             if (Status == StatusCobranca.Pago)
                 throw new ImpossivelRegerarFormaPagamentoParaCobrancaPagaException();
@@ -105,16 +121,16 @@ namespace Collectio.Domain.CobrancaAggregate
             var formaPagamentoAnterior = _formaPagamento;
 
             _formaPagamento = _formaPagamento.Tipo == TipoFormaPagamento.Cartao
-                ? FormaPagamentoValueObject.Cartao(id)
-                : FormaPagamentoValueObject.Boleto(id);
+                ? FormaPagamentoValueObject.Cartao()
+                : FormaPagamentoValueObject.Boleto();
 
             AddEvent(new FormaPagamentoRegeradaEvent(formaPagamentoAnterior, FormaPagamento));
             return this;
         }
 
-        public Cobranca FinalizaProcessamentoFormaPagamento()
+        public Cobranca FinalizaProcessamentoFormaPagamento(string id)
         {
-            _formaPagamento.FinalizaProcessamento();
+            _formaPagamento.FinalizaProcessamento(id);
             AddEvent(new FormaPagamentoProcessadaEvent(this));
             return this;
         }
@@ -133,22 +149,27 @@ namespace Collectio.Domain.CobrancaAggregate
             private TipoFormaPagamento _tipo;
             private StatusFormaPagamento _status;
 
-            public string Id => _id;
             public TipoFormaPagamento Tipo => _tipo;
             public StatusFormaPagamento Status => _status;
+            public string Id => _id;
 
-            private FormaPagamentoValueObject(TipoFormaPagamento tipo, string id)
+            private FormaPagamentoValueObject(TipoFormaPagamento tipo)
             {
                 _tipo = tipo;
-                _id = id;
                 _status = StatusFormaPagamento.Processando;
             }
 
-            public static FormaPagamentoValueObject Cartao(string id)
-                => new FormaPagamentoValueObject(TipoFormaPagamento.Cartao, id);
+            public static FormaPagamentoValueObject Cartao()
+                => new FormaPagamentoValueObject(TipoFormaPagamento.Cartao);
 
-            public static FormaPagamentoValueObject Boleto(string id)
-                => new FormaPagamentoValueObject(TipoFormaPagamento.Boleto, id);
+            public static FormaPagamentoValueObject Boleto()
+                => new FormaPagamentoValueObject(TipoFormaPagamento.Boleto);
+
+            public bool FormaPagamentoBoleto 
+                => Tipo == TipoFormaPagamento.Boleto;
+
+            public bool FormaPagamentoCartao
+                => Tipo == TipoFormaPagamento.Cartao;
 
             public bool ProcessamentoPendente
                 => !ProcessamentoConcluido;
@@ -156,12 +177,13 @@ namespace Collectio.Domain.CobrancaAggregate
             public bool ProcessamentoConcluido =>
                 _status == StatusFormaPagamento.Criado || _status == StatusFormaPagamento.Erro;
 
-            internal void FinalizaProcessamento()
+            internal void FinalizaProcessamento(string id)
             {
                 if (Status == StatusFormaPagamento.Criado || Status == StatusFormaPagamento.Erro)
                     throw new ProcessoFormaPagamentoJaFinalizadoException();
 
                 _status = StatusFormaPagamento.Criado;
+                _id = id;
             }
 
             internal void ErroCriarFormaPagamento()
@@ -173,11 +195,10 @@ namespace Collectio.Domain.CobrancaAggregate
             }
 
             public static bool operator ==(FormaPagamentoValueObject a, FormaPagamentoValueObject b)
-                => !(a != b);
+                => a.Tipo == b.Tipo;
 
             public static bool operator !=(FormaPagamentoValueObject a, FormaPagamentoValueObject b)
-                => ((a?.Id == null && a?.Id == null) ||
-                    (a?.Id != b?.Id)) && (a?.Tipo != b?.Tipo);
+                => a.Tipo != b.Tipo;
         }
     }
 }
