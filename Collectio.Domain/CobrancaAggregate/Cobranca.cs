@@ -80,13 +80,6 @@ namespace Collectio.Domain.CobrancaAggregate
             return this;
         }
 
-        private static bool ValoresPagamentoMudaram(
-            decimal valor, string emissorId, string pagadorId, 
-            string contaBancariaId, decimal valorAnterior, string emissorIdAnterior, 
-            string pagadorIdAnterior, string contaBancariaIdAnterior) 
-            => valor != valorAnterior || emissorId != emissorIdAnterior ||
-            pagadorId != pagadorIdAnterior || contaBancariaId != contaBancariaIdAnterior;
-
         public Cobranca AlterarFormaPagamento(FormaPagamentoValueObject formaPagamento)
         {
             if (FormaPagamento != formaPagamento && FormaPagamento.ProcessamentoPendente)
@@ -135,13 +128,19 @@ namespace Collectio.Domain.CobrancaAggregate
             return this;
         }
 
-        public Cobranca ErroCriarFormaPagamento()
+        public Cobranca ErroCriarFormaPagamento(string id)
         {
-            _formaPagamento.ErroCriarFormaPagamento();
+            _formaPagamento.ErroCriarFormaPagamento(id);
             AddEvent(new FalhaAoProcessarFormaPagamentoEvent(this));
             return this;
         }
 
+        private static bool ValoresPagamentoMudaram(
+            decimal valor, string emissorId, string pagadorId,
+            string contaBancariaId, decimal valorAnterior, string emissorIdAnterior,
+            string pagadorIdAnterior, string contaBancariaIdAnterior)
+            => valor != valorAnterior || emissorId != emissorIdAnterior ||
+               pagadorId != pagadorIdAnterior || contaBancariaId != contaBancariaIdAnterior;
 
         public class FormaPagamentoValueObject
         {
@@ -186,12 +185,13 @@ namespace Collectio.Domain.CobrancaAggregate
                 _id = id;
             }
 
-            internal void ErroCriarFormaPagamento()
+            internal void ErroCriarFormaPagamento(string id)
             {
                 if (Status == StatusFormaPagamento.Criado || Status == StatusFormaPagamento.Erro)
                     throw new ProcessoFormaPagamentoJaFinalizadoException();
 
                 _status = StatusFormaPagamento.Erro;
+                _id = id;
             }
 
             public static bool operator ==(FormaPagamentoValueObject a, FormaPagamentoValueObject b)

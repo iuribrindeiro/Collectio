@@ -108,7 +108,7 @@ namespace Collectio.Domain.Test
                 _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString());
             } else if (statusFormaPagamento == StatusFormaPagamento.Erro)
             {
-                _cobrancaBoleto.ErroCriarFormaPagamento();
+                _cobrancaBoleto.ErroCriarFormaPagamento(Guid.NewGuid().ToString());
             }
 
             Assert.AreEqual(cobranca.FormaPagamento.Status, statusFormaPagamento);
@@ -123,6 +123,14 @@ namespace Collectio.Domain.Test
         }
 
         [Test]
+        public void AoDefinirErroProcessamentoFormaPagamentoIdDeveSerSetadoCorretamente()
+        {
+            var id = Guid.NewGuid().ToString();
+            _cobrancaBoleto.ErroCriarFormaPagamento(id);
+            Assert.AreEqual(id, _cobrancaBoleto.FormaPagamento.Id);
+        }
+
+        [Test]
         public void AoTentarMudarStatusFormaPagamentoQuandoStatusNaoForPermitidoDeveLancarExcecao([Values(StatusFormaPagamento.Processando,
             StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
         {
@@ -130,12 +138,12 @@ namespace Collectio.Domain.Test
             {
                 _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString());
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString()));
-                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento(Guid.NewGuid().ToString()));
             } else if (statusFormaPagamento == StatusFormaPagamento.Erro)
             {
-                _cobrancaBoleto.ErroCriarFormaPagamento();
+                _cobrancaBoleto.ErroCriarFormaPagamento(Guid.NewGuid().ToString());
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento(Guid.NewGuid().ToString()));
-                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento(Guid.NewGuid().ToString()));
             }
         }
 
@@ -153,7 +161,7 @@ namespace Collectio.Domain.Test
             }
             else if (statusFormaPagamento == StatusFormaPagamento.Erro)
             {
-                _cobrancaBoleto.ErroCriarFormaPagamento();
+                _cobrancaBoleto.ErroCriarFormaPagamento(Guid.NewGuid().ToString());
 
                 Assert.AreEqual(_cobrancaBoleto.Events
                     .Where(e => e is FalhaAoProcessarFormaPagamentoEvent)
@@ -181,7 +189,7 @@ namespace Collectio.Domain.Test
         [Test]
         public void ConsigoDefinirComoErroUmProcessamentoFormaPagamento()
         {
-            Assert.DoesNotThrow(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+            Assert.DoesNotThrow(() => _cobrancaBoleto.ErroCriarFormaPagamento(Guid.NewGuid().ToString()));
         }
 
         [Test]
@@ -195,7 +203,7 @@ namespace Collectio.Domain.Test
         public void DeveLancarExcecaoAoTentarRealizarPagamentoComFormaPagamentoNaoFinalizada()
         {
             Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
-            _cobrancaCartao.ErroCriarFormaPagamento();
+            _cobrancaCartao.ErroCriarFormaPagamento(Guid.NewGuid().ToString());
             Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
         }
 

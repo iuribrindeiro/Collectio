@@ -6,14 +6,14 @@
 
   <ItemGroup>
     <Compile Remove="ClienteAggregate\EventHandlers\**" />
+    <Compile Remove="ContaBancariaAggregate\**" />
+    <Compile Remove="RecorrenciaAggregate\**" />
     <EmbeddedResource Remove="ClienteAggregate\EventHandlers\**" />
+    <EmbeddedResource Remove="ContaBancariaAggregate\**" />
+    <EmbeddedResource Remove="RecorrenciaAggregate\**" />
     <None Remove="ClienteAggregate\EventHandlers\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ClienteAggregate\Validators\" />
-    <Folder Include="ContaBancariaAggregate\" />
-    <Folder Include="RecorrenciaAggregate\" />
+    <None Remove="ContaBancariaAggregate\**" />
+    <None Remove="RecorrenciaAggregate\**" />
   </ItemGroup>
 
   <ItemGroup>
