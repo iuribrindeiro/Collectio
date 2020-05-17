@@ -85,7 +85,8 @@ namespace Collectio.Domain.Test
 
             transacao.Aprovar(Guid.NewGuid().ToString());
 
-            Assert.AreSame(transacaoCartaoEvents.SingleOrDefault().Transacao, transacao);
+            Assert.AreEqual(transacaoCartaoEvents.SingleOrDefault().TransacaoId, transacao.Id.ToString());
+            Assert.AreEqual(transacaoCartaoEvents.SingleOrDefault().CobrancaId, transacao.CobrancaId);
         }
 
         [Test]
@@ -101,7 +102,7 @@ namespace Collectio.Domain.Test
 
             transacao.DefinirErro("Sem limite", Guid.NewGuid().ToString());
 
-            Assert.AreSame(transacaoCartaoEvents.SingleOrDefault().Transacao, transacao);
+            Assert.AreEqual(transacaoCartaoEvents.SingleOrDefault().TransacaoId, transacao.Id.ToString());
         }
 
         [Test]

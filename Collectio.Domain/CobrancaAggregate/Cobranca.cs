@@ -117,11 +117,14 @@ namespace Collectio.Domain.CobrancaAggregate
         public Cobranca FinalizaProcessamentoFormaPagamento()
         {
             _transacao.FinalizaProcessamento();
+            if (_transacao.FormaPagamentoCartao)
+                RealizarPagamento(Valor);
+
             AddEvent(new FormaPagamentoProcessadaEvent(this));
             return this;
         }
 
-        public Cobranca ErroCriarFormaPagamento()
+        public Cobranca ErroCriarTransacao()
         {
             _transacao.Erro();
             AddEvent(new FalhaAoProcessarFormaPagamentoEvent(this));

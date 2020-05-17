@@ -51,7 +51,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate
         {
             _status.Aprovar();
             _externalTenantId = externalTenantId;
-            AddEvent(new TransacaoCartaoAprovadaEvent(this));
+            AddEvent(new TransacaoCartaoAprovadaEvent(Id.ToString(), CobrancaId));
             return this;
         }
 
@@ -59,7 +59,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate
         {
             _status.DefinirErro(mensagemErro);
             _externalTenantId = externalTenantId;
-            AddEvent(new ErroTransacaoCartaoEvent(this));
+            AddEvent(new ErroTransacaoCartaoEvent(Id.ToString()));
             return this;
         }
 

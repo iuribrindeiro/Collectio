@@ -17,4 +17,8 @@
     <PackageReference Include="MediatR" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ClienteAggregate\EventHandlers\" />
+  </ItemGroup>
+
 </Project>

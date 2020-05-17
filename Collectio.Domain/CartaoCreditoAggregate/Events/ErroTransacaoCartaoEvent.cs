@@ -4,11 +4,11 @@ namespace Collectio.Domain.CartaoCreditoAggregate.Events
 {
     public class ErroTransacaoCartaoEvent : IDomainEvent
     {
-        private Transacao _transacao;
+        private string _transacaoId;
 
-        public Transacao Transacao => _transacao;
+        public string TransacaoId => _transacaoId;
 
-        public ErroTransacaoCartaoEvent(Transacao transacao)
-            => _transacao = transacao;
+        public ErroTransacaoCartaoEvent(string transacaoId)
+            => _transacaoId = transacaoId;
     }
 }

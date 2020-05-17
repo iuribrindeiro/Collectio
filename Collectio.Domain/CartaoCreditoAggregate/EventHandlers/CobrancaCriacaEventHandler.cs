@@ -2,12 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Collectio.Domain.Base;
-using Collectio.Domain.CartaoCreditoAggregate;
 using Collectio.Domain.CobrancaAggregate;
 using Collectio.Domain.CobrancaAggregate.Events;
-using MediatR;
 
-namespace Collectio.Domain.ClienteAggregate.EventHandlers
+namespace Collectio.Domain.CartaoCreditoAggregate.EventHandlers
 {
     public class CobrancaCriacaEventHandler : IDomainEventHandler<CobrancaCriadaEvent>
     {

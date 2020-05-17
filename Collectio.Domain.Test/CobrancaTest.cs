@@ -21,10 +21,10 @@ namespace Collectio.Domain.Test
             _cobrancaCartao = CobrancaBuilder.BuildCobrancaCartao();
             _cobrancaBoletoFormaPagamentoFinalizada = CobrancaBuilder
                 .BuildCobrancaBoleto()
-                .ComFormaPagamentoFinalizada();
+                .ComTransacaoFinalizada();
             _cobrancaCartaoFormaPagamentoFinalizada = CobrancaBuilder
                 .BuildCobrancaCartao()
-                .ComFormaPagamentoFinalizada();
+                .ComTransacaoFinalizada();
         }
 
         [Test]
@@ -125,7 +125,7 @@ namespace Collectio.Domain.Test
                 _cobrancaBoleto.FinalizaProcessamentoFormaPagamento();
             } else if (statusTransacao == StatusTransacao.Erro)
             {
-                _cobrancaBoleto.ErroCriarFormaPagamento();
+                _cobrancaBoleto.ErroCriarTransacao();
             }
 
             Assert.AreEqual(cobranca.Transacao.Status, statusTransacao);
@@ -139,12 +139,12 @@ namespace Collectio.Domain.Test
             {
                 _cobrancaBoleto.FinalizaProcessamentoFormaPagamento();
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento());
-                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarTransacao());
             } else if (statusTransacao == StatusTransacao.Erro)
             {
-                _cobrancaBoleto.ErroCriarFormaPagamento();
+                _cobrancaBoleto.ErroCriarTransacao();
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento());
-                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+                Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarTransacao());
             }
         }
 
@@ -162,7 +162,7 @@ namespace Collectio.Domain.Test
             }
             else if (statusTransacao == StatusTransacao.Erro)
             {
-                _cobrancaBoleto.ErroCriarFormaPagamento();
+                _cobrancaBoleto.ErroCriarTransacao();
 
                 Assert.AreEqual(_cobrancaBoleto.Events
                     .Where(e => e is FalhaAoProcessarFormaPagamentoEvent)
@@ -190,7 +190,7 @@ namespace Collectio.Domain.Test
         [Test]
         public void ConsigoDefinirComoErroUmProcessamentoFormaPagamento()
         {
-            Assert.DoesNotThrow(() => _cobrancaBoleto.ErroCriarFormaPagamento());
+            Assert.DoesNotThrow(() => _cobrancaBoleto.ErroCriarTransacao());
         }
 
         [Test]
@@ -204,7 +204,7 @@ namespace Collectio.Domain.Test
         public void DeveLancarExcecaoAoTentarRealizarPagamentoComFormaPagamentoNaoFinalizada()
         {
             Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
-            _cobrancaCartao.ErroCriarFormaPagamento();
+            _cobrancaCartao.ErroCriarTransacao();
             Assert.Throws<FormaPagamentoNaoProcessadaException>(() => _cobrancaCartao.RealizarPagamento(200));
         }
 
@@ -307,7 +307,7 @@ namespace Collectio.Domain.Test
         public void AoAlterarValorCobrancaDeveRegerarFormaPagamento()
         {
             var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
-            var cobrancaCartao = _cobrancaCartaoFormaPagamentoFinalizada;
+            var cobrancaCartao = _cobrancaCartao.ComErroTransacao();
             var valor = new Random().Next(201, 2000);
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(valor, cobrancaBoleto.Vencimento, cobrancaBoleto.EmissorId, cobrancaBoleto.PagadorId, cobrancaBoleto.ContaBancariaId, cobrancaBoleto);
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(valor, cobrancaCartao.Vencimento, cobrancaCartao.EmissorId, cobrancaCartao.PagadorId, cobrancaCartao.ContaBancariaId, cobrancaCartao);
@@ -317,7 +317,7 @@ namespace Collectio.Domain.Test
         public void AoAlterarEmissorCobrancaDeveRegerarFormaPagamento()
         {
             var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
-            var cobrancaCartao = _cobrancaCartaoFormaPagamentoFinalizada;
+            var cobrancaCartao = _cobrancaCartao.ComErroTransacao();
             var emissorId = Guid.NewGuid().ToString();
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaBoleto.Valor, cobrancaBoleto.Vencimento, emissorId, cobrancaBoleto.PagadorId, cobrancaBoleto.ContaBancariaId, cobrancaBoleto);
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaCartao.Valor, cobrancaCartao.Vencimento, emissorId, cobrancaCartao.PagadorId, cobrancaCartao.ContaBancariaId, cobrancaCartao);
@@ -327,7 +327,7 @@ namespace Collectio.Domain.Test
         public void AoAlterarPagadorCobrancaDeveRegerarFormaPagamento()
         {
             var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
-            var cobrancaCartao = _cobrancaCartaoFormaPagamentoFinalizada;
+            var cobrancaCartao = _cobrancaCartao.ComErroTransacao();
             var pagadorId = Guid.NewGuid();
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaBoleto.Valor, cobrancaBoleto.Vencimento, cobrancaBoleto.EmissorId, pagadorId, cobrancaBoleto.ContaBancariaId, cobrancaBoleto);
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaCartao.Valor, cobrancaCartao.Vencimento, cobrancaCartao.EmissorId, pagadorId, cobrancaCartao.ContaBancariaId, cobrancaCartao);
@@ -337,7 +337,7 @@ namespace Collectio.Domain.Test
         public void AoAlterarContaBancariaCobrancaDeveRegerarFormaPagamento()
         {
             var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
-            var cobrancaCartao = _cobrancaCartaoFormaPagamentoFinalizada;
+            var cobrancaCartao = _cobrancaCartao.ComErroTransacao();
             var contaBancariaId = Guid.NewGuid().ToString();
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaBoleto.Valor, cobrancaBoleto.Vencimento, cobrancaBoleto.EmissorId, cobrancaBoleto.PagadorId, contaBancariaId, cobrancaBoleto);
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaCartao.Valor, cobrancaCartao.Vencimento, cobrancaCartao.EmissorId, cobrancaCartao.PagadorId, contaBancariaId, cobrancaCartao);
@@ -347,7 +347,7 @@ namespace Collectio.Domain.Test
         public void AoAlterarCobrancaSemNovosValoresNaoDeveRegerarFormaPagamento()
         {
             var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
-            var cobrancaCartao = _cobrancaCartaoFormaPagamentoFinalizada;
+            var cobrancaCartao = _cobrancaCartao.ComErroTransacao();
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaBoleto.Valor, cobrancaBoleto.Vencimento, cobrancaBoleto.EmissorId, cobrancaBoleto.PagadorId, cobrancaBoleto.ContaBancariaId, cobrancaBoleto, false);
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaCartao.Valor, cobrancaCartao.Vencimento, cobrancaCartao.EmissorId, cobrancaCartao.PagadorId, cobrancaCartao.ContaBancariaId, cobrancaCartao, false);
         }
@@ -356,11 +356,18 @@ namespace Collectio.Domain.Test
         public void AoAlterarVencimentoCobrancaCartaoNaoDeveRegerarFormaPagamento()
         {
             var gen = new Random();
-            var cobrancaCartao = _cobrancaCartaoFormaPagamentoFinalizada;
+            var cobrancaCartao = _cobrancaCartao.ComErroTransacao();
             DateTime start = new DateTime(1995, 1, 1);
             int range = (DateTime.Today - start).Days;
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaCartao.Valor, start.AddDays(gen.Next(range)), cobrancaCartao.EmissorId, cobrancaCartao.PagadorId, 
                 cobrancaCartao.ContaBancariaId, cobrancaCartao, validaRegeraFormaPagamento: false);
+        }
+
+        [Test]
+        public void AoFinalizarProcessamentoFormaPagamentoCartaoDeveRealizarPagamento()
+        {
+            _cobrancaCartao.FinalizaProcessamentoFormaPagamento();
+            Assert.AreEqual(_cobrancaCartao.Pagamento?.Valor, _cobrancaCartao.Valor);
         }
 
         private void TestaRegeraFormaPagamentoNaAlteracaoCobranca(decimal valor, DateTime vencimento, string emissorId, Guid pagadorId, string contaBancariaId, Cobranca cobranca, bool validaRegeraFormaPagamento = true)
@@ -390,7 +397,11 @@ namespace Collectio.Domain.Test
 
     public static class CobrancaBuilder
     {
-        public static Cobranca ComFormaPagamentoFinalizada(this Cobranca cobranca)
+        public static Cobranca ComErroTransacao(this Cobranca cobranca)
+            => cobranca
+                .ErroCriarTransacao();
+
+        public static Cobranca ComTransacaoFinalizada(this Cobranca cobranca)
             => cobranca
                 .FinalizaProcessamentoFormaPagamento();
 
