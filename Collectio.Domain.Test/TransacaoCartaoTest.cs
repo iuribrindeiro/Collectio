@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using Collectio.Domain.Base.ValueObjects;
-using Collectio.Domain.TransacaoCartaoAggregate;
-using Collectio.Domain.TransacaoCartaoAggregate.Events;
-using Collectio.Domain.TransacaoCartaoAggregate.Exceptions;
+﻿using Collectio.Domain.ClienteAggregate.CartaoCreditoModels;
+using Collectio.Domain.ClienteAggregate.Events;
+using Collectio.Domain.ClienteAggregate.Exceptions;
 using NUnit.Framework;
+using System;
+using System.Linq;
 
 namespace Collectio.Domain.Test
 {
@@ -16,28 +15,13 @@ namespace Collectio.Domain.Test
         public void AoCriarTransacaoCartaoTodosOsCamposDeveSerSetadosCorretamente()
         {
             var idCobranca = Guid.NewGuid().ToString();
-            var emissorId = Guid.NewGuid().ToString();
-            var pagadorId = Guid.NewGuid().ToString();
+            var idCartao = Guid.NewGuid();
             var valor = 200;
-            var vencimentoCartao = DateTime.Today.AddDays(5);
-            var numero = "123456789";
-            var codigoSeguranca = "123";
-            var nome = "Teste Cartao bla";
 
-            var cartaoValueObject = TransacaoCartaoBuilder.BuildDadosCartao(vencimentoCartao, numero, codigoSeguranca, nome);
+            var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao(idCobranca, idCartao, valor);
 
-            var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao(idCobranca, emissorId, pagadorId, valor, cartaoValueObject);
-
-            Assert.AreEqual(transacaoCartao.IdCobranca, idCobranca);
-            Assert.AreEqual(transacaoCartao.EmissorId, emissorId);
-            Assert.AreEqual(transacaoCartao.PagadorId, pagadorId);
+            Assert.AreEqual(transacaoCartao.CobrancaId, idCobranca);
             Assert.AreEqual(transacaoCartao.Valor, valor);
-            Assert.AreSame(transacaoCartao.Cartao, cartaoValueObject);
-
-            Assert.AreEqual(vencimentoCartao, transacaoCartao.Cartao.Vencimento);
-            Assert.AreEqual(cartaoValueObject.Numero, transacaoCartao.Cartao.Numero);
-            Assert.AreEqual(codigoSeguranca, transacaoCartao.Cartao.CodigoSeguranca);
-            Assert.AreEqual(nome, transacaoCartao.Cartao.Nome);
         }
 
         [Test]
@@ -46,7 +30,7 @@ namespace Collectio.Domain.Test
             var idTransacao = Guid.NewGuid().ToString();
             var transacao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(StatusTransacaoCartao.Procesando);
             transacao.Aprovar(idTransacao);
-            Assert.AreEqual(transacao.Status.TransacaoId, idTransacao);
+            Assert.AreEqual(transacao.ExternalTenantId, idTransacao);
         }
 
         [Test]
@@ -57,18 +41,8 @@ namespace Collectio.Domain.Test
             var transacao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(StatusTransacaoCartao.Procesando);
             transacao.DefinirErro(mensagemErro, idTransacao);
 
-            Assert.AreEqual(transacao.Status.TransacaoId, idTransacao);
+            Assert.AreEqual(transacao.ExternalTenantId, idTransacao);
             Assert.AreEqual(transacao.Status.MensagemErro, mensagemErro);
-        }
-
-        [Test]
-        public void AoIniciarProcessamentoTranscaoDeveSetarTokenCartaoCorretamente()
-        {
-            var tokenCartao = Guid.NewGuid().ToString();
-            var transacao = TransacaoCartaoBuilder.BuildTransacao();
-            transacao.Processando(tokenCartao);
-
-            Assert.AreEqual(transacao.Status.TokenCartao, tokenCartao);
         }
 
         [Test]
@@ -79,11 +53,9 @@ namespace Collectio.Domain.Test
             var pagadorId = Guid.NewGuid().ToString();
             var valor = 223;
 
-            var novaTransacao = transacao.Reprocessar(emissorId, pagadorId, valor);
-            Assert.AreEqual(emissorId, novaTransacao.EmissorId);
-            Assert.AreEqual(pagadorId, novaTransacao.PagadorId);
+            var novaTransacao = transacao.Reprocessar(valor);
             Assert.AreEqual(valor, novaTransacao.Valor);
-            Assert.AreEqual(transacao.IdCobranca, novaTransacao.IdCobranca);
+            Assert.AreEqual(transacao.CobrancaId, novaTransacao.CobrancaId);
             Assert.AreEqual(StatusTransacaoCartao.Procesando, novaTransacao.Status.Status);
         }
 #endregion
@@ -97,7 +69,7 @@ namespace Collectio.Domain.Test
                 .Where(e => e is TransacaoCartaoCriadaEvent)
                 .Cast<TransacaoCartaoCriadaEvent>();
 
-            Assert.AreSame(transacaoCartaoEvent.SingleOrDefault()?.TransacaoCartao, transacao);
+            Assert.AreEqual(transacaoCartaoEvent.SingleOrDefault()?.TransacaoId, transacao.Id.ToString());
         }
 
         [Test]
@@ -113,7 +85,7 @@ namespace Collectio.Domain.Test
 
             transacao.Aprovar(Guid.NewGuid().ToString());
 
-            Assert.AreSame(transacaoCartaoEvents.SingleOrDefault().TransacaoCartao, transacao);
+            Assert.AreSame(transacaoCartaoEvents.SingleOrDefault().Transacao, transacao);
         }
 
         [Test]
@@ -129,23 +101,7 @@ namespace Collectio.Domain.Test
 
             transacao.DefinirErro("Sem limite", Guid.NewGuid().ToString());
 
-            Assert.AreSame(transacaoCartaoEvents.SingleOrDefault().TransacaoCartao, transacao);
-        }
-
-        [Test]
-        public void AoIniciarProcessamentoTransacaoDeveAdicionarEventoTransacaoCartao()
-        {
-            var transacao = TransacaoCartaoBuilder.BuildTransacao();
-            var transacaoCartaoEvents = transacao
-                .Events
-                .Where(e => e is ProcessandoTransacaoCartaoEvent)
-                .Cast<ProcessandoTransacaoCartaoEvent>();
-
-            Assert.IsNull(transacaoCartaoEvents.SingleOrDefault());
-
-            transacao.Processando(Guid.NewGuid().ToString());
-
-            Assert.AreSame(transacaoCartaoEvents.SingleOrDefault().TransacaoCartao, transacao);
+            Assert.AreSame(transacaoCartaoEvents.SingleOrDefault().Transacao, transacao);
         }
 
         [Test]
@@ -159,7 +115,7 @@ namespace Collectio.Domain.Test
 
             Assert.IsNull(transacaoCartaoEvents.SingleOrDefault());
 
-            var novaTransacao = transacao.Reprocessar(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 22);
+            var novaTransacao = transacao.Reprocessar(22);
             var transacaoCartaoEventsNovaTransacao = novaTransacao
                 .Events
                 .Where(e => e is ReprocessandoTransacaoCartaoEvent)
@@ -167,24 +123,16 @@ namespace Collectio.Domain.Test
 
             Assert.IsNull(transacaoCartaoEvents.SingleOrDefault());
 
-            Assert.AreSame(transacaoCartaoEventsNovaTransacao.SingleOrDefault().TransacaoCartao, novaTransacao);
-            Assert.AreSame(transacaoCartaoEventsNovaTransacao.SingleOrDefault().TransacaoCartaoAnterior, transacao);
+            Assert.AreSame(transacaoCartaoEventsNovaTransacao.SingleOrDefault().Transacao, novaTransacao);
+            Assert.AreSame(transacaoCartaoEventsNovaTransacao.SingleOrDefault().TransacaoAnterior, transacao);
         }
 
         #endregion
 
 #region EXCECAO
         [Test]
-        public void AoIniciarProcessamentoComStatusDiferenteCriandoTokenCartaoDeveLancarExcecao([Values(
-            StatusTransacaoCartao.Procesando, StatusTransacaoCartao.Erro, StatusTransacaoCartao.Aprovada)] StatusTransacaoCartao statusAtual)
-        {
-            var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(statusAtual);
-            Assert.Throws<ImpossivelIniciarProcessamentoTransacaoException>(() => transacaoCartao.Processando(Guid.NewGuid().ToString()));
-        }
-
-        [Test]
         public void AoAprovarTransacaoComStatusDiferenteProcessandoDeveLancarExcecao([Values(
-            StatusTransacaoCartao.Erro, StatusTransacaoCartao.Aprovada, StatusTransacaoCartao.CriandoTokenCartao)] StatusTransacaoCartao statusAtual)
+            StatusTransacaoCartao.Erro, StatusTransacaoCartao.Aprovada)] StatusTransacaoCartao statusAtual)
         {
             var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(statusAtual);
             Assert.Throws<ImpossivelAprovarTransacaoException>(() => transacaoCartao.Aprovar(Guid.NewGuid().ToString()));
@@ -192,7 +140,7 @@ namespace Collectio.Domain.Test
 
         [Test]
         public void AoDefinirErroTransacaoComStatusDiferenteProcessandoDeveLancarExcecao([Values(
-            StatusTransacaoCartao.Erro, StatusTransacaoCartao.Aprovada, StatusTransacaoCartao.CriandoTokenCartao)] StatusTransacaoCartao statusAtual)
+            StatusTransacaoCartao.Erro, StatusTransacaoCartao.Aprovada)] StatusTransacaoCartao statusAtual)
         {
             var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(statusAtual);
             Assert.Throws<ImpossivelDefinirErroTransacaoException>(() => transacaoCartao.DefinirErro("Falha", Guid.NewGuid().ToString()));
@@ -200,12 +148,11 @@ namespace Collectio.Domain.Test
 
         [Test]
         public void AoReprocessarTransacaoComStatusDiferenteErroDeveLancarExcecao([Values(
-                StatusTransacaoCartao.Procesando, StatusTransacaoCartao.Aprovada,
-                StatusTransacaoCartao.CriandoTokenCartao)]
+                StatusTransacaoCartao.Procesando, StatusTransacaoCartao.Aprovada)]
             StatusTransacaoCartao statusAtual)
         {
             var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(statusAtual);
-            Assert.Throws<ImpossivelReprocessarTransacaoException>(() => transacaoCartao.Reprocessar(transacaoCartao.EmissorId, transacaoCartao.PagadorId, transacaoCartao.Valor));
+            Assert.Throws<ImpossivelReprocessarTransacaoException>(() => transacaoCartao.Reprocessar(transacaoCartao.Valor));
         }
 #endregion
 
@@ -213,64 +160,35 @@ namespace Collectio.Domain.Test
 
     public static class TransacaoCartaoBuilder
     {
-        public static TransacaoCartao BuildTransacao() 
-            => new TransacaoCartao(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 200, BuildDadosCartao());
+        public static Transacao BuildTransacao() 
+            => new Transacao(Guid.NewGuid().ToString(), Guid.NewGuid(), 200);
 
-        public static TransacaoCartao BuildTransacao(CartaoValueObject cartao)
-            => new TransacaoCartao(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 200, cartao);
+        public static Transacao BuildTransacao(string idCobranca, Guid idCartao, decimal valor)
+            => new Transacao(idCobranca, idCartao, valor);
 
-        public static TransacaoCartao BuildTransacao(string idCobranca, string emissorId, string pagadorId, decimal valor, CartaoValueObject cartao)
-            => new TransacaoCartao(idCobranca, emissorId, pagadorId, valor, cartao);
-
-        public static CartaoValueObject BuildDadosCartao()
-            => new CartaoValueObject(DateTime.Today, "1234", "123", "bla", new CpfCnpjValueObject("12345678912"));
-
-        public static CartaoValueObject BuildDadosCartao(DateTime vencimento, string numero, string codigo, string nome, CpfCnpjValueObject cpfCnpjValueObject)
-            => new CartaoValueObject(vencimento, numero, codigo, nome, cpfCnpjValueObject);
-
-        public static CartaoValueObject BuildDadosCartao(DateTime vencimento, string numero, string codigo, string nome)
-            => new CartaoValueObject(vencimento, numero, codigo, nome, new CpfCnpjValueObject("123456789"));
-
-        public static TransacaoCartao ComStatus(this TransacaoCartao transacaoCartao, StatusTransacaoCartao status)
+        public static Transacao ComStatus(this Transacao transacao, StatusTransacaoCartao status)
         {
             if (status == StatusTransacaoCartao.Erro)
             {
-                if (transacaoCartao.Status.Status == StatusTransacaoCartao.CriandoTokenCartao)
-                    transacaoCartao.Processando(Guid.NewGuid().ToString());
-
-                return transacaoCartao.DefinirErro("Falha", Guid.NewGuid().ToString());
-            } 
-            else if (status == StatusTransacaoCartao.Procesando)
-                return transacaoCartao.Processando(Guid.NewGuid().ToString());
+                return transacao.DefinirErro("Falha", Guid.NewGuid().ToString());
+            }
             else if (status == StatusTransacaoCartao.Aprovada)
             {
-                if (transacaoCartao.Status.Status == StatusTransacaoCartao.CriandoTokenCartao)
-                    transacaoCartao.Processando(Guid.NewGuid().ToString());
-
-                return transacaoCartao.Aprovar(Guid.NewGuid().ToString());
+                return transacao.Aprovar(Guid.NewGuid().ToString());
             }
-                
-            else if (status == StatusTransacaoCartao.CriandoTokenCartao)
+            else if (status == StatusTransacaoCartao.Procesando)
                 return BuildTransacao();
 
             return null;
         }
 
-        public static TransacaoCartao ComStatusAprovado(this TransacaoCartao transacaoCartao) 
-            => transacaoCartao.Aprovar(Guid.NewGuid().ToString());
+        public static Transacao ComStatusAprovado(this Transacao transacao) 
+            => transacao.Aprovar(Guid.NewGuid().ToString());
 
-        public static TransacaoCartao ComStatusProcessando(this TransacaoCartao transacaoCartao)
-            => transacaoCartao.Processando(Guid.NewGuid().ToString());
+        public static Transacao ComStatusErro(this Transacao transacao, string idTransacao, string mensagemErro) 
+            => transacao.DefinirErro(mensagemErro, idTransacao);
 
-        public static TransacaoCartao ComStatusErro(this TransacaoCartao transacaoCartao, string idTransacao, string mensagemErro)
-        {
-            if (transacaoCartao.Status.Status == StatusTransacaoCartao.CriandoTokenCartao)
-                transacaoCartao.Processando(Guid.NewGuid().ToString());
-
-            return transacaoCartao.DefinirErro(mensagemErro, idTransacao);
-        }
-
-        public static TransacaoCartao ComStatusAprovado(this TransacaoCartao transacaoCartao, string idTransacao)
-            => transacaoCartao.Aprovar(idTransacao);
+        public static Transacao ComStatusAprovado(this Transacao transacao, string idTransacao)
+            => transacao.Aprovar(idTransacao);
     }
 }

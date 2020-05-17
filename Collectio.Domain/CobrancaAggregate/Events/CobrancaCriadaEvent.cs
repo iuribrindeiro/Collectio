@@ -4,12 +4,12 @@ namespace Collectio.Domain.CobrancaAggregate.Events
 {
     public class CobrancaCriadaEvent : IDomainEvent
     {
-        private Cobranca _cobranca;
+        private string _cobrancaId;
 
-        public Cobranca Cobranca => _cobranca;
+        public string CobrancaId => _cobrancaId;
 
-        public CobrancaCriadaEvent(Cobranca cobranca) 
-            => _cobranca = cobranca;
+        public CobrancaCriadaEvent(string cobrancaId) 
+            => _cobrancaId = cobrancaId;
 
     }
 }

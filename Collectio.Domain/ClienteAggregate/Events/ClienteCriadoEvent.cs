@@ -2,12 +2,12 @@
 
 namespace Collectio.Domain.ClienteAggregate.Events
 {
-    public class ClienteCreatedEvent : IDomainEvent
+    public class ClienteCriadoEvent : IDomainEvent
     {
         private readonly Cliente _cliente;
         public Cliente Cliente => _cliente;
 
-        public ClienteCreatedEvent(Cliente cliente) 
+        public ClienteCriadoEvent(Cliente cliente) 
             => _cliente = cliente;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Collectio.Domain.Base.Exceptions;
 
-namespace Collectio.Domain.TransacaoCartaoAggregate.Exceptions
+namespace Collectio.Domain.ClienteAggregate.Exceptions
 {
     public class ImpossivelDefinirErroTransacaoException : BusinessRulesException
     {

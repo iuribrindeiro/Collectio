@@ -4,13 +4,13 @@ namespace Collectio.Domain.CobrancaAggregate.Events
 {
     public class FormaPagamentoRegeradaEvent : IDomainEvent
     {
-        private Cobranca.FormaPagamentoValueObject _formaPagamentoAnterior;
-        private Cobranca.FormaPagamentoValueObject _formaPagamento;
+        private FormaPagamentoValueObject _formaPagamentoAnterior;
+        private FormaPagamentoValueObject _formaPagamento;
 
-        public Cobranca.FormaPagamentoValueObject FormaPagamentoAnterior => _formaPagamentoAnterior;
-        public Cobranca.FormaPagamentoValueObject FormaPagamento => _formaPagamento;
+        public FormaPagamentoValueObject FormaPagamentoAnterior => _formaPagamentoAnterior;
+        public FormaPagamentoValueObject FormaPagamento => _formaPagamento;
 
-        public FormaPagamentoRegeradaEvent(Cobranca.FormaPagamentoValueObject formaPagamentoAnterior, Cobranca.FormaPagamentoValueObject formaPagamento)
+        public FormaPagamentoRegeradaEvent(FormaPagamentoValueObject formaPagamentoAnterior, FormaPagamentoValueObject formaPagamento)
         {
             _formaPagamentoAnterior = formaPagamentoAnterior;
             _formaPagamento = formaPagamento;

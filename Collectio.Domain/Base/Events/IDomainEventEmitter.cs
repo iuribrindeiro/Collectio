@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 
 namespace Collectio.Domain.Base
@@ -10,5 +11,7 @@ namespace Collectio.Domain.Base
     }
 
     public interface IDomainEventHandler<T> : INotificationHandler<T> where T : IDomainEvent
-    {}
+    {
+        Task Handle(T domainEvent, CancellationToken cancellationToken);
+    }
 }
