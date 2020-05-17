@@ -4,10 +4,11 @@ namespace Collectio.Domain.ClienteAggregate.Events
 {
     public class ClienteCriadoEvent : IDomainEvent
     {
-        private readonly Cliente _cliente;
-        public Cliente Cliente => _cliente;
+        private string _clienteId;
 
-        public ClienteCriadoEvent(Cliente cliente) 
-            => _cliente = cliente;
+        public string ClienteId => _clienteId;
+
+        public ClienteCriadoEvent(string clienteId) 
+            => _clienteId = clienteId;
     }
 }

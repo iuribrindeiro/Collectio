@@ -1,7 +1,6 @@
 ﻿using Collectio.Domain.Base;
-using Collectio.Domain.ClienteAggregate.CartaoCreditoModels;
 
-namespace Collectio.Domain.ClienteAggregate.Events
+namespace Collectio.Domain.CartaoCreditoAggregate.Events
 {
     public class ReprocessandoTransacaoCartaoEvent : IDomainEvent
     {

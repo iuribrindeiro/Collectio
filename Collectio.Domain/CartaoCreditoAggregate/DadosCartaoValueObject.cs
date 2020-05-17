@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Collectio.Domain.ClienteAggregate.CartaoCreditoModels
+namespace Collectio.Domain.CartaoCreditoAggregate
 {
     public class DadosCartaoValueObject
     {

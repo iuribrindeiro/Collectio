@@ -8,7 +8,7 @@ namespace Collectio.Infra.Data.Repositories.Base
 {
     public abstract class BaseRepository<T> : IRepository<T> where T : BaseEntity, IAggregateRoot
     {
-        private readonly ApplicationContext _applicationContext;
+        protected readonly ApplicationContext _applicationContext;
 
         public BaseRepository(ApplicationContext applicationContext) 
             => _applicationContext = applicationContext;

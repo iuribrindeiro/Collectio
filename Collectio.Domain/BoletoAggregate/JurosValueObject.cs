@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Collectio.Domain.ClienteAggregate.BoletoModels
+﻿namespace Collectio.Domain.BoletoAggregate
 {
-    public class MultaValueObject
+    public class JurosValueObject
     {
         private bool _fixo;
         private decimal _valor;
@@ -10,7 +8,7 @@ namespace Collectio.Domain.ClienteAggregate.BoletoModels
         public bool Fixo => _fixo;
         public decimal Valor => _valor;
 
-        public MultaValueObject(bool fixo, decimal valor)
+        public JurosValueObject(bool fixo, decimal valor)
         {
             _fixo = fixo;
             _valor = valor;

@@ -33,32 +33,16 @@ namespace Collectio.Domain.Test
             var valor = 20;
             var vencimento = DateTime.Today.AddDays(10);
             var emissorId = Guid.NewGuid().ToString();
-            var pagadorId = Guid.NewGuid().ToString();
+            var pagadorId = Guid.NewGuid();
             var contaBancariaId = Guid.NewGuid().ToString();
-            var formaPagamentoId = Guid.NewGuid().ToString();
 
-            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(valor, vencimento, pagadorId, emissorId, contaBancariaId, formaPagamentoId);
+            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(valor, vencimento, pagadorId, emissorId, contaBancariaId);
 
             Assert.AreEqual(novaCobranca.Valor, valor);
             Assert.AreEqual(novaCobranca.Vencimento, vencimento);
             Assert.AreEqual(novaCobranca.EmissorId, emissorId);
             Assert.AreEqual(novaCobranca.PagadorId, pagadorId);
             Assert.AreEqual(novaCobranca.ContaBancariaId, contaBancariaId);
-            Assert.AreEqual(novaCobranca.FormaPagamento.Id, formaPagamentoId);
-        }
-
-        [Test]
-        public void AoRegerarFormaPagamentoDeveSetarIdNovaFormaPagamento()
-        {
-            var cobrancaBoleto = CobrancaBuilder.BuildCobrancaBoleto().ErroCriarFormaPagamento();
-            var idFormaPagamentoAnteriorBoleto = cobrancaBoleto.FormaPagamento.Id;
-            cobrancaBoleto.RegerarFormaPagamento();
-            var cobrancaCartao = CobrancaBuilder.BuildCobrancaCartao().ErroCriarFormaPagamento();
-            var idFormaPagamentoAnteriorCartao = cobrancaCartao.FormaPagamento.Id;
-            cobrancaCartao.RegerarFormaPagamento();
-
-            Assert.AreNotEqual(cobrancaBoleto.FormaPagamento.Id, idFormaPagamentoAnteriorBoleto);
-            Assert.AreEqual(cobrancaCartao.FormaPagamento.Id, idFormaPagamentoAnteriorCartao);
         }
 
         [Test]
@@ -70,8 +54,8 @@ namespace Collectio.Domain.Test
         [Test]
         public void NaoConsigoAlterarAFormaDePagamentoCasoAindaEstejaProcessando()
         {
-            Assert.Throws<FormaPagamentoAindaEmProcessamentoException>(() => _cobrancaBoleto.AlterarFormaPagamento(FormaPagamentoValueObject.Cartao(Guid.NewGuid().ToString())));
-            Assert.Throws<FormaPagamentoAindaEmProcessamentoException>(() => _cobrancaCartao.AlterarFormaPagamento(FormaPagamentoValueObject.Boleto()));
+            Assert.Throws<TransacaoAindaEmProcessamentoException>(() => _cobrancaBoleto.AlterarFormaPagamento(FormaPagamento.Cartao));
+            Assert.Throws<TransacaoAindaEmProcessamentoException>(() => _cobrancaCartao.AlterarFormaPagamento(FormaPagamento.Boleto));
         }
 
         [Test]
@@ -80,8 +64,8 @@ namespace Collectio.Domain.Test
             _cobrancaCartao.FinalizaProcessamentoFormaPagamento();
             _cobrancaBoleto.FinalizaProcessamentoFormaPagamento();
 
-            Assert.DoesNotThrow(() => _cobrancaBoleto.AlterarFormaPagamento(FormaPagamentoValueObject.Cartao(Guid.NewGuid().ToString())));
-            Assert.DoesNotThrow(() => _cobrancaCartao.AlterarFormaPagamento(FormaPagamentoValueObject.Boleto()));
+            Assert.DoesNotThrow(() => _cobrancaBoleto.AlterarFormaPagamento(FormaPagamento.Cartao));
+            Assert.DoesNotThrow(() => _cobrancaCartao.AlterarFormaPagamento(FormaPagamento.Boleto));
         }
 
         [Test]
@@ -93,11 +77,11 @@ namespace Collectio.Domain.Test
             Assert.AreEqual(_cobrancaCartao.Events.Count(e => e is FormaPagamentoAlteradaEvent), 0);
             Assert.AreEqual(_cobrancaBoleto.Events.Count(e => e is FormaPagamentoAlteradaEvent), 0);
 
-            var formaPagamentoCartaoAnterior = _cobrancaCartao.FormaPagamento;
-            var formaPagamentoBoletoAnterior = _cobrancaBoleto.FormaPagamento;
+            var formaPagamentoCartaoAnterior = _cobrancaCartao.Transacao.FormaPagamento;
+            var formaPagamentoBoletoAnterior = _cobrancaBoleto.Transacao.FormaPagamento;
 
-            _cobrancaBoleto.AlterarFormaPagamento(FormaPagamentoValueObject.Cartao(Guid.NewGuid().ToString()));
-            _cobrancaCartao.AlterarFormaPagamento(FormaPagamentoValueObject.Boleto());
+            _cobrancaBoleto.AlterarFormaPagamento(FormaPagamento.Cartao);
+            _cobrancaCartao.AlterarFormaPagamento(FormaPagamento.Boleto);
 
             var cobrancaCartaoEvent = _cobrancaCartao.Events
                 .Where(e => e is FormaPagamentoAlteradaEvent)
@@ -111,8 +95,8 @@ namespace Collectio.Domain.Test
 
             Assert.AreEqual(cobrancaBoletoEvent?.FormaPagamentoAnterior, formaPagamentoBoletoAnterior);
             Assert.AreEqual(cobrancaCartaoEvent?.FormaPagamentoAnterior, formaPagamentoCartaoAnterior);
-            Assert.AreEqual(cobrancaBoletoEvent?.Cobranca, _cobrancaBoleto);
-            Assert.AreEqual(cobrancaCartaoEvent?.Cobranca, _cobrancaCartao);
+            Assert.AreEqual(cobrancaBoletoEvent?.CobrancaId, _cobrancaBoleto.Id.ToString());
+            Assert.AreEqual(cobrancaCartaoEvent?.CobrancaId, _cobrancaCartao.Id.ToString());
         }
 
         [Test]
@@ -128,35 +112,35 @@ namespace Collectio.Domain.Test
         }
 
         [Test]
-        public void StatusProcessamentoDeveSerIgualDeAcordoComSolicitado([Values(StatusFormaPagamento.Processando, 
-                StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
+        public void StatusProcessamentoDeveSerIgualDeAcordoComSolicitado([Values(StatusTransacao.Processando, 
+                StatusTransacao.Processado, StatusTransacao.Erro)] StatusTransacao statusTransacao)
         {
             var cobranca = _cobrancaBoleto;
 
-            if (statusFormaPagamento == StatusFormaPagamento.Processando)
+            if (statusTransacao == StatusTransacao.Processando)
             {
                 cobranca = CobrancaBuilder.BuildCobrancaCartao();
-            } else if (statusFormaPagamento == StatusFormaPagamento.Criado)
+            } else if (statusTransacao == StatusTransacao.Processado)
             {
                 _cobrancaBoleto.FinalizaProcessamentoFormaPagamento();
-            } else if (statusFormaPagamento == StatusFormaPagamento.Erro)
+            } else if (statusTransacao == StatusTransacao.Erro)
             {
                 _cobrancaBoleto.ErroCriarFormaPagamento();
             }
 
-            Assert.AreEqual(cobranca.FormaPagamento.Status, statusFormaPagamento);
+            Assert.AreEqual(cobranca.Transacao.Status, statusTransacao);
         }
 
         [Test]
-        public void AoTentarMudarStatusFormaPagamentoQuandoStatusNaoForPermitidoDeveLancarExcecao([Values(StatusFormaPagamento.Processando,
-            StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
+        public void AoTentarMudarStatusFormaPagamentoQuandoStatusNaoForPermitidoDeveLancarExcecao([Values(StatusTransacao.Processando,
+            StatusTransacao.Processado, StatusTransacao.Erro)] StatusTransacao statusTransacao)
         {
-            if (statusFormaPagamento == StatusFormaPagamento.Criado)
+            if (statusTransacao == StatusTransacao.Processado)
             {
                 _cobrancaBoleto.FinalizaProcessamentoFormaPagamento();
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento());
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.ErroCriarFormaPagamento());
-            } else if (statusFormaPagamento == StatusFormaPagamento.Erro)
+            } else if (statusTransacao == StatusTransacao.Erro)
             {
                 _cobrancaBoleto.ErroCriarFormaPagamento();
                 Assert.Throws<ProcessoFormaPagamentoJaFinalizadoException>(() => _cobrancaBoleto.FinalizaProcessamentoFormaPagamento());
@@ -165,9 +149,9 @@ namespace Collectio.Domain.Test
         }
 
         [Test]
-        public void AoMudarStatusFormaPagamentoDeveAdicionarEventoNaCobranca([Values(StatusFormaPagamento.Criado, StatusFormaPagamento.Erro)] StatusFormaPagamento statusFormaPagamento)
+        public void AoMudarStatusFormaPagamentoDeveAdicionarEventoNaCobranca([Values(StatusTransacao.Processado, StatusTransacao.Erro)] StatusTransacao statusTransacao)
         {
-            if (statusFormaPagamento == StatusFormaPagamento.Criado)
+            if (statusTransacao == StatusTransacao.Processado)
             {
                 _cobrancaBoleto.FinalizaProcessamentoFormaPagamento();
 
@@ -176,7 +160,7 @@ namespace Collectio.Domain.Test
                     .Cast<FormaPagamentoProcessadaEvent>()
                     .SingleOrDefault()?.Cobranca, _cobrancaBoleto);
             }
-            else if (statusFormaPagamento == StatusFormaPagamento.Erro)
+            else if (statusTransacao == StatusTransacao.Erro)
             {
                 _cobrancaBoleto.ErroCriarFormaPagamento();
 
@@ -230,7 +214,7 @@ namespace Collectio.Domain.Test
             var vencimento = DateTime.Today;
             var contaBancariaId = Guid.NewGuid().ToString();
             var emissorId = Guid.NewGuid().ToString();
-            var pagadorId = Guid.NewGuid().ToString();
+            var pagadorId = Guid.NewGuid();
             var valor = 20;
 
             _cobrancaBoletoFormaPagamentoFinalizada.AlterarCobranca(valor, vencimento, emissorId, pagadorId, contaBancariaId);
@@ -246,7 +230,7 @@ namespace Collectio.Domain.Test
         public void AoTentarAtualizarCobrancaComFormaPagamentoProcessandoDeveLancarExcecao()
         {
             Assert.Throws<ImpossivelAlterarCobrancaComFormaPagamentoPendenteException>(() => _cobrancaBoleto
-                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()));
+                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid(), Guid.NewGuid().ToString()));
         }
 
         [Test]
@@ -254,28 +238,29 @@ namespace Collectio.Domain.Test
         {
             _cobrancaBoletoFormaPagamentoFinalizada.RealizarPagamento(_cobrancaBoleto.Valor);
             Assert.Throws<ImpossivelAlterarCobrancaPagaException>(() => _cobrancaBoletoFormaPagamentoFinalizada
-                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()));
+                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid(), Guid.NewGuid().ToString()));
         }
 
         [Test]
-        public void AoRegerarFormaPagamentoDeveCriarNovaInstanciaFormaPagamento()
+        public void AoRegerarFormaPagamentoDeveCriarNovaInstanciaFormaPagamentoProcessando()
         {
-            var formaPagamentoAnterior = _cobrancaBoletoFormaPagamentoFinalizada.FormaPagamento;
-            _cobrancaBoletoFormaPagamentoFinalizada.RegerarFormaPagamento();
-            Assert.AreNotSame(formaPagamentoAnterior, _cobrancaBoletoFormaPagamentoFinalizada.FormaPagamento);
+            var formaPagamentoAnterior = _cobrancaBoletoFormaPagamentoFinalizada.Transacao;
+            _cobrancaBoletoFormaPagamentoFinalizada.ReprocessarTransacao();
+            Assert.AreNotSame(formaPagamentoAnterior, _cobrancaBoletoFormaPagamentoFinalizada.Transacao);
+            Assert.AreEqual(_cobrancaBoletoFormaPagamentoFinalizada.Transacao.Status, StatusTransacao.Processando);
         }
 
         [Test]
         public void AoRegerarFormaPagamentoComPagamentoRealizadoDeveLancarExcecao()
         {
             _cobrancaBoletoFormaPagamentoFinalizada.RealizarPagamento(2000);
-            Assert.Throws<ImpossivelRegerarFormaPagamentoParaCobrancaPagaException>(() => _cobrancaBoletoFormaPagamentoFinalizada.RegerarFormaPagamento());
+            Assert.Throws<ImpossivelRegerarFormaPagamentoParaCobrancaPagaException>(() => _cobrancaBoletoFormaPagamentoFinalizada.ReprocessarTransacao());
         }
 
         [Test]
         public void AoRegerarFormaPagamentoParaCobrancaComFormaPagamentoPendenteDeveLancarExcecao()
         {
-            Assert.Throws<ImpossivelRegerarFormaQuandoFormaPagamentoPendenteException>(() => _cobrancaCartao.RegerarFormaPagamento());
+            Assert.Throws<ImpossivelRegerarFormaQuandoFormaPagamentoPendenteException>(() => _cobrancaCartao.ReprocessarTransacao());
         }
 
         [Test]
@@ -283,17 +268,14 @@ namespace Collectio.Domain.Test
         {
             var formaPagamentoEvent = _cobrancaBoletoFormaPagamentoFinalizada
                 .Events
-                .Where(e => e is FormaPagamentoRegeradaEvent)
-                .Cast<FormaPagamentoRegeradaEvent>();
+                .Where(e => e is TransacaoCobrancaReprocessadaEvent)
+                .Cast<TransacaoCobrancaReprocessadaEvent>();
 
             Assert.IsNull(formaPagamentoEvent.SingleOrDefault());
 
-            var formaPagamentoAnterior = _cobrancaBoletoFormaPagamentoFinalizada.FormaPagamento;
+            _cobrancaBoletoFormaPagamentoFinalizada.ReprocessarTransacao();
 
-            _cobrancaBoletoFormaPagamentoFinalizada.RegerarFormaPagamento();
-
-            Assert.AreSame(formaPagamentoEvent.SingleOrDefault().FormaPagamentoAnterior, formaPagamentoAnterior);
-            Assert.AreSame(formaPagamentoEvent.SingleOrDefault().FormaPagamento, _cobrancaBoletoFormaPagamentoFinalizada.FormaPagamento);
+            Assert.AreEqual(formaPagamentoEvent.SingleOrDefault().CobrancaId, _cobrancaBoletoFormaPagamentoFinalizada.Id.ToString());
         }
 
         [Test]
@@ -310,7 +292,7 @@ namespace Collectio.Domain.Test
             var pagadorId = _cobrancaBoletoFormaPagamentoFinalizada.PagadorId;
             var valor = _cobrancaBoletoFormaPagamentoFinalizada.Valor;
 
-            _cobrancaBoletoFormaPagamentoFinalizada.AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+            _cobrancaBoletoFormaPagamentoFinalizada.AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid(), Guid.NewGuid().ToString());
 
             Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().Cobranca, _cobrancaBoletoFormaPagamentoFinalizada);
             Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().ValorAnterior, valor);
@@ -346,7 +328,7 @@ namespace Collectio.Domain.Test
         {
             var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
             var cobrancaCartao = _cobrancaCartaoFormaPagamentoFinalizada;
-            var pagadorId = Guid.NewGuid().ToString();
+            var pagadorId = Guid.NewGuid();
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaBoleto.Valor, cobrancaBoleto.Vencimento, cobrancaBoleto.EmissorId, pagadorId, cobrancaBoleto.ContaBancariaId, cobrancaBoleto);
             TestaRegeraFormaPagamentoNaAlteracaoCobranca(cobrancaCartao.Valor, cobrancaCartao.Vencimento, cobrancaCartao.EmissorId, pagadorId, cobrancaCartao.ContaBancariaId, cobrancaCartao);
         }
@@ -381,12 +363,12 @@ namespace Collectio.Domain.Test
                 cobrancaCartao.ContaBancariaId, cobrancaCartao, validaRegeraFormaPagamento: false);
         }
 
-        private void TestaRegeraFormaPagamentoNaAlteracaoCobranca(decimal valor, DateTime vencimento, string emissorId, string pagadorId, string contaBancariaId, Cobranca cobranca, bool validaRegeraFormaPagamento = true)
+        private void TestaRegeraFormaPagamentoNaAlteracaoCobranca(decimal valor, DateTime vencimento, string emissorId, Guid pagadorId, string contaBancariaId, Cobranca cobranca, bool validaRegeraFormaPagamento = true)
         {
-            var formaPagamentoAnterior = cobranca.FormaPagamento;
+            var formaPagamentoAnterior = cobranca.Transacao;
 
-            var formaPagamentoRegeradaEvent = cobranca.Events.Where(e => e is FormaPagamentoRegeradaEvent)
-                .Cast<FormaPagamentoRegeradaEvent>();
+            var formaPagamentoRegeradaEvent = cobranca.Events.Where(e => e is TransacaoCobrancaReprocessadaEvent)
+                .Cast<TransacaoCobrancaReprocessadaEvent>();
 
             Assert.IsNull(formaPagamentoRegeradaEvent.SingleOrDefault());
 
@@ -394,15 +376,14 @@ namespace Collectio.Domain.Test
 
             if (validaRegeraFormaPagamento)
             {
-                Assert.AreEqual(cobranca.FormaPagamento.Status, StatusFormaPagamento.Processando);
-                Assert.AreSame(formaPagamentoRegeradaEvent.SingleOrDefault()?.FormaPagamentoAnterior, formaPagamentoAnterior);
-                Assert.AreSame(formaPagamentoRegeradaEvent.SingleOrDefault()?.FormaPagamento, cobranca.FormaPagamento);
+                Assert.AreEqual(cobranca.Transacao.Status, StatusTransacao.Processando);
+                Assert.AreEqual(formaPagamentoRegeradaEvent.SingleOrDefault()?.CobrancaId, cobranca.Id.ToString());
             }
             else
             {
                 Assert.IsNull(formaPagamentoRegeradaEvent.SingleOrDefault());
-                Assert.AreSame(cobranca.FormaPagamento, formaPagamentoAnterior);
-                Assert.AreEqual(cobranca.FormaPagamento.Status, formaPagamentoAnterior.Status);
+                Assert.AreSame(cobranca.Transacao, formaPagamentoAnterior);
+                Assert.AreEqual(cobranca.Transacao.Status, formaPagamentoAnterior.Status);
             }
         }
     }
@@ -415,18 +396,18 @@ namespace Collectio.Domain.Test
 
         public static Cobranca BuildCobrancaBoleto() =>
             Cobranca.Boleto(valor: 200, vencimento: DateTime.Today,
-                pagadorId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
+                pagadorId: Guid.NewGuid(), emissorId: Guid.NewGuid().ToString(),
                 contaBancariaId: Guid.NewGuid().ToString());
 
         public static Cobranca BuildCobrancaCartao() =>
             Cobranca.Cartao(valor: 200, vencimento: DateTime.Today,
-                pagadorId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
-                contaBancariaId: Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+                pagadorId: Guid.NewGuid(), emissorId: Guid.NewGuid().ToString(),
+                contaBancariaId: Guid.NewGuid().ToString());
 
-        public static Cobranca BuildCobrancaCartao(decimal valor, DateTime vencimento, string pagadorId, string emissorId, string contaBancariaId, string formaPagamentoId)
-            => Cobranca.Cartao(valor, vencimento, pagadorId, emissorId, contaBancariaId, formaPagamentoId);
+        public static Cobranca BuildCobrancaCartao(decimal valor, DateTime vencimento, Guid pagadorId, string emissorId, string contaBancariaId)
+            => Cobranca.Cartao(valor, vencimento, pagadorId, emissorId, contaBancariaId);
 
-        public static Cobranca BuildCobrancaBoleto(decimal valor, DateTime vencimento, string pagadorId, string emissorId, string contaBancariaId)
+        public static Cobranca BuildCobrancaBoleto(decimal valor, DateTime vencimento, Guid pagadorId, string emissorId, string contaBancariaId)
             => Cobranca.Boleto(valor, vencimento, pagadorId, emissorId, contaBancariaId);
     }
 }

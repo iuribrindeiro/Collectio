@@ -1,9 +1,9 @@
 ﻿namespace Collectio.Domain.CobrancaAggregate
 {
-    public enum StatusFormaPagamento
+    public enum StatusTransacao
     {
         Processando,
-        Criado,
+        Processado,
         Erro
     }
 }

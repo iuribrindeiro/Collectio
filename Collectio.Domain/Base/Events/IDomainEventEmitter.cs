@@ -12,6 +12,5 @@ namespace Collectio.Domain.Base
 
     public interface IDomainEventHandler<T> : INotificationHandler<T> where T : IDomainEvent
     {
-        Task Handle(T domainEvent, CancellationToken cancellationToken);
     }
 }

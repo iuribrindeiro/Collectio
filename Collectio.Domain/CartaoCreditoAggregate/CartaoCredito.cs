@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using Collectio.Domain.Base;
+﻿using Collectio.Domain.Base;
 using Collectio.Domain.Base.ValueObjects;
-using Collectio.Domain.ClienteAggregate.Events;
-using Collectio.Domain.ClienteAggregate.Exceptions;
+using Collectio.Domain.CartaoCreditoAggregate.Events;
+using System.Collections.Generic;
 
-namespace Collectio.Domain.ClienteAggregate.CartaoCreditoModels
+namespace Collectio.Domain.CartaoCreditoAggregate
 {
-    public class CartaoCredito : BaseTenantEntity
+    public class CartaoCredito : BaseTenantEntity, IAggregateRoot
     {
         private CpfCnpjValueObject _cpfCnpjProprietario;
-        private Guid _clienteId;
-        private Cliente _cliente;
+        private string _clienteId;
         private StatusCartaoValueObject _status;
         private string _numero;
         private string _token;
         private List<Transacao> _transacoes;
 
-        public Guid ClienteId => _clienteId;
-        public virtual Cliente Cliente => _cliente;
+        public string ClienteId => _clienteId;
         public CpfCnpjValueObject CpfCnpjProprietario => _cpfCnpjProprietario;
         public StatusCartaoValueObject Status => _status;
         public virtual bool CartaoProcessado 
@@ -27,7 +23,7 @@ namespace Collectio.Domain.ClienteAggregate.CartaoCreditoModels
         public string Numero => _numero;
         public IReadOnlyCollection<Transacao> Transacoes => _transacoes;
 
-        public CartaoCredito(CpfCnpjValueObject cpfCnpjProprietario, Guid clienteId, DadosCartaoValueObject dadosCartao)
+        public CartaoCredito(CpfCnpjValueObject cpfCnpjProprietario, string clienteId, DadosCartaoValueObject dadosCartao)
         {
             _cpfCnpjProprietario = cpfCnpjProprietario;
             _clienteId = clienteId;
@@ -36,12 +32,9 @@ namespace Collectio.Domain.ClienteAggregate.CartaoCreditoModels
             AddEvent(new CartaoCreditoCriadoEvent(dadosCartao, Id.ToString()));
         }
 
-        public CartaoCredito AddTransacao(string cobrancaId, decimal valor)
+        public CartaoCredito AddTransacao(string cobrancaId, string contaBancariaId, decimal valor)
         {
-            if (!CartaoProcessado)
-                throw new CartaoCreditoNaoProcessadoException();
-
-            var transacao = new Transacao(cobrancaId, Id, valor);
+            var transacao = new Transacao(cobrancaId, contaBancariaId, this, valor);
             _transacoes.Add(transacao);
             return this;
         }

@@ -1,4 +1,4 @@
-﻿namespace Collectio.Domain.ClienteAggregate.BoletoModels
+﻿namespace Collectio.Domain.BoletoAggregate
 {
     public class DescontoValueObject
     {

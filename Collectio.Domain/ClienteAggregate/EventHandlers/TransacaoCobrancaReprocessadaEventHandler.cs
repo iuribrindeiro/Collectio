@@ -1,33 +1,34 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Collectio.Domain.Base;
 using Collectio.Domain.CartaoCreditoAggregate;
 using Collectio.Domain.CobrancaAggregate;
 using Collectio.Domain.CobrancaAggregate.Events;
-using MediatR;
 
 namespace Collectio.Domain.ClienteAggregate.EventHandlers
 {
-    public class CobrancaCriacaEventHandler : IDomainEventHandler<CobrancaCriadaEvent>
+    public class TransacaoCobrancaReprocessadaEventHandler : IDomainEventHandler<TransacaoCobrancaReprocessadaEvent>
     {
         private readonly ICobrancasRepository _cobrancasRepository;
         private readonly ICartaoCreditoRepository _cartaoCreditoRepository;
 
-        public CobrancaCriacaEventHandler(ICobrancasRepository cobrancasRepository, ICartaoCreditoRepository cartaoCreditoRepository)
+        public TransacaoCobrancaReprocessadaEventHandler(ICobrancasRepository cobrancasRepository, ICartaoCreditoRepository cartaoCreditoRepository)
         {
             _cobrancasRepository = cobrancasRepository;
             _cartaoCreditoRepository = cartaoCreditoRepository;
         }
 
-        public async Task Handle(CobrancaCriadaEvent domainEvent, CancellationToken cancellationToken)
+        public async Task Handle(TransacaoCobrancaReprocessadaEvent domainEvent, CancellationToken cancellationToken)
         {
             var cobranca = await _cobrancasRepository.FindAsync(Guid.Parse(domainEvent.CobrancaId));
-            if (cobranca.FormaPagamentoCartao)
-            {
-                var cartaoCredito = await _cartaoCreditoRepository.FindAsync(Guid.Parse(cobranca.Pagador.CartaoCreditoId));
-                cartaoCredito.AddTransacao(cobranca.Id.ToString(), cobranca.ContaBancariaId, cobranca.Valor);
-            }
+            var transacao = _cartaoCreditoRepository
+                .ListaTransacoesCobranca(domainEvent.CobrancaId)
+                .OrderByDescending(t => t.DataCriacao)
+                .FirstOrDefault();
+
+            transacao.Reprocessar(cobranca.Valor, cobranca.ContaBancariaId);
         }
     }
 }

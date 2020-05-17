@@ -1,5 +1,5 @@
-﻿using Collectio.Domain.ClienteAggregate.CartaoCreditoModels;
-using Collectio.Domain.ClienteAggregate.Events;
+﻿using Collectio.Domain.CartaoCreditoAggregate;
+using Collectio.Domain.CartaoCreditoAggregate.Events;
 using Collectio.Domain.ClienteAggregate.Exceptions;
 using NUnit.Framework;
 using System;
@@ -15,10 +15,11 @@ namespace Collectio.Domain.Test
         public void AoCriarTransacaoCartaoTodosOsCamposDeveSerSetadosCorretamente()
         {
             var idCobranca = Guid.NewGuid().ToString();
-            var idCartao = Guid.NewGuid();
+            var idContaBancaria = Guid.NewGuid().ToString();
             var valor = 200;
+            var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito().ComStatus(StatusCartao.Processado);
 
-            var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao(idCobranca, idCartao, valor);
+            var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao(idCobranca, idContaBancaria, cartaoCredito, valor);
 
             Assert.AreEqual(transacaoCartao.CobrancaId, idCobranca);
             Assert.AreEqual(transacaoCartao.Valor, valor);
@@ -49,11 +50,10 @@ namespace Collectio.Domain.Test
         public void AoReprocessarTransacaoDeveCriarNovaTransacaoComDadosCorretos()
         {
             var transacao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(StatusTransacaoCartao.Erro);
-            var emissorId = Guid.NewGuid().ToString();
-            var pagadorId = Guid.NewGuid().ToString();
+            var contaBancariaId = Guid.NewGuid().ToString();
             var valor = 223;
 
-            var novaTransacao = transacao.Reprocessar(valor);
+            var novaTransacao = transacao.Reprocessar(valor, contaBancariaId);
             Assert.AreEqual(valor, novaTransacao.Valor);
             Assert.AreEqual(transacao.CobrancaId, novaTransacao.CobrancaId);
             Assert.AreEqual(StatusTransacaoCartao.Procesando, novaTransacao.Status.Status);
@@ -115,7 +115,7 @@ namespace Collectio.Domain.Test
 
             Assert.IsNull(transacaoCartaoEvents.SingleOrDefault());
 
-            var novaTransacao = transacao.Reprocessar(22);
+            var novaTransacao = transacao.Reprocessar(22, Guid.NewGuid().ToString());
             var transacaoCartaoEventsNovaTransacao = novaTransacao
                 .Events
                 .Where(e => e is ReprocessandoTransacaoCartaoEvent)
@@ -152,8 +152,16 @@ namespace Collectio.Domain.Test
             StatusTransacaoCartao statusAtual)
         {
             var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(statusAtual);
-            Assert.Throws<ImpossivelReprocessarTransacaoException>(() => transacaoCartao.Reprocessar(transacaoCartao.Valor));
+            Assert.Throws<ImpossivelReprocessarTransacaoException>(() => transacaoCartao.Reprocessar(transacaoCartao.Valor, transacaoCartao.ContaBancariaId));
         }
+
+        [Test]
+        public void AoCriarCobrancaComCartaoNaoProcessadoDeveLancarExcecao()
+        {
+            Assert.Throws<CartaoCreditoNaoProcessadoException>(() => new Transacao(Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(), CartaoCreditoBuilder.BuildCartaoCredito(), 200));
+        }
+
 #endregion
 
     }
@@ -161,10 +169,10 @@ namespace Collectio.Domain.Test
     public static class TransacaoCartaoBuilder
     {
         public static Transacao BuildTransacao() 
-            => new Transacao(Guid.NewGuid().ToString(), Guid.NewGuid(), 200);
+            => new Transacao(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), CartaoCreditoBuilder.BuildCartaoCredito().ComStatus(StatusCartao.Processado), 200);
 
-        public static Transacao BuildTransacao(string idCobranca, Guid idCartao, decimal valor)
-            => new Transacao(idCobranca, idCartao, valor);
+        public static Transacao BuildTransacao(string idCobranca, string contaBancariaId, CartaoCredito cartaoCredito, decimal valor)
+            => new Transacao(idCobranca, contaBancariaId, cartaoCredito, valor);
 
         public static Transacao ComStatus(this Transacao transacao, StatusTransacaoCartao status)
         {
