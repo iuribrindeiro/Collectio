@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +15,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Collectio.Domain\Collectio.Domain.csproj" />
     <ProjectReference Include="..\Collectio.Infra.CrossCutting.Services\Collectio.Infra.CrossCutting.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Clientes\CommandValidators\" />
   </ItemGroup>
 
 </Project>

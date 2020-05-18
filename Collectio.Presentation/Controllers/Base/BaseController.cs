@@ -2,12 +2,8 @@
 using Collectio.Application.Base.Commands;
 using Collectio.Application.Base.Queries;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
-using Collectio.Domain.Base.Exceptions;
-using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Collectio.Presentation.Controllers.Base
 {
@@ -15,10 +11,8 @@ namespace Collectio.Presentation.Controllers.Base
     [Route("api/[controller]")]
     public class BaseController : ControllerBase
     {
-        private readonly ICommandQuerySender _commandQuerySender;
-
-        public BaseController(ICommandQuerySender commandQuerySender)
-            => _commandQuerySender = commandQuerySender;
+        private ICommandQuerySender _commandQuerySender 
+            => HttpContext.RequestServices.GetService<ICommandQuerySender>();
 
         protected async Task<IActionResult> Send<R>(ICommand<R> command)
         {

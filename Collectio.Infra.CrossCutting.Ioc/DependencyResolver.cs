@@ -1,22 +1,20 @@
 ﻿using AutoMapper;
 using Collectio.Application.Base;
 using Collectio.Application.Base.Commands;
-using Collectio.Application.Profiles;
 using Collectio.Domain.Base;
+using Collectio.Infra.CrossCutting.Services;
 using Collectio.Infra.CrossCutting.Services.Interfaces;
 using Collectio.Infra.Data;
 using Collectio.Infra.Data.Repositories.Base;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Collectio.Application.Base.Queries;
-using Collectio.Infra.CrossCutting.Services;
-using FluentValidation;
-using MediatR.Pipeline;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Collectio.Infra.CrossCutting.Ioc
@@ -25,6 +23,7 @@ namespace Collectio.Infra.CrossCutting.Ioc
     {
         public static void RegisterDependencies(this IServiceCollection serviceCollectio, IConfiguration configuration)
         {
+            ValidatorOptions.LanguageManager.Culture = new CultureInfo("pt-BR");
             serviceCollectio.AddScoped<IDatabaseMigrator, DatabaeMigrator>();
             serviceCollectio.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingPipeline<,>));
             serviceCollectio.AddMediatR(typeof(LoggingPipeline<,>).Assembly, typeof(IDomainEventHandler<>).Assembly);

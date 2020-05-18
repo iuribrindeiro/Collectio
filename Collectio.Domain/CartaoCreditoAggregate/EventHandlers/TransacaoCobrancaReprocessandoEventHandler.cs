@@ -8,18 +8,18 @@ using Collectio.Domain.CobrancaAggregate.Events;
 
 namespace Collectio.Domain.CartaoCreditoAggregate.EventHandlers
 {
-    public class TransacaoCobrancaReprocessadaEventHandler : IDomainEventHandler<TransacaoCobrancaReprocessadaEvent>
+    public class TransacaoCobrancaReprocessandoEventHandler : IDomainEventHandler<TransacaoCobrancaReprocessandodoEvent>
     {
         private readonly ICobrancasRepository _cobrancasRepository;
         private readonly ICartaoCreditoRepository _cartaoCreditoRepository;
 
-        public TransacaoCobrancaReprocessadaEventHandler(ICobrancasRepository cobrancasRepository, ICartaoCreditoRepository cartaoCreditoRepository)
+        public TransacaoCobrancaReprocessandoEventHandler(ICobrancasRepository cobrancasRepository, ICartaoCreditoRepository cartaoCreditoRepository)
         {
             _cobrancasRepository = cobrancasRepository;
             _cartaoCreditoRepository = cartaoCreditoRepository;
         }
 
-        public async Task Handle(TransacaoCobrancaReprocessadaEvent domainEvent, CancellationToken cancellationToken)
+        public async Task Handle(TransacaoCobrancaReprocessandodoEvent domainEvent, CancellationToken cancellationToken)
         {
             var cobranca = await _cobrancasRepository.FindAsync(Guid.Parse(domainEvent.CobrancaId));
             var transacao = _cartaoCreditoRepository

@@ -1,19 +1,14 @@
 ﻿using Collectio.Application.Base;
-using Collectio.Application.Commands;
-using Collectio.Application.Queries.Handlers;
+using Collectio.Application.Queries;
 using Collectio.Presentation.Controllers.Base;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Collectio.Application.Queries;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Collectio.Presentation.Controllers
 {
     public class ClientesController : BaseController
     {
-        public ClientesController(ICommandQuerySender commandQuerySender) : base(commandQuerySender) {}
-
         [HttpPost]
         public async Task<IActionResult> Post(CreateClienteCommand createClienteCommand) 
             => await Send(createClienteCommand);

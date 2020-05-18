@@ -33,15 +33,18 @@ namespace Collectio.Domain.Test
             var valor = 20;
             var vencimento = DateTime.Today.AddDays(10);
             var emissorId = Guid.NewGuid().ToString();
-            var pagadorId = Guid.NewGuid();
+            var clienteId = Guid.NewGuid().ToString();
+            var cartaoId = Guid.NewGuid().ToString();
+            var cartaoCreditoId = Guid.NewGuid().ToString();
             var contaBancariaId = Guid.NewGuid().ToString();
 
-            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(valor, vencimento, pagadorId, emissorId, contaBancariaId);
+            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(valor, vencimento, clienteId, cartaoCreditoId, emissorId, contaBancariaId);
 
             Assert.AreEqual(novaCobranca.Valor, valor);
             Assert.AreEqual(novaCobranca.Vencimento, vencimento);
             Assert.AreEqual(novaCobranca.EmissorId, emissorId);
-            Assert.AreEqual(novaCobranca.PagadorId, pagadorId);
+            Assert.AreEqual(novaCobranca.Pagador.ClienteId, clienteId);
+            Assert.AreEqual(novaCobranca.Pagador.CartaoCreditoId, cartaoCreditoId);
             Assert.AreEqual(novaCobranca.ContaBancariaId, contaBancariaId);
         }
 
@@ -268,8 +271,8 @@ namespace Collectio.Domain.Test
         {
             var formaPagamentoEvent = _cobrancaBoletoFormaPagamentoFinalizada
                 .Events
-                .Where(e => e is TransacaoCobrancaReprocessadaEvent)
-                .Cast<TransacaoCobrancaReprocessadaEvent>();
+                .Where(e => e is TransacaoCobrancaReprocessandodoEvent)
+                .Cast<TransacaoCobrancaReprocessandodoEvent>();
 
             Assert.IsNull(formaPagamentoEvent.SingleOrDefault());
 
@@ -374,8 +377,8 @@ namespace Collectio.Domain.Test
         {
             var formaPagamentoAnterior = cobranca.Transacao;
 
-            var formaPagamentoRegeradaEvent = cobranca.Events.Where(e => e is TransacaoCobrancaReprocessadaEvent)
-                .Cast<TransacaoCobrancaReprocessadaEvent>();
+            var formaPagamentoRegeradaEvent = cobranca.Events.Where(e => e is TransacaoCobrancaReprocessandodoEvent)
+                .Cast<TransacaoCobrancaReprocessandodoEvent>();
 
             Assert.IsNull(formaPagamentoRegeradaEvent.SingleOrDefault());
 
@@ -407,18 +410,18 @@ namespace Collectio.Domain.Test
 
         public static Cobranca BuildCobrancaBoleto() =>
             Cobranca.Boleto(valor: 200, vencimento: DateTime.Today,
-                pagadorId: Guid.NewGuid(), emissorId: Guid.NewGuid().ToString(),
+                clienteId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
                 contaBancariaId: Guid.NewGuid().ToString());
 
         public static Cobranca BuildCobrancaCartao() =>
             Cobranca.Cartao(valor: 200, vencimento: DateTime.Today,
-                pagadorId: Guid.NewGuid(), emissorId: Guid.NewGuid().ToString(),
+                clienteId: Guid.NewGuid().ToString(), cartaoCreditoId: Guid.NewGuid().ToString(), emissorId: Guid.NewGuid().ToString(),
                 contaBancariaId: Guid.NewGuid().ToString());
 
-        public static Cobranca BuildCobrancaCartao(decimal valor, DateTime vencimento, Guid pagadorId, string emissorId, string contaBancariaId)
-            => Cobranca.Cartao(valor, vencimento, pagadorId, emissorId, contaBancariaId);
+        public static Cobranca BuildCobrancaCartao(decimal valor, DateTime vencimento, string clienteId, string cartaoCreditoId, string emissorId, string contaBancariaId)
+            => Cobranca.Cartao(valor, vencimento, clienteId, cartaoCreditoId, emissorId, contaBancariaId);
 
-        public static Cobranca BuildCobrancaBoleto(decimal valor, DateTime vencimento, Guid pagadorId, string emissorId, string contaBancariaId)
-            => Cobranca.Boleto(valor, vencimento, pagadorId, emissorId, contaBancariaId);
+        public static Cobranca BuildCobrancaBoleto(decimal valor, DateTime vencimento, string clienteId, string emissorId, string contaBancariaId)
+            => Cobranca.Boleto(valor, vencimento, clienteId, emissorId, contaBancariaId);
     }
 }

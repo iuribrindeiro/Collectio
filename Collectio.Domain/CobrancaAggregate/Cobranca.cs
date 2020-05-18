@@ -11,11 +11,11 @@ namespace Collectio.Domain.CobrancaAggregate
         private decimal _valor;
         private DateTime _vencimento;
         private Guid _pagadorId;
+        private Pagador _pagador;
         private string _emissorId;
         private Pagamento _pagamento;
         private string _contaBancariaId;
         private TransacaoValueObject _transacao;
-        private Pagador _pagador;
 
         public decimal Valor => _valor;
         public DateTime Vencimento => _vencimento;
@@ -33,19 +33,19 @@ namespace Collectio.Domain.CobrancaAggregate
         public string ContaBancariaId => _contaBancariaId;
 
 
-        public static Cobranca Cartao(decimal valor, DateTime vencimento, Guid pagadorId, string emissorId, string contaBancariaId)
-            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, TransacaoValueObject.Cartao());
+        public static Cobranca Cartao(decimal valor, DateTime vencimento, string clienteId, string cartaoCreditoId, string emissorId, string contaBancariaId)
+            => new Cobranca(valor, vencimento, clienteId, emissorId, contaBancariaId, TransacaoValueObject.Cartao(), cartaoCreditoId);
 
-        public static Cobranca Boleto(decimal valor, DateTime vencimento, Guid pagadorId,  string emissorId, string contaBancariaId)
-            => new Cobranca(valor, vencimento, pagadorId, emissorId, contaBancariaId, TransacaoValueObject.Boleto());
+        public static Cobranca Boleto(decimal valor, DateTime vencimento, string clienteId, string emissorId, string contaBancariaId)
+            => new Cobranca(valor, vencimento, clienteId, emissorId, contaBancariaId, TransacaoValueObject.Boleto());
 
         private Cobranca(
-            decimal valor, DateTime vencimento, Guid pagadorId,
-            string emissorId, string contaBancariaId, TransacaoValueObject transacao)
+            decimal valor, DateTime vencimento, string clienteId,
+            string emissorId, string contaBancariaId, TransacaoValueObject transacao, string cartaoCreditoId = null)
         {
             _valor = valor;
             _vencimento = vencimento;
-            _pagadorId = pagadorId;
+            _pagador = new Pagador(clienteId, cartaoCreditoId);
             _emissorId = emissorId;
             _contaBancariaId = contaBancariaId;
             _transacao = transacao;
@@ -110,7 +110,7 @@ namespace Collectio.Domain.CobrancaAggregate
                 throw new ImpossivelRegerarFormaQuandoFormaPagamentoPendenteException();
 
             _transacao = _transacao.Reprocessar();
-            AddEvent(new TransacaoCobrancaReprocessadaEvent(Id.ToString()));
+            AddEvent(new TransacaoCobrancaReprocessandodoEvent(Id.ToString()));
             return this;
         }
 

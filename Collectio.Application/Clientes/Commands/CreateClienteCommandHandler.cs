@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Collectio.Application.Base.Commands;
 using Collectio.Application.ViewModels;
 using Collectio.Domain.ClienteAggregate;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Collectio.Application.Commands.Handlers
+namespace Collectio.Application.Clientes.Commands
 {
     public class CreateClienteCommandHandler : ICommandHandler<CreateClienteCommand, ClienteViewModel>
     {
