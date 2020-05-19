@@ -13,7 +13,7 @@ namespace Collectio.Domain.CobrancaAggregate
         private Guid _pagadorId;
         private Pagador _pagador;
         private Pagamento _pagamento;
-        private string _contaBancariaId;
+        private string _configuracaoEmissaoId;
         private TransacaoValueObject _transacao;
 
         public decimal Valor => _valor;
@@ -27,28 +27,28 @@ namespace Collectio.Domain.CobrancaAggregate
         public TransacaoValueObject Transacao => _transacao;
         public Guid PagadorId => _pagadorId;
         public virtual Pagador Pagador => _pagador;
-        public string ContaBancariaId => _contaBancariaId;
+        public string ConfiguracaoEmissaoId => _configuracaoEmissaoId;
 
 
-        public static Cobranca Cartao(decimal valor, DateTime vencimento, string clienteId, string cartaoCreditoId, string contaBancariaId)
-            => new Cobranca(valor, vencimento, clienteId, contaBancariaId, TransacaoValueObject.Cartao(), cartaoCreditoId);
+        public static Cobranca Cartao(decimal valor, DateTime vencimento, string clienteId, string cartaoCreditoId, string configuracaoEmissaoId)
+            => new Cobranca(valor, vencimento, clienteId, configuracaoEmissaoId, TransacaoValueObject.Cartao(), cartaoCreditoId);
 
-        public static Cobranca Boleto(decimal valor, DateTime vencimento, string clienteId, string contaBancariaId)
-            => new Cobranca(valor, vencimento, clienteId, contaBancariaId, TransacaoValueObject.Boleto());
+        public static Cobranca Boleto(decimal valor, DateTime vencimento, string clienteId, string configuracaoEmissaoId)
+            => new Cobranca(valor, vencimento, clienteId, configuracaoEmissaoId, TransacaoValueObject.Boleto());
 
         private Cobranca(
-            decimal valor, DateTime vencimento, string clienteId, string contaBancariaId, TransacaoValueObject transacao, string cartaoCreditoId = null)
+            decimal valor, DateTime vencimento, string clienteId, string configuracaoEmissaoId, TransacaoValueObject transacao, string cartaoCreditoId = null)
         {
             _valor = valor;
             _vencimento = vencimento;
             _pagador = new Pagador(clienteId, cartaoCreditoId);
-            _contaBancariaId = contaBancariaId;
+            _configuracaoEmissaoId = configuracaoEmissaoId;
             _transacao = transacao;
 
             AddEvent(new CobrancaCriadaEvent(Id.ToString()));
         }
 
-        public Cobranca AlterarCobranca(decimal valor, DateTime vencimento, string clienteId, string contaBancariaId, string cartaoCreditoId = null)
+        public Cobranca AlterarCobranca(decimal valor, DateTime vencimento, string clienteId, string configuracaoEmissaoId, string cartaoCreditoId = null)
         {
             if (Transacao.ProcessamentoPendente)
                 throw new ImpossivelAlterarCobrancaComFormaPagamentoPendenteException();
@@ -60,10 +60,10 @@ namespace Collectio.Domain.CobrancaAggregate
             var vencimentoAnterior = _vencimento;
             var clienteAnterior = _pagador.ClienteId;
             var cartaoCreditoIdAnterior = _pagador.CartaoCreditoId;
-            var contaBancariaIdAnterior = _contaBancariaId;
+            var configuracaoEmissaoIdAnterior = _configuracaoEmissaoId;
 
-            var valoresPagamentoMudaram = ValoresPagamentoMudaram(valor, clienteId, cartaoCreditoId, contaBancariaId, 
-                valorAnterior, clienteAnterior, cartaoCreditoIdAnterior, contaBancariaIdAnterior);
+            var valoresPagamentoMudaram = ValoresPagamentoMudaram(valor, clienteId, cartaoCreditoId, configuracaoEmissaoId, 
+                valorAnterior, clienteAnterior, cartaoCreditoIdAnterior, configuracaoEmissaoIdAnterior);
 
             if (valoresPagamentoMudaram)
                 ReprocessarTransacao();
@@ -71,9 +71,9 @@ namespace Collectio.Domain.CobrancaAggregate
             _valor = valor;
             _vencimento = vencimento;
             _pagador.Alterar(clienteId, cartaoCreditoId);
-            _contaBancariaId = contaBancariaId;
+            _configuracaoEmissaoId = configuracaoEmissaoId;
 
-            AddEvent(new CobrancaAlteradaEvent(valorAnterior, vencimentoAnterior, clienteAnterior, cartaoCreditoIdAnterior, contaBancariaIdAnterior, Id.ToString()));
+            AddEvent(new CobrancaAlteradaEvent(valorAnterior, vencimentoAnterior, clienteAnterior, cartaoCreditoIdAnterior, configuracaoEmissaoIdAnterior, Id.ToString()));
             return this;
         }
 
@@ -127,8 +127,8 @@ namespace Collectio.Domain.CobrancaAggregate
 
         private static bool ValoresPagamentoMudaram(
             decimal valor, string clienteId, string cartaoCreditoId,
-            string contaBancariaId, decimal valorAnterior, string clienteIdAnterior, 
-            string cartaoCreditoIdAnterior, string contaBancariaIdAnterior)
-            => valor != valorAnterior || clienteId != clienteIdAnterior || cartaoCreditoId != cartaoCreditoIdAnterior || contaBancariaId != contaBancariaIdAnterior;
+            string configuracaoEmissaoId, decimal valorAnterior, string clienteIdAnterior, 
+            string cartaoCreditoIdAnterior, string configuracaoEmissaoIdAnterior)
+            => valor != valorAnterior || clienteId != clienteIdAnterior || cartaoCreditoId != cartaoCreditoIdAnterior || configuracaoEmissaoId != configuracaoEmissaoIdAnterior;
     }
 }

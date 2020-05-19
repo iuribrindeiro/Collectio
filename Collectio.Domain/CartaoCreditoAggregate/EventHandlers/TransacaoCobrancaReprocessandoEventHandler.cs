@@ -27,7 +27,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate.EventHandlers
                 .OrderByDescending(t => t.DataCriacao)
                 .FirstOrDefault();
 
-            transacao.Reprocessar(cobranca.Valor, cobranca.ContaBancariaId);
+            transacao.Reprocessar(cobranca.Valor, cobranca.ConfiguracaoEmissaoId);
         }
     }
 }

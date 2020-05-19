@@ -24,7 +24,7 @@ namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
         public StatusConfiguracaoEmissaoValueObject Reprocessar()
         {
             if (Status == StatusConfiguracaoEmissao.Processando)
-                throw new ImpossivelReprocessarConfiguracaoRecebimentoProcessandoException();
+                throw new ImpossivelReprocessarConfiguracaoEmissaoProcessandoException();
 
             return Processando();
         }

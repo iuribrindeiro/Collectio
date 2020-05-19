@@ -143,44 +143,103 @@ namespace Collectio.Domain.Test
             Assert.AreEqual(configuracaoEmissao.Status.Status, StatusConfiguracaoEmissao.Processado);
         }
 
+        [Test]
         public void AoProcessarConfiguracaoEmissaoJaProcessadaDeveLancarExcecao()
         {
-
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Processado);
+            Assert.Throws<ImpossivelProcessarConfiguracaoRecebimentoException>(() => configuracaoEmissao.FinalizarProcessamento());
         }
 
+        [Test]
+        public void AoProcessasrConfiguracaoEmissaoComErroDeveLancarExcecao()
+        {
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Erro);
+            Assert.Throws<ImpossivelProcessarConfiguracaoRecebimentoException>(() => configuracaoEmissao.FinalizarProcessamento());
+        }
+
+        [Test]
         public void AoProcessarConfiguracaoEmissaoDeveAdicionarEventoConfiguracaoEmissao()
         {
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build();
+            var configuracaoEmissaoProcessadaEvent = configuracaoEmissao.Events
+                .Where(e => e is ConfiguracaoEmissaoProcessadaEvent)
+                .Cast<ConfiguracaoEmissaoProcessadaEvent>();
 
+            Assert.IsNull(configuracaoEmissaoProcessadaEvent.SingleOrDefault());
+
+            configuracaoEmissao.FinalizarProcessamento();
+
+            Assert.AreEqual(configuracaoEmissaoProcessadaEvent.SingleOrDefault()?.ConfiguracaoEmissaoId, configuracaoEmissao.Id.ToString());
         }
 
+        [Test]
         public void AoDefinirConfiguracaoEmissaoErroDeveSetarValoresCorretamente()
         {
-
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build();
+            var mensagem = Guid.NewGuid().ToString();
+            configuracaoEmissao.ErroProcessamento(mensagem);
+            Assert.AreEqual(configuracaoEmissao.Status.MensagemErro, mensagem);
         }
 
+        [Test]
         public void AoDefinirConfiguracaoEmissaoErroQuandoStatusDifereDeProcessandoDeveLancarExcecao()
         {
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Processado);
+            Assert.Throws<ImpossivelDefinirErroConfiguracaoRecebimentoException>(() =>
+                configuracaoEmissao.ErroProcessamento("falha"));
 
+            configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Erro);
+            Assert.Throws<ImpossivelDefinirErroConfiguracaoRecebimentoException>(() =>
+                configuracaoEmissao.ErroProcessamento("falha"));
         }
 
+        [Test]
         public void AoDefinirConfiguracaoEmissaoComErroDeveAdicionarEventoConfiguracaoEmissao()
         {
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build();
+            var configuracaoEmissaoProcessadaEvent = configuracaoEmissao.Events
+                .Where(e => e is ErroProcessarConfiguracaoEmissaoEvent)
+                .Cast<ErroProcessarConfiguracaoEmissaoEvent>();
 
+            Assert.IsNull(configuracaoEmissaoProcessadaEvent.SingleOrDefault());
+
+            configuracaoEmissao.ErroProcessamento("Falha");
+
+            Assert.AreEqual(configuracaoEmissaoProcessadaEvent.SingleOrDefault()?.ConfiguracaoEmissaoId, configuracaoEmissao.Id.ToString());
         }
 
+        [Test]
         public void AoReprocessarConfiguracaoEmissaoDeveSetarValoresCorretamente()
         {
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Processado);
+            var statusConfiguracaoEmissaoAnterior = configuracaoEmissao.Status;
+            configuracaoEmissao.Reprocessar();
 
+            Assert.AreEqual(configuracaoEmissao.Status.Status, StatusConfiguracaoEmissao.Processando);
+            Assert.AreNotSame(configuracaoEmissao.Status, statusConfiguracaoEmissaoAnterior);
         }
 
+        [Test]
         public void AoReprocessarConfiguracaoEmissaoComStatusProcessandoDeveLancarExcecao()
         {
-
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Processando);
+            Assert.Throws<ImpossivelReprocessarConfiguracaoEmissaoProcessandoException>(() =>
+                configuracaoEmissao.Reprocessar());
         }
 
+        [Test]
         public void AoReprocessarConfiguracaoEmissaoDeveAdicionarEventoConfiguracaoEmissao()
         {
+            var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Erro);
+            var configuracaoEmissaoProcessadaEvent = configuracaoEmissao.Events
+                .Where(e => e is ConfiguracaoEmissaoReprocessandoEvent)
+                .Cast<ConfiguracaoEmissaoReprocessandoEvent>();
 
+            Assert.IsNull(configuracaoEmissaoProcessadaEvent.SingleOrDefault());
+
+            configuracaoEmissao.Reprocessar();
+
+            Assert.AreEqual(configuracaoEmissaoProcessadaEvent.SingleOrDefault()?.ConfiguracaoEmissaoId, configuracaoEmissao.Id.ToString());
         }
     }
 

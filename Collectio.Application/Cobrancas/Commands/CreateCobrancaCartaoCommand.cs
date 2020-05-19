@@ -9,9 +9,7 @@ namespace Collectio.Application.Cobrancas.Commands
 {
     public class CreateCobrancaCartaoCommand : ICommand<CobrancaViewModel>, IMapTo<Cobranca>
     {
-        public string ContaBancariaId { get; set; }
-
-        public string EmissorId { get; set; }
+        public string ConfiguracaoEmissaoId { get; set; }
 
         public string CartaoCreditoId { get; set; }
 
@@ -23,6 +21,6 @@ namespace Collectio.Application.Cobrancas.Commands
 
         public void Mapping(Profile profile) 
             => profile.CreateMap<CreateCobrancaCartaoCommand, Cobranca>()
-                .ConstructUsing(c => Cobranca.Cartao(c.Valor, c.Vencimento, c.ClienteId, c.ContaBancariaId, c.CartaoCreditoId));
+                .ConstructUsing(c => Cobranca.Cartao(c.Valor, c.Vencimento, c.ClienteId, c.ConfiguracaoEmissaoId, c.CartaoCreditoId));
     }
 }
