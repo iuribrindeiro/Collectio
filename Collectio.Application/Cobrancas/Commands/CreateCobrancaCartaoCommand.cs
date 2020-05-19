@@ -23,6 +23,6 @@ namespace Collectio.Application.Cobrancas.Commands
 
         public void Mapping(Profile profile) 
             => profile.CreateMap<CreateCobrancaCartaoCommand, Cobranca>()
-                .ConstructUsing(c => Cobranca.Cartao(c.Valor, c.Vencimento, c.ClienteId, c.CartaoCreditoId, c.EmissorId, c.ContaBancariaId));
+                .ConstructUsing(c => Cobranca.Cartao(c.Valor, c.Vencimento, c.ClienteId, c.ContaBancariaId, c.CartaoCreditoId));
     }
 }

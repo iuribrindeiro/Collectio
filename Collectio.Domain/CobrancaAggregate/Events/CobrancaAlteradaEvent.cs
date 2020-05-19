@@ -1,34 +1,28 @@
-﻿using System;
-using Collectio.Domain.Base;
+﻿using Collectio.Domain.Base;
+using System;
 
 namespace Collectio.Domain.CobrancaAggregate.Events
 {
     public class CobrancaAlteradaEvent : IDomainEvent
     {
-        private string _contabancariaIdAnterior;
-        private decimal _valorAnterior;
-        private DateTime _vencimentoAnterior;
-        private Guid _pagadorIdAnterior;
-        private string _emissorIdAnterior;
-        private Cobranca _cobranca;
+        public decimal ValorAnterior { get; }
+        public DateTime VencimentoAnterior { get; }
+        public string ClienteIdAnterior { get; }
+        public string EmissorIdAnterior { get; }
+        public string ContaBancariaIdAnterior { get; }
+        public string CartaoCreditoIdAnterior { get; }
+        public string CobrancaId { get; set; }
 
-        public decimal ValorAnterior => _valorAnterior;
-        public DateTime VencimentoAnterior => _vencimentoAnterior;
-        public Guid PagadorIdAnterior => _pagadorIdAnterior;
-        public string EmissorIdAnterior => _emissorIdAnterior;
-        public string ContaBancariaIdAnterior => _contabancariaIdAnterior;
-
-        public Cobranca Cobranca => _cobranca;
-
-        public CobrancaAlteradaEvent(decimal valorAnterior, DateTime vencimentoAnterior, Guid pagadorIdAnterior, 
-            string emissorIdAnterior, string contabancariaIdAnterior, Cobranca cobranca)
+        public CobrancaAlteradaEvent(
+            decimal valorAnterior, DateTime vencimentoAnterior, string clienteIdAnterior, 
+            string cartaoCreditoIdAnterior, string contabancariaIdAnterior, string cobrancaId)
         {
-            _valorAnterior = valorAnterior;
-            _vencimentoAnterior = vencimentoAnterior;
-            _pagadorIdAnterior = pagadorIdAnterior;
-            _emissorIdAnterior = emissorIdAnterior;
-            _contabancariaIdAnterior = contabancariaIdAnterior;
-            _cobranca = cobranca;
+            ValorAnterior = valorAnterior;
+            VencimentoAnterior = vencimentoAnterior;
+            ClienteIdAnterior = clienteIdAnterior;
+            CartaoCreditoIdAnterior = cartaoCreditoIdAnterior;
+            ContaBancariaIdAnterior = contabancariaIdAnterior;
+            CobrancaId = cobrancaId;
         }
     }
 }

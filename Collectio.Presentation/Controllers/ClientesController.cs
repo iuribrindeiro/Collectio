@@ -1,4 +1,4 @@
-﻿using Collectio.Application.Base;
+﻿using Collectio.Application.Clientes.Commands;
 using Collectio.Application.Queries;
 using Collectio.Presentation.Controllers.Base;
 using Microsoft.AspNet.OData;

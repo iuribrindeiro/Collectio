@@ -13,11 +13,9 @@ namespace Collectio.Domain.CartaoCreditoAggregate
         private string _cobrancaId;
         private Guid _cartaoId;
         private CartaoCredito _cartaoCredito;
-        private string _externalTenantId;
         private string _contaBancariaId;
 
         public string CobrancaId => _cobrancaId;
-        public string ExternalTenantId => _externalTenantId;
         public decimal Valor => _valor;
         public string ContaBancariaId => _contaBancariaId;
         public Guid CartaoId => _cartaoId;
@@ -47,18 +45,16 @@ namespace Collectio.Domain.CartaoCreditoAggregate
             AddEvent(new ReprocessandoTransacaoCartaoEvent(this, transacaoAnterior));
         }
 
-        public Transacao Aprovar(string externalTenantId)
+        public Transacao Aprovar()
         {
             _status.Aprovar();
-            _externalTenantId = externalTenantId;
             AddEvent(new TransacaoCartaoAprovadaEvent(Id.ToString(), CobrancaId));
             return this;
         }
 
-        public Transacao DefinirErro(string mensagemErro, string externalTenantId)
+        public Transacao DefinirErro(string mensagemErro)
         {
             _status.DefinirErro(mensagemErro);
-            _externalTenantId = externalTenantId;
             AddEvent(new ErroTransacaoCartaoEvent(Id.ToString()));
             return this;
         }

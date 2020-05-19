@@ -28,7 +28,7 @@ namespace Collectio.Domain.Test
         {
             var transacaoId = Guid.NewGuid().ToString();
             var cobrancaId = Guid.NewGuid();
-            var cobranca = Cobranca.Cartao(1, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+            var cobranca = Cobranca.Cartao(1, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
 
             _cobrancasRepository.FindAsync(cobrancaId).Returns(async c => cobranca);
             _sut.Handle(new TransacaoCartaoAprovadaEvent(transacaoId, cobrancaId.ToString()), CancellationToken.None).GetAwaiter().GetResult();

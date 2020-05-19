@@ -11,7 +11,6 @@ namespace Collectio.Domain.CartaoCreditoAggregate
         private string _clienteId;
         private StatusCartaoValueObject _status;
         private string _numero;
-        private string _token;
         private List<Transacao> _transacoes;
 
         public string ClienteId => _clienteId;
@@ -19,7 +18,6 @@ namespace Collectio.Domain.CartaoCreditoAggregate
         public StatusCartaoValueObject Status => _status;
         public virtual bool CartaoProcessado 
             => Status.Status == StatusCartao.Processado;
-        public string Token => _token;
         public string Numero => _numero;
         public IReadOnlyCollection<Transacao> Transacoes => _transacoes;
 
@@ -39,12 +37,11 @@ namespace Collectio.Domain.CartaoCreditoAggregate
             return this;
         }
 
-        public CartaoCredito Processado(string token, string numero)
+        public CartaoCredito Processado(string numero)
         {
             _status.Processado();
-            _token = token;
             _numero = numero;
-            AddEvent(new CartaoCreditoProcessadoEvent(Id.ToString(), numero, token));
+            AddEvent(new CartaoCreditoProcessadoEvent(Id.ToString(), numero));
             return this;
         }
 

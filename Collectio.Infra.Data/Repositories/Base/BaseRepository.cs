@@ -35,6 +35,9 @@ namespace Collectio.Infra.Data.Repositories.Base
         public Task<T> FindAsync(Guid id) 
             => _applicationContext.Set<T>().Where(e => e.Id == id).FirstOrDefaultAsync();
 
+        public Task<bool> Exists(Guid id) 
+            => _applicationContext.Set<T>().AnyAsync(e => e.Id == id);
+
         public async Task<IQueryable<T>> ListAsync() 
             => _applicationContext.Set<T>().AsQueryable();
 

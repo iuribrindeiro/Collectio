@@ -29,16 +29,14 @@ namespace Collectio.Domain.Test
         public void AoProcessarCartaoDeveAdicionarEventoACartaoCredito()
         {
             var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito();
-            var token = Guid.NewGuid().ToString();
             var numero = Guid.NewGuid().ToString();
-            cartaoCredito.Processado(token, numero);
+            cartaoCredito.Processado(numero);
             var cartaoCreditoEvent = cartaoCredito
                 .Events
                 .Where(e => e is CartaoCreditoProcessadoEvent)
                 .Cast<CartaoCreditoProcessadoEvent>();
 
             Assert.AreEqual(cartaoCreditoEvent.SingleOrDefault()?.Numero, numero);
-            Assert.AreEqual(cartaoCreditoEvent.SingleOrDefault()?.Token, token);
             Assert.AreEqual(cartaoCreditoEvent.SingleOrDefault()?.CartaoId, cartaoCredito.Id.ToString());
         }
 
@@ -106,8 +104,8 @@ namespace Collectio.Domain.Test
         {
             var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito().ComStatus(StatusCartao.Processado);
             var cartaoCreditoComErro = CartaoCreditoBuilder.BuildCartaoCredito().ComStatus(StatusCartao.Erro);
-            Assert.Throws<ImpossivelDefinirStatusCartaoComoProcessadoException>(() => cartaoCredito.Processado(Guid.NewGuid().ToString(), "123"));
-            Assert.Throws<ImpossivelDefinirStatusCartaoComoProcessadoException>(() => cartaoCreditoComErro.Processado(Guid.NewGuid().ToString(), "1234"));
+            Assert.Throws<ImpossivelDefinirStatusCartaoComoProcessadoException>(() => cartaoCredito.Processado("123"));
+            Assert.Throws<ImpossivelDefinirStatusCartaoComoProcessadoException>(() => cartaoCreditoComErro.Processado("1234"));
         }
 
         [Test]
@@ -124,13 +122,11 @@ namespace Collectio.Domain.Test
         {
             var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito();
             var numero = Guid.NewGuid().ToString();
-            var token = Guid.NewGuid().ToString();
 
-            cartaoCredito.Processado(token, numero);
+            cartaoCredito.Processado(numero);
 
             Assert.AreEqual(cartaoCredito.Status.Status, StatusCartao.Processado);
             Assert.AreEqual(cartaoCredito.Numero, numero);
-            Assert.AreEqual(cartaoCredito.Token, token);
         }
 
         [Test]
@@ -168,7 +164,7 @@ namespace Collectio.Domain.Test
             if (status == StatusCartao.Erro)
                 return cartaoCredito.Erro("Falha");
             else if (status == StatusCartao.Processado)
-                return cartaoCredito.Processado("token", "1234");
+                return cartaoCredito.Processado("1234");
 
             return cartaoCredito;
         }

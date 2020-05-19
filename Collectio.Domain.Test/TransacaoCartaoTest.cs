@@ -26,23 +26,13 @@ namespace Collectio.Domain.Test
         }
 
         [Test]
-        public void AoAprovarTransacaoDeveSetarOIdTransacaoCorretamente()
-        {
-            var idTransacao = Guid.NewGuid().ToString();
-            var transacao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(StatusTransacaoCartao.Procesando);
-            transacao.Aprovar(idTransacao);
-            Assert.AreEqual(transacao.ExternalTenantId, idTransacao);
-        }
-
-        [Test]
         public void AoDefinirTransacaoComoErroDeveSetarIdTransacaoEMensagemCorretamente()
         {
             var mensagemErro = "Sem limite";
             var idTransacao = Guid.NewGuid().ToString();
             var transacao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(StatusTransacaoCartao.Procesando);
-            transacao.DefinirErro(mensagemErro, idTransacao);
+            transacao.DefinirErro(mensagemErro);
 
-            Assert.AreEqual(transacao.ExternalTenantId, idTransacao);
             Assert.AreEqual(transacao.Status.MensagemErro, mensagemErro);
         }
 
@@ -83,7 +73,7 @@ namespace Collectio.Domain.Test
 
             Assert.IsNull(transacaoCartaoEvents.SingleOrDefault());
 
-            transacao.Aprovar(Guid.NewGuid().ToString());
+            transacao.Aprovar();
 
             Assert.AreEqual(transacaoCartaoEvents.SingleOrDefault().TransacaoId, transacao.Id.ToString());
             Assert.AreEqual(transacaoCartaoEvents.SingleOrDefault().CobrancaId, transacao.CobrancaId);
@@ -100,7 +90,7 @@ namespace Collectio.Domain.Test
 
             Assert.IsNull(transacaoCartaoEvents.SingleOrDefault());
 
-            transacao.DefinirErro("Sem limite", Guid.NewGuid().ToString());
+            transacao.DefinirErro("Sem limite");
 
             Assert.AreEqual(transacaoCartaoEvents.SingleOrDefault().TransacaoId, transacao.Id.ToString());
         }
@@ -136,7 +126,7 @@ namespace Collectio.Domain.Test
             StatusTransacaoCartao.Erro, StatusTransacaoCartao.Aprovada)] StatusTransacaoCartao statusAtual)
         {
             var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(statusAtual);
-            Assert.Throws<ImpossivelAprovarTransacaoException>(() => transacaoCartao.Aprovar(Guid.NewGuid().ToString()));
+            Assert.Throws<ImpossivelAprovarTransacaoException>(() => transacaoCartao.Aprovar());
         }
 
         [Test]
@@ -144,7 +134,7 @@ namespace Collectio.Domain.Test
             StatusTransacaoCartao.Erro, StatusTransacaoCartao.Aprovada)] StatusTransacaoCartao statusAtual)
         {
             var transacaoCartao = TransacaoCartaoBuilder.BuildTransacao().ComStatus(statusAtual);
-            Assert.Throws<ImpossivelDefinirErroTransacaoException>(() => transacaoCartao.DefinirErro("Falha", Guid.NewGuid().ToString()));
+            Assert.Throws<ImpossivelDefinirErroTransacaoException>(() => transacaoCartao.DefinirErro("Falha"));
         }
 
         [Test]
@@ -179,25 +169,16 @@ namespace Collectio.Domain.Test
         {
             if (status == StatusTransacaoCartao.Erro)
             {
-                return transacao.DefinirErro("Falha", Guid.NewGuid().ToString());
+                return transacao.DefinirErro("Falha");
             }
             else if (status == StatusTransacaoCartao.Aprovada)
             {
-                return transacao.Aprovar(Guid.NewGuid().ToString());
+                return transacao.Aprovar();
             }
             else if (status == StatusTransacaoCartao.Procesando)
                 return BuildTransacao();
 
             return null;
         }
-
-        public static Transacao ComStatusAprovado(this Transacao transacao) 
-            => transacao.Aprovar(Guid.NewGuid().ToString());
-
-        public static Transacao ComStatusErro(this Transacao transacao, string idTransacao, string mensagemErro) 
-            => transacao.DefinirErro(mensagemErro, idTransacao);
-
-        public static Transacao ComStatusAprovado(this Transacao transacao, string idTransacao)
-            => transacao.Aprovar(idTransacao);
     }
 }

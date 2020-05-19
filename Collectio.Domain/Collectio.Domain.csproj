@@ -5,11 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ContaBancariaAggregate\**" />
     <Compile Remove="RecorrenciaAggregate\**" />
-    <EmbeddedResource Remove="ContaBancariaAggregate\**" />
     <EmbeddedResource Remove="RecorrenciaAggregate\**" />
-    <None Remove="ContaBancariaAggregate\**" />
     <None Remove="RecorrenciaAggregate\**" />
   </ItemGroup>
 
