@@ -11,7 +11,7 @@ namespace Collectio.Application.Cobrancas.Commands
     {
         public void Mapping(Profile profile) 
             => profile.CreateMap<CreateCobrancaBoletoCommand, Cobranca>()
-                .ConstructUsing(c => Cobranca.Boleto(c.Valor, c.Vencimento, c.ClienteId, c.ContaBancariaId));
+                .ConstructUsing(c => Cobranca.Boleto(c.Valor, c.Vencimento, c.ClienteId, c.ConfiguracaoEmissorId));
 
         public decimal Valor { get; set; }
 
@@ -19,8 +19,6 @@ namespace Collectio.Application.Cobrancas.Commands
 
         public string ClienteId { get; set; }
 
-        public string EmissorId { get; set; }
-
-        public string ContaBancariaId { get; set; }
+        public string ConfiguracaoEmissorId { get; set; }
     }
 }

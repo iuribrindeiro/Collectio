@@ -7,7 +7,7 @@ using Collectio.Domain.ClienteAggregate;
 
 namespace Collectio.Application.Clientes.Commands
 {
-    public class CreateClienteCommandHandler : ICommandHandler<CreateClienteCommand, ClienteViewModel>
+    public class CreateClienteCommandHandler : ICommandHandler<CreateClienteCommand, string>
     {
         private readonly IMapper _mapper;
         private readonly IClientesRepository _clienteRepository;
@@ -18,11 +18,11 @@ namespace Collectio.Application.Clientes.Commands
             _clienteRepository = clienteRepository;
         }
 
-        public async Task<ClienteViewModel> Handle(CreateClienteCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(CreateClienteCommand request, CancellationToken cancellationToken)
         {
             var novoCliente = _mapper.Map<Cliente>(request);
             await _clienteRepository.SaveAsync(novoCliente);
-            return _mapper.Map<ClienteViewModel>(novoCliente);
+            return novoCliente.Id.ToString();
         }
     }
 }

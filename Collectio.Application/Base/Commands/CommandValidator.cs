@@ -14,7 +14,7 @@ namespace Collectio.Application.Base.Commands
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-        public CommandValidator(IEnumerable<IValidator<TRequest>> validators) 
+        public CommandValidator(IEnumerable<IValidator<TRequest>> validators)
             => _validators = validators;
 
         public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)

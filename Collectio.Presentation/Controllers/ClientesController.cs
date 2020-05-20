@@ -10,11 +10,11 @@ namespace Collectio.Presentation.Controllers
     public class ClientesController : BaseController
     {
         [HttpPost]
-        public async Task<IActionResult> Post(CreateClienteCommand createClienteCommand) 
-            => await Send(createClienteCommand);
+        public Task<IActionResult> Post(CreateClienteCommand createClienteCommand) 
+            => Send(createClienteCommand);
 
         [HttpGet, EnableQuery]
-        public async Task<IActionResult> Get([FromQuery]ClienteQueryRequest query)
-            => await Send(query);
+        public Task<IActionResult> Get([FromQuery]ClienteQueryRequest query)
+            => Send(query);
     }
 }

@@ -14,6 +14,9 @@ namespace Collectio.Domain.ClienteAggregate
         public CpfCnpjValueObject CpfCnpj => _cpfCnpj;
         public string CartaoCreditoPadraoId => _cartaoCreditoPadraoId;
 
+        public virtual bool CartaoCreditoPadraoDefinido 
+            => string.IsNullOrWhiteSpace(_cartaoCreditoPadraoId);
+
         public Cliente(string nome, CpfCnpjValueObject cpfCnpj)
         {
             _nome = nome;

@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using Collectio.Application.Base.Commands;
+using Collectio.Application.Base.CommandValidators;
 using Collectio.Application.Profiles;
-using Collectio.Application.ViewModels;
 using Collectio.Domain.Base.ValueObjects;
 using Collectio.Domain.ClienteAggregate;
+using FluentValidation;
 
 namespace Collectio.Application.Clientes.Commands
 {
-    public class CreateClienteCommand : ICommand<ClienteViewModel>, IMapTo<Cliente>
+    public class CreateClienteCommand : ICommand<string>, IMapTo<Cliente>
     {
         public string Nome { get; set; }
         public string CpfCnpj { get; set; }
@@ -15,5 +16,14 @@ namespace Collectio.Application.Clientes.Commands
         public void Mapping(Profile profile)
             => profile.CreateMap<CreateClienteCommand, Cliente>()
                 .ConstructUsing(c => new Cliente(c.Nome, new CpfCnpjValueObject(c.CpfCnpj)));
+    }
+
+    public class CreateClienteCommandValidator : AbstractValidator<CreateClienteCommand>
+    {
+        public CreateClienteCommandValidator()
+        {
+            RuleFor(c => c.CpfCnpj).NotEmpty().IsValidCpfOrCnpj();
+            RuleFor(c => c.Nome).NotEmpty();
+        }
     }
 }

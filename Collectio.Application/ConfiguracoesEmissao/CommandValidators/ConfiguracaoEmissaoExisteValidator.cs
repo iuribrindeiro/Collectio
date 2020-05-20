@@ -2,7 +2,7 @@
 using Collectio.Domain.ConfiguracaoEmissaoAggregate;
 using FluentValidation;
 
-namespace Collectio.Application.ConfiguracaoEmissao.CommandValidators
+namespace Collectio.Application.ConfiguracoesEmissao.CommandValidators
 {
     public static class ConfiguracaoEmissaoExisteValidator
     {
