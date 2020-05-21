@@ -6,7 +6,7 @@ using Collectio.Domain.ClienteAggregate.Exceptions;
 
 namespace Collectio.Domain.CartaoCreditoAggregate
 {
-    public class Transacao : BaseTenantEntity
+    public class Transacao : BaseOwnerEntity
     {
         private decimal _valor;
         private StatusTransacaoCartaoValueObject _status;

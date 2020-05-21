@@ -21,7 +21,7 @@ namespace Collectio.Domain.ClienteAggregate.EventHandlers
         public async Task Handle(CartaoCreditoCriadoEvent notification, CancellationToken cancellationToken)
         {
             var cartaoCredito = await _cartaoCreditoRepository.FindAsync(Guid.Parse(notification.CartaoId));
-            var cliente = await _clientesRepository.FindAsync(Guid.Parse(cartaoCredito.ClienteId));
+            var cliente = await _clientesRepository.FindAsync(Guid.Parse(cartaoCredito.TenantId));
             if (!cliente.CartaoCreditoPadraoDefinido)
                 cliente.DefinirCartaoCreditoPadrao(cartaoCredito.Id.ToString());
         }

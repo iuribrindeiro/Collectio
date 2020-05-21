@@ -5,28 +5,28 @@ using System.Collections.Generic;
 
 namespace Collectio.Domain.CartaoCreditoAggregate
 {
-    public class CartaoCredito : BaseTenantEntity, IAggregateRoot
+    public class CartaoCredito : BaseOwnerEntity, IAggregateRoot
     {
-        private CpfCnpjValueObject _cpfCnpjProprietario;
-        private string _clienteId;
-        private StatusCartaoValueObject _status;
-        private string _numero;
         private List<Transacao> _transacoes;
 
-        public string ClienteId => _clienteId;
-        public CpfCnpjValueObject CpfCnpjProprietario => _cpfCnpjProprietario;
-        public StatusCartaoValueObject Status => _status;
+        public string TenantId { get; private set; }
+
+        public string CpfCnpjProprietario { get; private set; }
+
+        public StatusCartaoValueObject Status { get; private set; }
+
         public virtual bool CartaoProcessado 
             => Status.Status == StatusCartao.Processado;
-        public string Numero => _numero;
+        public string Numero { get; private set; }
+
         public IReadOnlyCollection<Transacao> Transacoes => _transacoes;
 
-        public CartaoCredito(CpfCnpjValueObject cpfCnpjProprietario, string clienteId, DadosCartaoValueObject dadosCartao)
+        public CartaoCredito(string cpfCnpjProprietario, string tenantId, DadosCartaoValueObject dadosCartao)
         {
-            _cpfCnpjProprietario = cpfCnpjProprietario;
-            _clienteId = clienteId;
+            CpfCnpjProprietario = cpfCnpjProprietario;
+            TenantId = tenantId;
             _transacoes = new List<Transacao>();
-            _status = StatusCartaoValueObject.Processando();
+            Status = StatusCartaoValueObject.Processando();
             AddEvent(new CartaoCreditoCriadoEvent(dadosCartao, Id.ToString()));
         }
 
@@ -39,15 +39,15 @@ namespace Collectio.Domain.CartaoCreditoAggregate
 
         public CartaoCredito Processado(string numero)
         {
-            _status.Processado();
-            _numero = numero;
+            Status.Processado();
+            Numero = numero;
             AddEvent(new CartaoCreditoProcessadoEvent(Id.ToString(), numero));
             return this;
         }
 
         public CartaoCredito Erro(string mensagemErro)
         {
-            _status.Erro(mensagemErro);
+            Status.Erro(mensagemErro);
             AddEvent(new ErroProcessarCartaoCreditoEvent(Id.ToString(), mensagemErro));
             return this;
         }

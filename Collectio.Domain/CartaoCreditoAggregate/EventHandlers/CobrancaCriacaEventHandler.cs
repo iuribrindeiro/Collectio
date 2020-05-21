@@ -23,7 +23,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate.EventHandlers
             var cobranca = await _cobrancasRepository.FindAsync(Guid.Parse(domainEvent.CobrancaId));
             if (cobranca.FormaPagamentoCartao)
             {
-                var cartaoCredito = await _cartaoCreditoRepository.FindAsync(Guid.Parse(cobranca.Pagador.CartaoCreditoId));
+                var cartaoCredito = await _cartaoCreditoRepository.FindAsync(Guid.Parse(cobranca.Cliente.CartaoCredito.TenantId));
                 cartaoCredito.AddTransacao(cobranca.Id.ToString(), cobranca.ConfiguracaoEmissaoId, cobranca.Valor);
             }
         }

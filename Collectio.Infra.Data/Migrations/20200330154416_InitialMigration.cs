@@ -25,7 +25,7 @@ namespace Collectio.Infra.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Cliente_TenantId",
                 table: "Cliente",
-                column: "TenantId");
+                column: "OwnerId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

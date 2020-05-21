@@ -58,7 +58,7 @@ namespace Collectio.Domain.Test
         [Test]
         public void AoCriarCartaoCreditoDeveSetarDadosCorretamente()
         {
-            var cpfCnpjProprietario = new CpfCnpjValueObject("12345678912");
+            var cpfCnpjProprietario = "12345678912";
             var clienteId = Guid.NewGuid().ToString();
             var numero = "1234";
             var codigo = "12345";
@@ -67,8 +67,8 @@ namespace Collectio.Domain.Test
             var dadosCartao = CartaoCreditoBuilder.BuildDadosCartao(numero, codigo, nome, vencimento);
             var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito(cpfCnpjProprietario, clienteId, dadosCartao);
 
-            Assert.AreEqual(cartaoCredito.ClienteId, clienteId);
-            Assert.AreSame(cartaoCredito.CpfCnpjProprietario, cpfCnpjProprietario);
+            Assert.AreEqual(cartaoCredito.TenantId, clienteId);
+            Assert.AreEqual(cartaoCredito.CpfCnpjProprietario, cpfCnpjProprietario);
             Assert.AreEqual(numero, dadosCartao.Numero);
             Assert.AreEqual(codigo, dadosCartao.CodigoSeguranca);
             Assert.AreEqual(nome, dadosCartao.NomeProprietario);
@@ -145,13 +145,13 @@ namespace Collectio.Domain.Test
     public static class CartaoCreditoBuilder
     {
         public static CartaoCredito BuildCartaoCredito()
-            => new CartaoCredito(new CpfCnpjValueObject("12345678921"), Guid.NewGuid().ToString(), BuildDadosCartao());
+            => new CartaoCredito("12345678921", Guid.NewGuid().ToString(), BuildDadosCartao());
 
         public static CartaoCredito BuildCartaoCredito(DadosCartaoValueObject dadosCartao)
-            => new CartaoCredito(new CpfCnpjValueObject("12345678921"), Guid.NewGuid().ToString(), dadosCartao);
+            => new CartaoCredito("12345678921", Guid.NewGuid().ToString(), dadosCartao);
 
-        public static CartaoCredito BuildCartaoCredito(CpfCnpjValueObject cpfCnpjValueObject, string clienteId, DadosCartaoValueObject dadosCartaoValue)
-            => new CartaoCredito(cpfCnpjValueObject, clienteId, dadosCartaoValue);
+        public static CartaoCredito BuildCartaoCredito(string cpfCnpj, string clienteId, DadosCartaoValueObject dadosCartaoValue)
+            => new CartaoCredito(cpfCnpj, clienteId, dadosCartaoValue);
 
         public static DadosCartaoValueObject BuildDadosCartao() 
             => new DadosCartaoValueObject("1234", "1234", "Teste name", DateTime.Today);

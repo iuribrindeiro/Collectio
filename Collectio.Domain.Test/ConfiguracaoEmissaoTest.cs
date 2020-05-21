@@ -24,12 +24,12 @@ namespace Collectio.Domain.Test
             var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build(nomeEmpresa, cpfCnpj, agencia, conta, telefone, ddd, email);
 
             Assert.AreEqual(configuracaoEmissao.NomeEmpresa, nomeEmpresa);
-            Assert.AreEqual(configuracaoEmissao.CpfCnpj.Value, cpfCnpj);
+            Assert.AreEqual(configuracaoEmissao.CpfCnpj, cpfCnpj);
             Assert.AreEqual(configuracaoEmissao.AgenciaConta.Agencia, agencia);
             Assert.AreEqual(configuracaoEmissao.AgenciaConta.Conta, conta);
-            Assert.AreEqual(configuracaoEmissao.Telefone.Telefone, telefone);
+            Assert.AreEqual(configuracaoEmissao.Telefone.Numero, telefone);
             Assert.AreEqual(configuracaoEmissao.Telefone.Ddd, ddd);
-            Assert.AreEqual(configuracaoEmissao.Email.Value, email);
+            Assert.AreEqual(configuracaoEmissao.Email, email);
         }
         
         [Test]
@@ -65,12 +65,12 @@ namespace Collectio.Domain.Test
             configuracaoEmissao.Alterar(nomeEmpresa, agencia, conta, cpfCnpj, email, telefone, ddd);
 
             Assert.AreEqual(configuracaoEmissao.NomeEmpresa, nomeEmpresa);
-            Assert.AreEqual(configuracaoEmissao.CpfCnpj.Value, cpfCnpj);
+            Assert.AreEqual(configuracaoEmissao.CpfCnpj, cpfCnpj);
             Assert.AreEqual(configuracaoEmissao.AgenciaConta.Agencia, agencia);
             Assert.AreEqual(configuracaoEmissao.AgenciaConta.Conta, conta);
-            Assert.AreEqual(configuracaoEmissao.Telefone.Telefone, telefone);
+            Assert.AreEqual(configuracaoEmissao.Telefone.Numero, telefone);
             Assert.AreEqual(configuracaoEmissao.Telefone.Ddd, ddd);
-            Assert.AreEqual(configuracaoEmissao.Email.Value, email);
+            Assert.AreEqual(configuracaoEmissao.Email, email);
         }
 
         [Test]
@@ -108,9 +108,9 @@ namespace Collectio.Domain.Test
 
             var agenciaAnterior = configuracaoEmissao.AgenciaConta.Agencia;
             var contaAnterior = configuracaoEmissao.AgenciaConta.Conta;
-            var cpfCnpjAnterior = configuracaoEmissao.CpfCnpj.Value;
-            var emailAnterior = configuracaoEmissao.Email.Value;
-            var telefoneAnterior = configuracaoEmissao.Telefone.Telefone;
+            var cpfCnpjAnterior = configuracaoEmissao.CpfCnpj;
+            var emailAnterior = configuracaoEmissao.Email;
+            var telefoneAnterior = configuracaoEmissao.Telefone.Numero;
             var dddAnterior = configuracaoEmissao.Telefone.Ddd;
 
             var configuracaoEmissaoAlteradaEvent = configuracaoEmissao.Events

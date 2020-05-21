@@ -4,6 +4,7 @@ using Collectio.Domain.CobrancaAggregate.Exceptions;
 using NUnit.Framework;
 using System;
 using System.Linq;
+using Collectio.Domain.Base.ValueObjects;
 
 namespace Collectio.Domain.Test
 {
@@ -12,7 +13,6 @@ namespace Collectio.Domain.Test
         private Cobranca _cobrancaBoleto;
         private Cobranca _cobrancaCartao;
         private Cobranca _cobrancaBoletoFormaPagamentoFinalizada;
-        private Cobranca _cobrancaCartaoFormaPagamentoFinalizada;
 
         [SetUp]
         public void Setup()
@@ -22,9 +22,6 @@ namespace Collectio.Domain.Test
             _cobrancaBoletoFormaPagamentoFinalizada = CobrancaBuilder
                 .BuildCobrancaBoleto()
                 .ComTransacaoFinalizada();
-            _cobrancaCartaoFormaPagamentoFinalizada = CobrancaBuilder
-                .BuildCobrancaCartao()
-                .ComTransacaoFinalizada();
         }
 
         [Test]
@@ -32,16 +29,26 @@ namespace Collectio.Domain.Test
         {
             var valor = 20;
             var vencimento = DateTime.Today.AddDays(10);
-            var clienteId = Guid.NewGuid().ToString();
+            var tenantIdCliente = Guid.NewGuid().ToString();
             var cartaoCreditoId = Guid.NewGuid().ToString();
             var configuracaoEmissaoId = Guid.NewGuid().ToString();
+            var nomeCliente = "Nome cliente teste 123";
+            var cpfCnpjCliente = "123457822333";
+            var emailCliente = "asdadad22233@email.com";
+            var telefoneCliente = new Telefone("ddd", "4477885522");
+            var cartaoCreditoCliente = new CartaoCredito("Nome clçiente 12313213", "numero 4455888", cartaoCreditoId);
 
-            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(valor, vencimento, clienteId, configuracaoEmissaoId, cartaoCreditoId);
+            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, tenantIdCliente);
 
             Assert.AreEqual(novaCobranca.Valor, valor);
             Assert.AreEqual(novaCobranca.Vencimento, vencimento);
-            Assert.AreEqual(novaCobranca.Pagador.ClienteId, clienteId);
-            Assert.AreEqual(novaCobranca.Pagador.CartaoCreditoId, cartaoCreditoId);
+            Assert.AreEqual(novaCobranca.Cliente.TenantId, tenantIdCliente);
+            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.TenantId, cartaoCreditoId);
+            Assert.AreEqual(novaCobranca.Cliente.Telefone.Ddd, telefoneCliente.Ddd);
+            Assert.AreEqual(novaCobranca.Cliente.Telefone.Numero, telefoneCliente.Numero);
+            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.Nome, cartaoCreditoCliente.Nome);
+            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.Numero, cartaoCreditoCliente.Numero);
+            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.TenantId, cartaoCreditoCliente.TenantId);
             Assert.AreEqual(novaCobranca.ConfiguracaoEmissaoId, configuracaoEmissaoId);
         }
 
@@ -214,14 +221,11 @@ namespace Collectio.Domain.Test
             var vencimento = DateTime.Today;
             var configuracaoEmissaoId = Guid.NewGuid().ToString();
             var clienteId = Guid.NewGuid().ToString();
-            var cartaoCreditoId = Guid.NewGuid().ToString();
             var valor = 20;
 
-            _cobrancaBoletoFormaPagamentoFinalizada.AlterarCobranca(valor, vencimento, clienteId, configuracaoEmissaoId, cartaoCreditoId);
+            _cobrancaBoletoFormaPagamentoFinalizada.AlterarCobranca(valor, vencimento, configuracaoEmissaoId);
 
             Assert.AreEqual(_cobrancaBoletoFormaPagamentoFinalizada.Valor, valor);
-            Assert.AreEqual(_cobrancaBoletoFormaPagamentoFinalizada.Pagador.ClienteId, clienteId);
-            Assert.AreEqual(_cobrancaBoletoFormaPagamentoFinalizada.Pagador.CartaoCreditoId, cartaoCreditoId);
             Assert.AreEqual(_cobrancaBoletoFormaPagamentoFinalizada.Vencimento, vencimento);
             Assert.AreEqual(_cobrancaBoletoFormaPagamentoFinalizada.ConfiguracaoEmissaoId, configuracaoEmissaoId);
         }
@@ -230,7 +234,7 @@ namespace Collectio.Domain.Test
         public void AoTentarAtualizarCobrancaComFormaPagamentoProcessandoDeveLancarExcecao()
         {
             Assert.Throws<ImpossivelAlterarCobrancaComFormaPagamentoPendenteException>(() => _cobrancaBoleto
-                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()));
+                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString()));
         }
 
         [Test]
@@ -238,7 +242,7 @@ namespace Collectio.Domain.Test
         {
             _cobrancaBoletoFormaPagamentoFinalizada.RealizarPagamento(_cobrancaBoleto.Valor);
             Assert.Throws<ImpossivelAlterarCobrancaPagaException>(() => _cobrancaBoletoFormaPagamentoFinalizada
-                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()));
+                .AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString()));
         }
 
         [Test]
@@ -288,26 +292,18 @@ namespace Collectio.Domain.Test
 
             var vencimento = _cobrancaBoletoFormaPagamentoFinalizada.Vencimento;
             var configuracaoEmissaoId = _cobrancaBoletoFormaPagamentoFinalizada.ConfiguracaoEmissaoId;
-            var clienteId = _cobrancaBoletoFormaPagamentoFinalizada.Pagador.ClienteId;
-            var cartaoCreditoId = _cobrancaBoletoFormaPagamentoFinalizada.Pagador.CartaoCreditoId;
             var valor = _cobrancaBoletoFormaPagamentoFinalizada.Valor;
 
-            _cobrancaBoletoFormaPagamentoFinalizada.AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+            _cobrancaBoletoFormaPagamentoFinalizada.AlterarCobranca(20, DateTime.Today, Guid.NewGuid().ToString());
 
             Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().CobrancaId, _cobrancaBoletoFormaPagamentoFinalizada.Id.ToString());
             Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().ValorAnterior, valor);
             Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().VencimentoAnterior, vencimento);
-            Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().ContaBancariaIdAnterior, configuracaoEmissaoId);
-            Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().ClienteIdAnterior, clienteId);
-            Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().CartaoCreditoIdAnterior, cartaoCreditoId);
+            Assert.AreEqual(cobrancaAlteradaEvent.SingleOrDefault().ConfiguracaoEmissaoIdAnterior, configuracaoEmissaoId);
         }
 
-        [Test, Sequential]
-        public void AoAlterarCobrancaSeAlgumCampoMudarDeveRegerarTransacao(
-            [Values(200, 100)] decimal valor, [Values("2020-20-02", "2020-07-02")] string dataVencimento,
-            [Values("123", "1234")] string clienteId,
-            [Values("123", "1234")] string configuracaoEmissaoId,
-            [Values("123", "1234")] string cartaoCreditoId)
+        [Test]
+        public void AoAlterarCobrancaBoletoDeveRegerarTransacao()
         {
             var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
 
@@ -316,22 +312,22 @@ namespace Collectio.Domain.Test
 
             Assert.IsNull(transacaoBoletoReprocessadaEvent.SingleOrDefault());
 
-            cobrancaBoleto.AlterarCobranca(valor,
-                DateTime.ParseExact(dataVencimento, "yyyy-dd-MM", null), clienteId, configuracaoEmissaoId,
-                cartaoCreditoId);
+            cobrancaBoleto.AlterarCobranca(22, DateTime.Today, Guid.NewGuid().ToString());
 
             Assert.IsNotNull(transacaoBoletoReprocessadaEvent.SingleOrDefault());
         }
 
         [Test]
-        public void AoAlterarCobrancaSeNenhumCampoMudarNaoDeveRegerarTransacao()
+        public void AoAlterarCobrancaCartaoNaoDeveRegerarTransacao()
         {
-            var cobrancaBoleto = _cobrancaBoletoFormaPagamentoFinalizada;
+            var cobrancaCartao = CobrancaBuilder.BuildCobrancaCartao().ComErroTransacao();
 
-            var transacaoBoletoReprocessadaEvent = cobrancaBoleto.Events.Where(e => e is TransacaoCobrancaReprocessandodoEvent)
+            var transacaoBoletoReprocessadaEvent = cobrancaCartao.Events.Where(e => e is TransacaoCobrancaReprocessandodoEvent)
                 .Cast<TransacaoCobrancaReprocessandodoEvent>();
 
-            cobrancaBoleto.AlterarCobranca(cobrancaBoleto.Valor, cobrancaBoleto.Vencimento, cobrancaBoleto.Pagador.ClienteId, cobrancaBoleto.ConfiguracaoEmissaoId);
+            Assert.IsNull(transacaoBoletoReprocessadaEvent.SingleOrDefault());
+
+            cobrancaCartao.AlterarCobranca(22, DateTime.Today, Guid.NewGuid().ToString());
 
             Assert.IsNull(transacaoBoletoReprocessadaEvent.SingleOrDefault());
         }
@@ -355,18 +351,24 @@ namespace Collectio.Domain.Test
                 .FinalizaProcessamentoFormaPagamento();
 
         public static Cobranca BuildCobrancaBoleto() =>
-            Cobranca.Boleto(valor: 200, vencimento: DateTime.Today,
-                clienteId: Guid.NewGuid().ToString(), configuracaoEmissaoId: Guid.NewGuid().ToString());
+            Cobranca.Boleto(valor: 200, vencimento: DateTime.Today, configuracaoEmissaoId: Guid.NewGuid().ToString(), "Teste Nome", "12345678912", "email@email.com", 
+                new Telefone("12", "123456782"), 
+                new Endereco("adasd", "132A", "123123Bairro", "1234568", "CE", "Teste"), 
+                tenantIdCliente: Guid.NewGuid().ToString());
 
         public static Cobranca BuildCobrancaCartao() =>
-            Cobranca.Cartao(valor: 200, vencimento: DateTime.Today,
-                clienteId: Guid.NewGuid().ToString(), cartaoCreditoId: Guid.NewGuid().ToString(),
-                configuracaoEmissaoId: Guid.NewGuid().ToString());
+            Cobranca.Cartao(valor: 200, vencimento: DateTime.Today, configuracaoEmissaoId: Guid.NewGuid().ToString(), 
+                tenantIdCliente: Guid.NewGuid().ToString(), nomeCliente: "Teste Bla", cpfCnpjCliente: "44422255588", 
+                emailCliente: "email@email.com", telefoneCliente: new Telefone("12", "55887744"), 
+                cartaoCreditoCliente: new CartaoCredito("Teste nome", "1234", Guid.NewGuid().ToString()));
 
-        public static Cobranca BuildCobrancaCartao(decimal valor, DateTime vencimento, string clienteId, string configuracaoEmissaoId, string cartaoCreditoId)
-            => Cobranca.Cartao(valor, vencimento, clienteId, cartaoCreditoId, configuracaoEmissaoId);
+        public static Cobranca BuildCobrancaCartao(decimal valor, DateTime vencimento, string configuracaoEmissaoId,
+            string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, CartaoCredito cartaoCreditoCliente, string tenantIdCliente)
+            => Cobranca.Cartao(valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, null, tenantIdCliente);
 
-        public static Cobranca BuildCobrancaBoleto(decimal valor, DateTime vencimento, string clienteId, string configuracaoEmissaoId)
-            => Cobranca.Boleto(valor, vencimento, clienteId, configuracaoEmissaoId);
+        public static Cobranca BuildCobrancaBoleto(decimal valor, DateTime vencimento, string clienteId,
+            string configuracaoEmissaoId, string nomeCliente, string cpfCnpjCliente, string emailCliente,
+            Telefone telefoneCliente, Endereco enderecoCliente, string tenantIdCliente)
+            => Cobranca.Boleto(valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, enderecoCliente, tenantIdCliente);
     }
 }

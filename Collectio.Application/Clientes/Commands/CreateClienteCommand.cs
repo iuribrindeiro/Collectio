@@ -15,7 +15,7 @@ namespace Collectio.Application.Clientes.Commands
 
         public void Mapping(Profile profile)
             => profile.CreateMap<CreateClienteCommand, Cliente>()
-                .ConstructUsing(c => new Cliente(c.Nome, new CpfCnpjValueObject(c.CpfCnpj)));
+                .ConstructUsing(c => new Cliente(c.Nome, c.CpfCnpj));
     }
 
     public class CreateClienteCommandValidator : AbstractValidator<CreateClienteCommand>

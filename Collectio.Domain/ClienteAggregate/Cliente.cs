@@ -4,30 +4,26 @@ using Collectio.Domain.ClienteAggregate.Events;
 
 namespace Collectio.Domain.ClienteAggregate
 {
-    public class Cliente : BaseTenantEntity, IAggregateRoot
+    public class Cliente : BaseOwnerEntity, IAggregateRoot
     {
-        private string _nome;
-        private CpfCnpjValueObject _cpfCnpj;
-        private string _cartaoCreditoPadraoId;
-
-        public string Nome => _nome;
-        public CpfCnpjValueObject CpfCnpj => _cpfCnpj;
-        public string CartaoCreditoPadraoId => _cartaoCreditoPadraoId;
+        public string Nome { get; private set; }
+        public string CpfCnpj { get; private set; }
+        public string CartaoCreditoPadraoId { get; private set; }
 
         public virtual bool CartaoCreditoPadraoDefinido 
-            => string.IsNullOrWhiteSpace(_cartaoCreditoPadraoId);
+            => string.IsNullOrWhiteSpace(CartaoCreditoPadraoId);
 
-        public Cliente(string nome, CpfCnpjValueObject cpfCnpj)
+        public Cliente(string nome, string cpfCnpj)
         {
-            _nome = nome;
-            _cpfCnpj = cpfCnpj;
+            Nome = nome;
+            CpfCnpj = cpfCnpj;
             AddEvent(new ClienteCriadoEvent(Id.ToString()));
         }
 
         public Cliente DefinirCartaoCreditoPadrao(string cartaoCreditoId)
         {
-            var cartaoCreditoPadraoAnteriorId = _cartaoCreditoPadraoId;
-            _cartaoCreditoPadraoId = cartaoCreditoId;
+            var cartaoCreditoPadraoAnteriorId = CartaoCreditoPadraoId;
+            CartaoCreditoPadraoId = cartaoCreditoId;
             AddEvent(new CartaoCreditoPadraoDefinidoEvent(cartaoCreditoId, cartaoCreditoPadraoAnteriorId));
             return this;
         }

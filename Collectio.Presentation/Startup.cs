@@ -35,11 +35,11 @@ namespace Collectio.Presentation
             {
                 opt.SerializerSettings.Formatting = Formatting.Indented;
             });
-            services.AddScoped<ITenantIdProvider, TenantIdProvider>(e =>
+            services.AddScoped<IOwnerIdProvider, OwnerIdProvider>(e =>
             {
                 var httpContextAccessor = e.GetService<IHttpContextAccessor>();
                 Guid.TryParse(httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value, out Guid tenantId);
-                return new TenantIdProvider(tenantId);
+                return new OwnerIdProvider(tenantId);
             });
             services.AddLogging();
 

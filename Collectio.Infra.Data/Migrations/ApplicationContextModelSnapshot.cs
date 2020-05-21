@@ -35,12 +35,12 @@ namespace Collectio.Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Cliente");
                 });

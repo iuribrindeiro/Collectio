@@ -13,7 +13,7 @@ namespace Collectio.Domain.Test
         public void AoCriarClienteDeveSetarDadosCorretamente()
         {
             var nome = "Iuri";
-            var cpfCnpj = new CpfCnpjValueObject("12345678912");
+            var cpfCnpj = "12345678912";
 
             var cliente = new Cliente(nome, cpfCnpj);
 
@@ -24,7 +24,7 @@ namespace Collectio.Domain.Test
         [Test]
         public void AoCriarClienteDeveAdicionarEventoCliente()
         {
-            var cliente = new Cliente("Iuri", new CpfCnpjValueObject("12345678912"));
+            var cliente = new Cliente("Iuri", "12345678912");
             var eventos = cliente.Events
                 .Where(e => e is ClienteCriadoEvent)
                 .Cast<ClienteCriadoEvent>();
@@ -35,7 +35,7 @@ namespace Collectio.Domain.Test
         [Test]
         public void AoDefinirCartaoCreditoClientePadraoDeveSetarCartaoPadraoCorretamente()
         {
-            var cliente = new Cliente("Iuri", new CpfCnpjValueObject("12345678912"));
+            var cliente = new Cliente("Iuri", "12345678912");
             var cartaoId = Guid.NewGuid().ToString();
             cliente.DefinirCartaoCreditoPadrao(cartaoId);
             Assert.AreEqual(cliente.CartaoCreditoPadraoId, cartaoId);
@@ -44,7 +44,7 @@ namespace Collectio.Domain.Test
         [Test]
         public void AoDefinirCartaoCreditoClientePadraoDeveAdicionarEventoCliente()
         {
-            var cliente = new Cliente("Iuri", new CpfCnpjValueObject("12345678912"));
+            var cliente = new Cliente("Iuri", "12345678912");
             var eventos = cliente.Events
                 .Where(e => e is CartaoCreditoPadraoDefinidoEvent)
                 .Cast<CartaoCreditoPadraoDefinidoEvent>();

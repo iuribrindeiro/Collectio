@@ -9,6 +9,6 @@ namespace Collectio.Application.Base.CommandValidators
             => ruleBuilder.NotEmpty()
                 .MinimumLength(8).MaximumLength(9)
                 .Must(e => Regex.IsMatch(e, @"^\d$"))
-                .WithMessage("Telefone inválido");
+                .WithMessage("Numero inválido");
     }
 }

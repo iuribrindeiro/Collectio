@@ -22,10 +22,10 @@ namespace Collectio.Infra.Data
 
         public ApplicationContext(
             DbContextOptions<ApplicationContext> options, 
-            ITenantIdProvider tenantIdProvider, IDomainEventEmitter domainEventEmitter) : base(options)
+            IOwnerIdProvider ownerIdProvider, IDomainEventEmitter domainEventEmitter) : base(options)
         {
             _domainEventEmitter = domainEventEmitter;
-            _tenantId = tenantIdProvider.TenantId;
+            _tenantId = ownerIdProvider.OwnerId;
             _eventsSent = new List<IDomainEvent>();
         }
 
@@ -33,9 +33,9 @@ namespace Collectio.Infra.Data
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(BaseEntityTypeConfiguration<>)));
 
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes().Where(e => (bool)e.ClrType?.IsAssignableFrom(typeof(BaseTenantEntity))))
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes().Where(e => (bool)e.ClrType?.IsAssignableFrom(typeof(BaseOwnerEntity))))
             {
-                Expression<Func<BaseTenantEntity, bool>> filter = e => e.TenantId == _tenantId;
+                Expression<Func<BaseOwnerEntity, bool>> filter = e => e.OwnerId == _tenantId;
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
             }
 
@@ -56,8 +56,8 @@ namespace Collectio.Infra.Data
                 var dataCriacaoOriginal = (entity.OriginalValues["DataCriacao"] as DateTime?);
                 entity.CurrentValues["DataAtualizacao"] = dataAtual;
                 entity.CurrentValues["DataCriacao"] = dataCriacaoOriginal != null && dataCriacaoOriginal != DateTime.MinValue ? dataCriacaoOriginal : dataAtual;
-                if (entity.Entity is BaseTenantEntity)
-                    entity.CurrentValues["TenantId"] = _tenantId;
+                if (entity.Entity is BaseOwnerEntity)
+                    entity.CurrentValues["OwnerId"] = _tenantId;
             }
 
             await _domainEventEmitter.PublishAsync(PendingEvents().ToArray());
@@ -81,7 +81,7 @@ namespace Collectio.Infra.Data
             var entities = EntityEntries();
             var modifiedAndAdded = entities.Where(e => (e.State == EntityState.Modified || e.State == EntityState.Added) &&
                                                        ((e.Entity as BaseEntity).DataCriacao == DateTime.MinValue || (e.Entity as BaseEntity).DataAtualizacao == DateTime.MinValue || 
-                                                        e.Entity is BaseTenantEntity && (e.Entity as BaseTenantEntity).TenantId == Guid.Empty));
+                                                        e.Entity is BaseOwnerEntity && (e.Entity as BaseOwnerEntity).OwnerId == Guid.Empty));
             return modifiedAndAdded;
         }
 

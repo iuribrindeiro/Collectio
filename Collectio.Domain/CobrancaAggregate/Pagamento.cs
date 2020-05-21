@@ -2,7 +2,7 @@
 
 namespace Collectio.Domain.CobrancaAggregate.Pagamentos
 {
-    public class Pagamento : BaseTenantEntity
+    public class Pagamento : BaseOwnerEntity
     {
         private decimal _valor;
 

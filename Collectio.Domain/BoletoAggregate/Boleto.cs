@@ -5,7 +5,7 @@ using Collectio.Domain.ClienteAggregate.Events;
 
 namespace Collectio.Domain.BoletoAggregate
 {
-    public class Boleto : BaseTenantEntity
+    public class Boleto : BaseOwnerEntity
     {
         private Cliente _cliente;
         private Guid _clienteId;

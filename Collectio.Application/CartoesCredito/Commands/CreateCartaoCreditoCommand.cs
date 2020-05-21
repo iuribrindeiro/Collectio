@@ -23,7 +23,7 @@ namespace Collectio.Application.CartoesCredito.Commands
     {
         public CreateCartaoCreditoCommandValidator(IClientesRepository clientesRepository)
         {
-            RuleFor(c => c.ClienteId).ExisteClienteComId(clientesRepository);
+            RuleFor(c => c.ClienteId).NotEmpty();
             RuleFor(c => c.Vencimento).GreaterThanOrEqualTo(DateTime.Today);
             RuleFor(c => c.Numero).CreditCard();
             RuleFor(c => c.CodigoSeguranca).MinimumLength(3).MaximumLength(5);

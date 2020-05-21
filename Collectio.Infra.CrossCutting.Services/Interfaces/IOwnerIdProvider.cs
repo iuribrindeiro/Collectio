@@ -2,8 +2,8 @@
 
 namespace Collectio.Infra.CrossCutting.Services
 {
-    public interface ITenantIdProvider
+    public interface IOwnerIdProvider
     {
-        Guid TenantId { get; }
+        Guid OwnerId { get; }
     }
 }

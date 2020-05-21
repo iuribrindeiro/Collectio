@@ -3,14 +3,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Collectio.Infra.Data.EntitiyTypes.Base
 {
-    public abstract class BaseTenantEntityTypeConfiguration<T> : BaseEntityTypeConfiguration<T> where T : BaseTenantEntity
+    public abstract class BaseTenantEntityTypeConfiguration<T> : BaseEntityTypeConfiguration<T> where T : BaseOwnerEntity
     {
         protected bool IsUnique = false;
 
         private void ConfigureBaseTenantEntity(EntityTypeBuilder<T> builder)
         {
-            builder.HasIndex(e => e.TenantId).IsUnique(IsUnique);
-            builder.Property(e => e.TenantId).HasField("_tenantId");
+            builder.HasIndex(e => e.OwnerId).IsUnique(IsUnique);
+            builder.Property(e => e.OwnerId).HasField("_tenantId");
         }
 
         public override void Configure(EntityTypeBuilder<T> builder)
