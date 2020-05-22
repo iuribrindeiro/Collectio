@@ -17,7 +17,7 @@ namespace Collectio.Presentation.Filters
         {
             if (context.Exception is ValidationCommandException validationCommandException)
             {
-                context.Result = new UnprocessableEntityObjectResult(new { message = validationCommandException.Message, errors = validationCommandException.CommandPropertyErrors });
+                context.Result = new UnprocessableEntityObjectResult(new { message = validationCommandException.Message, errors = validationCommandException.Errors });
             } else if (context.Exception is BusinessRuleCommandException businessRuleCommandException)
             {
                 context.Result = new BadRequestObjectResult(new { message = businessRuleCommandException.Message });
