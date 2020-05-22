@@ -7,21 +7,18 @@ namespace Collectio.Domain.Base
     {
         protected BaseEntity()
         {
-            _id = Guid.NewGuid();
-            _dataCriacao = DateTime.Now;
+            Id = Guid.NewGuid();
+            DataCriacao = DateTime.Now;
             _events = new List<IDomainEvent>();
         }
 
-        private Guid _id;
-        private DateTime _dataCriacao;
-        private DateTime _dataAtualizacao;
         private List<IDomainEvent> _events;
 
-        public Guid Id => _id;
+        public Guid Id { get; private set; }
 
-        public DateTime DataCriacao => _dataCriacao;
+        public DateTime DataCriacao { get; private set; }
 
-        public DateTime DataAtualizacao => _dataAtualizacao;
+        public DateTime DataAtualizacao { get; private set; }
 
         public virtual IReadOnlyCollection<IDomainEvent> Events => _events;
 

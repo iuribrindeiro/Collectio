@@ -1,16 +1,18 @@
 ﻿using Collectio.Domain.Base;
+using System;
 
 namespace Collectio.Domain.CobrancaAggregate.Pagamentos
 {
     public class Pagamento : BaseOwnerEntity
     {
-        private decimal _valor;
+        public Guid CobrancaId { get; private set; }
+        public decimal Valor { get; private set; }
 
-        public decimal Valor => _valor;
+        private Pagamento() {}
 
         public Pagamento(decimal valor)
         {
-            _valor = valor;
+            Valor = valor;
         }
     }
 }

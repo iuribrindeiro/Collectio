@@ -10,9 +10,8 @@ namespace Collectio.Infra.Data.EntitiyTypes.Base
         private void ConfigureBaseEntity(EntityTypeBuilder<T> builder)
         {
             builder.HasKey(e => e.Id);
-            builder.Property(e => e.Id).HasField("_id");
-            builder.Property(e => e.DataAtualizacao).HasField("_dataAtualizacao");
-            builder.Property(e => e.DataCriacao).HasField("_dataCriacao");
+            builder.Property(e => e.DataAtualizacao).IsRequired();
+            builder.Property(e => e.DataCriacao).IsRequired();
         }
 
         public virtual void Configure(EntityTypeBuilder<T> builder)

@@ -9,12 +9,16 @@ namespace Collectio.Infra.Data.Repositories.Base
     public abstract class BaseRepository<T> : IRepository<T> where T : BaseEntity, IAggregateRoot
     {
         protected readonly ApplicationContext _applicationContext;
+        protected DbSet<T> Itens { get; private set; }
 
-        public BaseRepository(ApplicationContext applicationContext) 
-            => _applicationContext = applicationContext;
+        public BaseRepository(ApplicationContext applicationContext)
+        {
+            _applicationContext = applicationContext;
+            Itens = _applicationContext.Set<T>();
+        }
 
         public async Task SaveAsync(T entity) 
-            => await _applicationContext.Set<T>().AddAsync(entity);
+            => await Itens.AddAsync(entity);
 
         private async Task LoadEntity(T entity) 
             => await FindAsync(entity.Id);
@@ -28,23 +32,23 @@ namespace Collectio.Infra.Data.Repositories.Base
             }
             else
             {
-                _applicationContext.Set<T>().Update(entity);
+                Itens.Update(entity);
             }
         }
 
         public Task<T> FindAsync(Guid id) 
-            => _applicationContext.Set<T>().Where(e => e.Id == id).FirstOrDefaultAsync();
+            => Itens.Where(e => e.Id == id).FirstOrDefaultAsync();
 
         public Task<bool> Exists(Guid id) 
-            => _applicationContext.Set<T>().AnyAsync(e => e.Id == id);
+            => Itens.AnyAsync(e => e.Id == id);
 
         public async Task<IQueryable<T>> ListAsync() 
-            => _applicationContext.Set<T>().AsQueryable();
+            => Itens.AsQueryable();
 
         public async Task DeleteAsync(Guid id) 
-            => _applicationContext.Set<T>().Remove(await FindAsync(id));
+            => Itens.Remove(await FindAsync(id));
 
         public async Task DeleteAsync(T entity) 
-            => _applicationContext.Set<T>().Remove(entity);
+            => Itens.Remove(entity);
     }
 }

@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace Collectio.Application.ConfiguracoesEmissao.Commands
 {
-    public class CreateConfiguracaoEmissaoCommand : ICommand<string>, IMapTo<ConfiguracaoEmissao>
+    public class CreateConfiguracaoEmissaoCommand : ICommand<string>, IMapping
     {
         public string NomeEmpresa { get; set; }
         public string Agencia { get; set; }

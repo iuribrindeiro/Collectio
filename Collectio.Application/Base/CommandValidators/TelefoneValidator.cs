@@ -9,6 +9,6 @@ namespace Collectio.Application.Base.CommandValidators
             => ruleBuilder.NotEmpty()
                 .MinimumLength(8).MaximumLength(9)
                 .Must(e => Regex.IsMatch(e, @"^\d$"))
-                .WithMessage("Numero inválido");
+                .WithMessage("O número de telefone deve conter de 8 a 9 dígitos numéricos");
     }
 }

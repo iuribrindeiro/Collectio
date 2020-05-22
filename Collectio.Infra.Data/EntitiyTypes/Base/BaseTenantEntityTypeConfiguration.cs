@@ -10,7 +10,6 @@ namespace Collectio.Infra.Data.EntitiyTypes.Base
         private void ConfigureBaseTenantEntity(EntityTypeBuilder<T> builder)
         {
             builder.HasIndex(e => e.OwnerId).IsUnique(IsUnique);
-            builder.Property(e => e.OwnerId).HasField("_tenantId");
         }
 
         public override void Configure(EntityTypeBuilder<T> builder)

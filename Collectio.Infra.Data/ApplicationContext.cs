@@ -17,7 +17,7 @@ namespace Collectio.Infra.Data
     public class ApplicationContext : DbContext, IUnitOfWork
     {
         private readonly IDomainEventEmitter _domainEventEmitter;
-        private readonly Guid _tenantId;
+        private readonly Guid _ownerId;
         private IList<IDomainEvent> _eventsSent;
 
         public ApplicationContext(
@@ -25,7 +25,7 @@ namespace Collectio.Infra.Data
             IOwnerIdProvider ownerIdProvider, IDomainEventEmitter domainEventEmitter) : base(options)
         {
             _domainEventEmitter = domainEventEmitter;
-            _tenantId = ownerIdProvider.OwnerId;
+            _ownerId = ownerIdProvider.OwnerId;
             _eventsSent = new List<IDomainEvent>();
         }
 
@@ -35,7 +35,7 @@ namespace Collectio.Infra.Data
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes().Where(e => (bool)e.ClrType?.IsAssignableFrom(typeof(BaseOwnerEntity))))
             {
-                Expression<Func<BaseOwnerEntity, bool>> filter = e => e.OwnerId == _tenantId;
+                Expression<Func<BaseOwnerEntity, bool>> filter = e => e.OwnerId == _ownerId;
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
             }
 
@@ -57,7 +57,7 @@ namespace Collectio.Infra.Data
                 entity.CurrentValues["DataAtualizacao"] = dataAtual;
                 entity.CurrentValues["DataCriacao"] = dataCriacaoOriginal != null && dataCriacaoOriginal != DateTime.MinValue ? dataCriacaoOriginal : dataAtual;
                 if (entity.Entity is BaseOwnerEntity)
-                    entity.CurrentValues["OwnerId"] = _tenantId;
+                    entity.CurrentValues["OwnerId"] = _ownerId;
             }
 
             await _domainEventEmitter.PublishAsync(PendingEvents().ToArray());

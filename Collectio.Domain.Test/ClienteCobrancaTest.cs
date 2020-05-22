@@ -100,15 +100,6 @@ namespace Collectio.Domain.Test
         }
 
         [Test]
-        public void AoCriarClienteSemEnderecoECobrancaDeBoletoDeveLancarExcecao()
-        {
-            var cobrancaCartao = CobrancaBuilder.BuildCobrancaBoleto();
-            Assert.Throws<CobrancaBoletoDeveConterEnderecoClienteVinculadoException>(()
-                => new Cliente(cobrancaCartao, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(),
-                    ClienteCobrancaBuilder.BuildTelefone(), null, null));
-        }
-
-        [Test]
         public void AoCriarClienteComCartaoCreditoECobrancaNaoCartaoDeveLancarExcecao()
         {
             var cobrancaCartao = CobrancaBuilder.BuildCobrancaBoleto();
@@ -203,17 +194,6 @@ namespace Collectio.Domain.Test
 
             Assert.Throws<ImpossivelAlterarDadosClienteQuandoCobrancaEstaEmProcessamentoException>(() => cliente.Alterar(Guid.NewGuid().ToString(), "teste", "1234", "emaikl@amil.com",
                 ClienteCobrancaBuilder.BuildTelefone(), ClienteCobrancaBuilder.BuildEndereco()));
-        }
-
-        [Test]
-        public void AoAlterarClienteERemoverEnderecoDeCobrancaBoletoDeveLancarExcecao()
-        {
-            var cobranca = CobrancaBuilder.BuildCobrancaBoleto().FinalizaProcessamentoFormaPagamento();
-            var cliente = ClienteCobrancaBuilder.BuildCliente(cobranca);
-
-            Assert.Throws<CobrancaBoletoDeveConterEnderecoClienteVinculadoException>(()
-                => cliente.Alterar(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(),
-                    Guid.NewGuid().ToString(), ClienteCobrancaBuilder.BuildTelefone(), null));
         }
 
         [Test]

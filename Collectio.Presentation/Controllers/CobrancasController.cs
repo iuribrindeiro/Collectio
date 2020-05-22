@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Collectio.Presentation.Controllers
 {
-    public class CobrancaController : BaseController
+    public class CobrancasController : BaseController
     {
-        [HttpPost]
+        [HttpPost("cartao")]
         public Task<IActionResult> Cartao([FromBody] CreateCobrancaCartaoCommand command) 
             => Send(command);
 

@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Collectio.Infra.CrossCutting.Services\Collectio.Infra.CrossCutting.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

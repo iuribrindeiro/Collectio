@@ -15,6 +15,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Collectio.Application.Profiles;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Collectio.Infra.CrossCutting.Ioc
@@ -25,10 +26,11 @@ namespace Collectio.Infra.CrossCutting.Ioc
         {
             ValidatorOptions.LanguageManager.Culture = new CultureInfo("pt-BR");
             serviceCollectio.AddScoped<IDatabaseMigrator, DatabaeMigrator>();
-            serviceCollectio.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingPipeline<,>));
+            serviceCollectio.AddValidatorsFromAssembly(typeof(CommandValidator<,>).Assembly);
+            serviceCollectio.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipeline<,>));
+            serviceCollectio.AddTransient(typeof(IPipelineBehavior<,>), typeof(CommandValidator<,>));
             serviceCollectio.AddMediatR(typeof(LoggingPipeline<,>).Assembly, typeof(IDomainEventHandler<>).Assembly);
-            serviceCollectio.AddAutoMapper(Assembly.GetExecutingAssembly());
-            serviceCollectio.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            serviceCollectio.AddAutoMapper(typeof(MappingProfile).Assembly);
             serviceCollectio.AddScoped<ICommandQuerySender, CommandQuerySender>();
             serviceCollectio.AddDbContext<ApplicationContext>(e => e.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             serviceCollectio.AddScoped<IUnitOfWork, ApplicationContext>(e => e.GetService<ApplicationContext>());

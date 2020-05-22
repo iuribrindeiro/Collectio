@@ -1,20 +1,21 @@
 ﻿using System;
+using Collectio.Domain.Base.ValueObjects;
 using Collectio.Domain.CobrancaAggregate.Exceptions;
 
 namespace Collectio.Domain.CobrancaAggregate
 {
-    public class Transacao
+    public class Transacao : ValueObject
     {
-        private FormaPagamento _formaPagamento;
-        private StatusTransacao _status;
+        public FormaPagamento FormaPagamento { get; private set; }
 
-        public FormaPagamento FormaPagamento => _formaPagamento;
-        public StatusTransacao Status => _status;
+        public StatusTransacao Status { get; private set; }
+
+        private Transacao() {}
 
         private Transacao(FormaPagamento formaPagamento)
         {
-            _formaPagamento = formaPagamento;
-            _status = StatusTransacao.Processando;
+            FormaPagamento = formaPagamento;
+            Status = StatusTransacao.Processando;
         }
 
         public static Transacao Cartao()
@@ -34,24 +35,24 @@ namespace Collectio.Domain.CobrancaAggregate
         public Transacao Reprocessar() 
             => new Transacao(FormaPagamento);
 
-        public bool FormaPagamentoBoleto
+        public virtual bool FormaPagamentoBoleto
             => FormaPagamento == FormaPagamento.Boleto;
 
-        public bool FormaPagamentoCartao
+        public virtual bool FormaPagamentoCartao
             => FormaPagamento == FormaPagamento.Cartao;
 
-        public bool ProcessamentoPendente
+        public virtual bool ProcessamentoPendente
             => !ProcessamentoConcluido;
 
-        public bool ProcessamentoConcluido =>
-            _status == StatusTransacao.Processado || _status == StatusTransacao.Erro;
+        public virtual bool ProcessamentoConcluido =>
+            Status == StatusTransacao.Processado || Status == StatusTransacao.Erro;
 
         public void FinalizaProcessamento()
         {
             if (Status == StatusTransacao.Processado || Status == StatusTransacao.Erro)
                 throw new ProcessoFormaPagamentoJaFinalizadoException();
 
-            _status = StatusTransacao.Processado;
+            Status = StatusTransacao.Processado;
         }
 
         public void Erro()
@@ -59,7 +60,7 @@ namespace Collectio.Domain.CobrancaAggregate
             if (Status == StatusTransacao.Processado || Status == StatusTransacao.Erro)
                 throw new ProcessoFormaPagamentoJaFinalizadoException();
 
-            _status = StatusTransacao.Erro;
+            Status = StatusTransacao.Erro;
         }
 
         public static bool operator ==(Transacao a, Transacao b)

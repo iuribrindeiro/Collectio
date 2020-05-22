@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Collectio.Application.Base.Commands
 {
     public class CommandValidator<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
+        where TRequest : ICommand<TResponse>
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 

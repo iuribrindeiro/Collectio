@@ -1,6 +1,5 @@
 ﻿using System;
 using Collectio.Domain.Base;
-using Collectio.Domain.Base.Exceptions;
 using Collectio.Domain.Base.ValueObjects;
 using Collectio.Domain.CobrancaAggregate.Exceptions;
 
@@ -16,6 +15,7 @@ namespace Collectio.Domain.CobrancaAggregate
         public virtual Telefone Telefone { get; private set; }
         public string TenantId { get; private set; }
         public virtual Cobranca Cobranca { get; private set; }
+        public Guid CobrancaId { get; private set; }
 
         private Cliente() {}
 
@@ -33,7 +33,7 @@ namespace Collectio.Domain.CobrancaAggregate
             Endereco = endereco;
 
             ValidaDadosClienteEmissaoCartao(cartaoCredito);
-            ValidaDadosClienteEmissaoBoleto(endereco);
+            ValidaDadosClienteEmissaoBoleto();
         }
 
         public Cliente AlterarCartaoCredito(CartaoCredito cartaoCredito)
@@ -50,7 +50,7 @@ namespace Collectio.Domain.CobrancaAggregate
         public Cliente Alterar(string tenantId, string nome, string cpfCnpj, string email, Telefone telefone, Endereco endereco)
         {
             ValidaAlteracaoCliente();
-            ValidaDadosClienteEmissaoBoleto(endereco);
+            ValidaDadosClienteEmissaoBoleto();
 
             TenantId = tenantId;
             Nome = nome;
@@ -64,11 +64,8 @@ namespace Collectio.Domain.CobrancaAggregate
         public override string ToString()
             => Nome;
 
-        private void ValidaDadosClienteEmissaoBoleto(Endereco endereco)
+        private void ValidaDadosClienteEmissaoBoleto()
         {
-            if (!endereco && Cobranca.FormaPagamentoBoleto)
-                throw new CobrancaBoletoDeveConterEnderecoClienteVinculadoException();
-
             if (CartaoCredito && Cobranca.FormaPagamentoBoleto)
                 throw new CobrancaBoletoNaoDeveConterCartaoNoClienteException();
         }
@@ -86,13 +83,6 @@ namespace Collectio.Domain.CobrancaAggregate
 
             if (Cobranca.Status == StatusCobranca.Pago)
                 throw new ImpossivelAlterarDadosClienteQuandoCobrancaJaEstaPagaException();
-        }
-    }
-
-    public class ImpossivelAlterarDadosClienteQuandoCobrancaJaEstaPagaException : BusinessRulesException
-    {
-        public ImpossivelAlterarDadosClienteQuandoCobrancaJaEstaPagaException() : base("Não é possível atualizar os dados de um cliente cuja cobrança já está paga")
-        {
         }
     }
 }

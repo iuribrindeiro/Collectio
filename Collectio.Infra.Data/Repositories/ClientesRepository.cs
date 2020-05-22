@@ -1,5 +1,6 @@
 ﻿using Collectio.Domain.ClienteAggregate;
 using Collectio.Infra.Data.Repositories.Base;
+using Cliente = Collectio.Domain.ClienteAggregate.Cliente;
 
 namespace Collectio.Infra.Data.Repositories
 {

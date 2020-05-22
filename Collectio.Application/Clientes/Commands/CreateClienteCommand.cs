@@ -8,7 +8,7 @@ using FluentValidation;
 
 namespace Collectio.Application.Clientes.Commands
 {
-    public class CreateClienteCommand : ICommand<string>, IMapTo<Cliente>
+    public class CreateClienteCommand : ICommand<string>, IMapping
     {
         public string Nome { get; set; }
         public string CpfCnpj { get; set; }

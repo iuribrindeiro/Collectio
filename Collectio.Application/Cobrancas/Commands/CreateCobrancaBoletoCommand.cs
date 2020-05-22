@@ -1,40 +1,29 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Collectio.Application.Base.Commands;
+using Collectio.Application.Cobrancas.CommandValidators;
 using Collectio.Application.Cobrancas.ViewModels;
 using Collectio.Application.Profiles;
-using Collectio.Domain.CobrancaAggregate;
 using Collectio.Domain.Base.ValueObjects;
-using Collectio.Domain.CartaoCreditoAggregate;
-using Collectio.Domain.ClienteAggregate;
-using FluentValidation;
+using Collectio.Domain.CobrancaAggregate;
+using Collectio.Domain.ConfiguracaoEmissaoAggregate;
 
 namespace Collectio.Application.Cobrancas.Commands
 {
-    public class CreateCobrancaBoletoCommand : BaseCreateCobrancaCommand, ICommand<CobrancaViewModel>, IMapTo<Cobranca>
+    public class CreateCobrancaBoletoCommand : BaseCreateCobrancaCommand, ICommand<CobrancaViewModel>, IMapping
     {
         public void Mapping(Profile profile) 
             => profile.CreateMap<CreateCobrancaBoletoCommand, Cobranca>()
                 .ConstructUsing((c, context) => Cobranca.Boleto(
                     c.Valor, c.Vencimento, c.ConfiguracaoEmissorId, 
-                    c.NomeCliente, c.CpfCnpjCliente, c.EmailCliente,
-                    context.Mapper.Map<Telefone>(c.TelefoneCliente), 
-                    context.Mapper.Map<Endereco>(c.EnderecoCliente), 
-                    c.TenantIdCliente));
+                    c.Cliente.Nome, c.Cliente.CpfCnpj, c.Cliente.Email,
+                    context.Mapper.Map<Telefone>(c.Cliente.Telefone), 
+                    context.Mapper.Map<Endereco>(c.Cliente.Endereco), c.Cliente.TenantId));
     }
 
-    public class CreateCobrancaBoletoValidator : AbstractValidator<CreateCobrancaBoletoCommand>
+    public class CreateCobrancaBoletoValidator : BaseCreateCobrancaCommandValidator<CreateCobrancaBoletoCommand>
     {
-        private readonly ICartaoCreditoRepository _cartaoCreditoRepository;
-        private readonly IClientesRepository _clientesRepository;
-
-        public CreateCobrancaBoletoValidator(ICartaoCreditoRepository cartaoCreditoRepository, IClientesRepository clientesRepository)
+        public CreateCobrancaBoletoValidator(IConfiguracaoEmissaoRepository configuracaoEmissaoRepository) : base(configuracaoEmissaoRepository)
         {
-            _cartaoCreditoRepository = cartaoCreditoRepository;
-            _clientesRepository = clientesRepository;
-
-            RuleFor(c => c.NomeCliente)
-                .MustAsync(async (c, a) => await _clientesRepository.FindAsync(Guid.Parse(c))).WithMessage("Cliente selecionado não existe");
         }
     }
 }

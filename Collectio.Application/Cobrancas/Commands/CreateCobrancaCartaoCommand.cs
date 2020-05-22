@@ -1,42 +1,55 @@
-﻿using AutoMapper;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Collectio.Application.Base.Commands;
-using Collectio.Application.Clientes.CommandValidators;
+using Collectio.Application.Cobrancas.CommandValidators;
 using Collectio.Application.Cobrancas.ViewModels;
 using Collectio.Application.Profiles;
 using Collectio.Domain.Base.ValueObjects;
-using Collectio.Domain.CartaoCreditoAggregate;
-using Collectio.Domain.ClienteAggregate;
 using Collectio.Domain.CobrancaAggregate;
 using Collectio.Domain.ConfiguracaoEmissaoAggregate;
-using FluentValidation;
-using System;
 using CartaoCredito = Collectio.Domain.CobrancaAggregate.CartaoCredito;
 
 namespace Collectio.Application.Cobrancas.Commands
 {
-    public class CreateCobrancaCartaoCommand : BaseCreateCobrancaCommand, ICommand<CobrancaViewModel>, IMapTo<Cobranca>
+    public class CreateCobrancaCartaoCommand : BaseCreateCobrancaCommand, ICommand<string>, IMapping
     {
-        public CartaoCreditoViewModel CartaoCredito { get; set; }
+        public CartaoCreditoCobrancaViewModel CartaoCredito { get; set; }
 
         public void Mapping(Profile profile) 
             => profile.CreateMap<CreateCobrancaCartaoCommand, Cobranca>()
                 .ConstructUsing((c, context) => Cobranca.Cartao(
-                    c.Valor, c.Vencimento, c.ConfiguracaoEmissorId, 
-                    c.NomeCliente, c.CpfCnpjCliente, c.EmailCliente,
-                    context.Mapper.Map<Telefone>(c.TelefoneCliente), context.Mapper.Map<CartaoCredito>(c.CartaoCredito), 
-                    context.Mapper.Map<Endereco>(c.EnderecoCliente), c.TenantIdCliente));
+                    c.Valor, c.Vencimento, c.ConfiguracaoEmissorId,
+                    c.Cliente.Nome, c.Cliente.CpfCnpj, c.Cliente.Email,
+                    context.Mapper.Map<Telefone>(c.Cliente.Telefone), context.Mapper.Map<CartaoCredito>(c.CartaoCredito), 
+                    context.Mapper.Map<Endereco>(c.Cliente.Endereco), c.Cliente.TenantId));
     }
 
-    public class CreateCobrancaCartaoCommandValidator : AbstractValidator<CreateCobrancaCartaoCommand>
+    public class CreateCobrancaCartaoCommandHandler : ICommandHandler<CreateCobrancaCartaoCommand, string>
     {
-        public CreateCobrancaCartaoCommandValidator(
-            IConfiguracaoEmissaoRepository configuracaoEmissaoRepository,
-            IClientesRepository clientesRepository,
-            ICartaoCreditoRepository cartaoCreditoRepository)
+        private readonly ICobrancasRepository _cobrancasRepository;
+        private readonly IMapper _mapper;
+
+        public CreateCobrancaCartaoCommandHandler(ICobrancasRepository cobrancasRepository, IMapper mapper)
         {
-            RuleFor(c => c.Valor).GreaterThan(0);
-            RuleFor(c => c.TenantIdCliente).ExisteClienteComId(clientesRepository);
-            RuleFor(c => c.Vencimento).GreaterThanOrEqualTo(DateTime.Today);
+            _cobrancasRepository = cobrancasRepository;
+            _mapper = mapper;
+        }
+
+        public async Task<string> Handle(CreateCobrancaCartaoCommand request, CancellationToken cancellationToken)
+        {
+            var cobranca = _mapper.Map<Cobranca>(request);
+            await _cobrancasRepository.SaveAsync(cobranca);
+            return cobranca.Id.ToString();
+        }
+    }
+
+    public class CreateCobrancaCartaoCommandValidator : BaseCreateCobrancaCommandValidator<CreateCobrancaCartaoCommand>
+    {
+        public CreateCobrancaCartaoCommandValidator(IConfiguracaoEmissaoRepository configuracaoEmissaoRepository) 
+            : base(configuracaoEmissaoRepository)
+        {
+            RuleFor(c => c.CartaoCredito);
         }
     }
 }

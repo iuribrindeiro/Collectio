@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Collectio.Application.Base.Commands;
-using Collectio.Application.Clientes.CommandValidators;
 using Collectio.Application.Profiles;
 using Collectio.Domain.CartaoCreditoAggregate;
 using Collectio.Domain.ClienteAggregate;
@@ -9,7 +8,7 @@ using System;
 
 namespace Collectio.Application.CartoesCredito.Commands
 {
-    public class CreateCartaoCreditoCommand : ICommand<string>, IMapTo<CartaoCredito>
+    public class CreateCartaoCreditoCommand : ICommand<string>, IMapping
     {
         public string ClienteId { get; set; }
         public string Numero { get; set; }

@@ -12,7 +12,7 @@ namespace Collectio.Domain.CobrancaAggregate
         public string Descricao { get; private set; }
         public decimal Valor { get; private set; }
         public DateTime Vencimento { get; private set; }
-        public StatusCobranca Status => Pagamento ? StatusCobranca.Pago :
+        public virtual StatusCobranca Status => Pagamento ? StatusCobranca.Pago :
             Vencimento < DateTime.Today ? StatusCobranca.Vencido : 
             StatusCobranca.Pendente;
 
@@ -20,7 +20,6 @@ namespace Collectio.Domain.CobrancaAggregate
         public virtual bool FormaPagamentoCartao => Transacao.FormaPagamentoCartao;
         public Pagamento Pagamento { get; private set; }
         public Transacao Transacao { get; private set; }
-        public Guid ClienteId { get; private set; }
         public virtual Cliente Cliente { get; private set; }
         public string ConfiguracaoEmissaoId { get; private set; }
 

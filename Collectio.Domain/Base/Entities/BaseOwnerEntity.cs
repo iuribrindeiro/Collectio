@@ -4,9 +4,8 @@ namespace Collectio.Domain.Base
 {
     public abstract class BaseOwnerEntity : BaseEntity
     {
-        protected BaseOwnerEntity(): base(){}
+        protected BaseOwnerEntity() {}
 
-        private Guid _ownerId;
-        public Guid OwnerId => _ownerId;
+        public Guid OwnerId { get; private set; }
     }
 }

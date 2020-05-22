@@ -22,12 +22,15 @@ namespace Collectio.Domain.CartaoCreditoAggregate.EventHandlers
         public async Task Handle(TransacaoCobrancaReprocessandodoEvent domainEvent, CancellationToken cancellationToken)
         {
             var cobranca = await _cobrancasRepository.FindAsync(Guid.Parse(domainEvent.CobrancaId));
-            var transacao = _cartaoCreditoRepository
-                .ListaTransacoesCobranca(domainEvent.CobrancaId)
-                .OrderByDescending(t => t.DataCriacao)
-                .FirstOrDefault();
-
-            transacao.Reprocessar(cobranca.Valor, cobranca.ConfiguracaoEmissaoId);
+            if (cobranca.FormaPagamentoCartao && Guid.TryParse(cobranca.Cliente.CartaoCredito.TenantId, out Guid cartaoCreditoId))
+            {
+                var cartaoCredito = await _cartaoCreditoRepository.FindAsync(cartaoCreditoId);
+                if (cartaoCredito && cartaoCredito.Transacoes.Any(t => t.CobrancaId == domainEvent.CobrancaId))
+                {
+                    var transacao = cartaoCredito.Transacoes.First(t => t.CobrancaId == domainEvent.CobrancaId);
+                    transacao.Reprocessar(cobranca.Valor, cobranca.ConfiguracaoEmissaoId);
+                }
+            }
         }
     }
 }
