@@ -1,4 +1,6 @@
-﻿namespace Collectio.Application.Cobrancas.ViewModels
+﻿using Collectio.Application.Base.ViewModels;
+
+namespace Collectio.Application.Cobrancas.ViewModels
 {
     public class ClienteCobrancaViewModel
     {

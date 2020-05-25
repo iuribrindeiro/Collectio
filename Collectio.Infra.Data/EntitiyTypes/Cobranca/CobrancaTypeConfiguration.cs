@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Collectio.Infra.Data.EntitiyTypes.Cobranca
 {
-    public class CobrancaTypeConfiguration : BaseTenantEntityTypeConfiguration<Domain.CobrancaAggregate.Cobranca>
+    public class CobrancaTypeConfiguration : BaseOwnerEntityTypeConfiguration<Domain.CobrancaAggregate.Cobranca>
     {
         protected override void ConfigureEntity(EntityTypeBuilder<Domain.CobrancaAggregate.Cobranca> builder)
         {
@@ -15,7 +15,7 @@ namespace Collectio.Infra.Data.EntitiyTypes.Cobranca
             builder.Property(c => c.ConfiguracaoEmissaoId).IsRequired();
             builder.HasIndex(c => c.ConfiguracaoEmissaoId);
             builder.HasOne(c => c.Pagamento).WithOne().HasForeignKey<Pagamento>(p => p.CobrancaId).IsRequired();
-            builder.HasOne(c => c.Cliente).WithOne(c => c.Cobranca).HasForeignKey<Domain.CobrancaAggregate.Cliente>(c => c.CobrancaId).IsRequired();
+            builder.HasOne(c => c.ClienteCobranca).WithOne(c => c.Cobranca).HasForeignKey<Domain.CobrancaAggregate.ClienteCobranca>(c => c.CobrancaId).IsRequired();
             builder.OwnsOne(c => c.Transacao, t =>
             {
                 t.Property(p => p.Status).IsRequired();

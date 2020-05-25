@@ -10,7 +10,7 @@ namespace Collectio.Domain.Base
         Task UpdateAsync(T entity);
         Task<T> FindAsync(Guid id);
         Task<bool> Exists(Guid id);
-        Task<IQueryable<T>> ListAsync();
+        IQueryable<T> ListAsync();
         Task DeleteAsync(Guid id);
         Task DeleteAsync(T entity);
     }

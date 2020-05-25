@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Collectio.Domain.Base.ValueObjects;
 using Collectio.Domain.CobrancaAggregate.Events;
 using Collectio.Domain.ConfiguracaoEmissaoAggregate;
 using Collectio.Domain.ConfiguracaoEmissaoAggregate.Events;
@@ -54,23 +55,21 @@ namespace Collectio.Domain.Test
         {
             var nomeEmpresa = "Teste";
             var cpfCnpj = "12344";
-            var agencia = "1234222";
-            var conta = "9988";
-            var telefone = "242424";
-            var ddd = "55";
+            var agencia = "12345";
+            var conta = "1222";
+            var agenciaConta = new AgenciaConta(agencia, conta);
+            var telefone = new Telefone("1234", "12");
             var email = "asdasdsad@email.com";
 
             var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Processado);
 
-            configuracaoEmissao.Alterar(nomeEmpresa, agencia, conta, cpfCnpj, email, telefone, ddd);
+            configuracaoEmissao.Alterar(nomeEmpresa, cpfCnpj, email, agenciaConta, telefone);
 
             Assert.AreEqual(configuracaoEmissao.NomeEmpresa, nomeEmpresa);
             Assert.AreEqual(configuracaoEmissao.CpfCnpj, cpfCnpj);
             Assert.AreEqual(configuracaoEmissao.AgenciaConta.Agencia, agencia);
             Assert.AreEqual(configuracaoEmissao.AgenciaConta.Conta, conta);
-            Assert.AreEqual(configuracaoEmissao.Telefone.Numero, telefone);
-            Assert.AreEqual(configuracaoEmissao.Telefone.Ddd, ddd);
-            Assert.AreEqual(configuracaoEmissao.Email, email);
+            Assert.AreSame(configuracaoEmissao.Telefone, telefone);
         }
 
         [Test]
@@ -80,8 +79,7 @@ namespace Collectio.Domain.Test
 
             Assert.Throws<ImpossivelAlterarConfiguracaoEmissaoEmProcessamentoException>(() => 
                 configuracaoEmissao.Alterar(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 
-                    Guid.NewGuid().ToString(), Guid.NewGuid().ToString(),
-                    Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()));
+                    Guid.NewGuid().ToString(), new AgenciaConta("1234", "123445"), new Telefone("tewst", "213")));
         }
 
         [Test, Sequential]
@@ -96,7 +94,7 @@ namespace Collectio.Domain.Test
         {
             var configuracaoEmissao = ConfiguracaoEmissaoBuilder.Build().ComStatus(StatusConfiguracaoEmissao.Processado);
 
-            configuracaoEmissao.Alterar(nomeEmpresa, agencia, conta, cpfCnpj, email, telefone, ddd);
+            configuracaoEmissao.Alterar(nomeEmpresa, cpfCnpj, email, new AgenciaConta(agencia, conta),  new Telefone(ddd, telefone));
 
             Assert.IsNotNull(configuracaoEmissao.Events.Where(e => e is ConfiguracaoEmissaoReprocessandoEvent).Cast<ConfiguracaoEmissaoReprocessandoEvent>().SingleOrDefault());
         }
@@ -119,7 +117,7 @@ namespace Collectio.Domain.Test
 
             Assert.IsNull(configuracaoEmissaoAlteradaEvent.SingleOrDefault());
 
-            configuracaoEmissao.Alterar("Teste", "ag", "conta", "cpf", "email", "telefone", "ddd");
+            configuracaoEmissao.Alterar("Teste", "cpf", "email", new AgenciaConta("1233", "1231"),  new Telefone("12", "1234"));
 
 
             var @event = configuracaoEmissaoAlteradaEvent.SingleOrDefault();
@@ -246,10 +244,10 @@ namespace Collectio.Domain.Test
     public static class ConfiguracaoEmissaoBuilder
     {
         public static ConfiguracaoEmissao Build(string nomeEmpresa, string cpfCnpj, string agencia, string conta, string telefone, string ddd, string email) 
-            => new ConfiguracaoEmissao(nomeEmpresa, agencia, conta, cpfCnpj, email, telefone, ddd);
+            => new ConfiguracaoEmissao(nomeEmpresa, cpfCnpj, email, new AgenciaConta(agencia, conta),  new Telefone(ddd, telefone));
 
         public static ConfiguracaoEmissao Build() =>
-            new ConfiguracaoEmissao("Nome Teste", "AG1", "C2", "CPF123", "Email1", "telefone1", "ddd1");
+            new ConfiguracaoEmissao("Nome Teste", "CPF123", "Email1", new AgenciaConta("222", "3444"),  new Telefone("12", "1234"));
 
         public static ConfiguracaoEmissao ComStatus(this ConfiguracaoEmissao configuracaoEmissao,
             StatusConfiguracaoEmissao status)

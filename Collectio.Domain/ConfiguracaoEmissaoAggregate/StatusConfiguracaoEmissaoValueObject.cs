@@ -4,17 +4,13 @@ namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
 {
     public class StatusConfiguracaoEmissaoValueObject
     {
-        private StatusConfiguracaoEmissao _status;
-        private string _mensagemErro;
-
-        public StatusConfiguracaoEmissao Status => _status;
-        public string MensagemErro => _mensagemErro;
+        public StatusConfiguracaoEmissao Status { get; private set; }
+        public string MensagemErro { get; private set; }
 
         public static StatusConfiguracaoEmissaoValueObject Processando() 
-            => new StatusConfiguracaoEmissaoValueObject();
+            => new StatusConfiguracaoEmissaoValueObject() { Status = StatusConfiguracaoEmissao.Processando };
 
-        private StatusConfiguracaoEmissaoValueObject() 
-            => _status = StatusConfiguracaoEmissao.Processando;
+        private StatusConfiguracaoEmissaoValueObject() {}
 
         public bool EstaProcessando
             => Status == StatusConfiguracaoEmissao.Processando;
@@ -34,7 +30,7 @@ namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
             if (Status != StatusConfiguracaoEmissao.Processando)
                 throw new ImpossivelProcessarConfiguracaoRecebimentoException();
 
-            _status = StatusConfiguracaoEmissao.Processado;
+            Status = StatusConfiguracaoEmissao.Processado;
             return this;
         }
 
@@ -43,8 +39,8 @@ namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
             if (Status != StatusConfiguracaoEmissao.Processando)
                 throw new ImpossivelDefinirErroConfiguracaoRecebimentoException();
 
-            _status = StatusConfiguracaoEmissao.Erro;
-            _mensagemErro = mensagemErro;
+            Status = StatusConfiguracaoEmissao.Erro;
+            MensagemErro = mensagemErro;
             return this;
         }
     }

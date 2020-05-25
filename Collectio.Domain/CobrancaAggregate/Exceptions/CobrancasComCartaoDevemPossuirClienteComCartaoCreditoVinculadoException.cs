@@ -4,8 +4,8 @@ namespace Collectio.Domain.CobrancaAggregate.Exceptions
 {
     public class CobrancasComCartaoDevemPossuirClienteComCartaoCreditoVinculadoException : BusinessRulesException
     {
-        public CobrancasComCartaoDevemPossuirClienteComCartaoCreditoVinculadoException(Cobranca cobranca, Cliente cliente) 
-            : base($"O cliente {cliente} da cobranca {cobranca} não possúi cartão de crédito vinculado")
+        public CobrancasComCartaoDevemPossuirClienteComCartaoCreditoVinculadoException(Cobranca cobranca, ClienteCobranca clienteCobranca) 
+            : base($"O cliente {clienteCobranca} da cobranca {cobranca} não possúi cartão de crédito vinculado")
         {
         }
     }

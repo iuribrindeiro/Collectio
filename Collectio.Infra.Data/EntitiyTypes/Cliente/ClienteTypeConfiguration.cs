@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Collectio.Infra.Data.EntitiyTypes.Cliente
 {
-    public class ClienteTypeConfiguration : BaseTenantEntityTypeConfiguration<Domain.ClienteAggregate.Cliente>
+    public class ClienteTypeConfiguration : BaseOwnerEntityTypeConfiguration<Domain.ClienteAggregate.Cliente>
     {
         protected override void ConfigureEntity(EntityTypeBuilder<Domain.ClienteAggregate.Cliente> builder)
         {

@@ -53,22 +53,22 @@ namespace Collectio.Domain.Test
         public static CartaoCredito BuildCartaoCredito() 
             => new CartaoCredito("Bla bla", "12314", Guid.NewGuid().ToString());
 
-        public static Cliente BuildCliente(Cobranca cobranca)
+        public static ClienteCobranca BuildCliente(Cobranca cobranca)
         {
             var cartaoCredito = cobranca.FormaPagamentoCartao ? ClienteCobrancaBuilder.BuildCartaoCredito() : null;
 
-            return new Cliente(cobranca, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(),
+            return new ClienteCobranca(cobranca, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(),
                 BuildTelefone(), BuildEndereco(), cartaoCredito);
         }
 
-        public static Cliente BuildCliente(FormaPagamento formaPagamentoCobranca)
+        public static ClienteCobranca BuildCliente(FormaPagamento formaPagamentoCobranca)
         {
             var cobranca = formaPagamentoCobranca == FormaPagamento.Boleto
                 ? CobrancaBuilder.BuildCobrancaBoleto()
                 : CobrancaBuilder.BuildCobrancaCartao();
             var cartaoCredito = cobranca.FormaPagamentoCartao ? ClienteCobrancaBuilder.BuildCartaoCredito() : null;
 
-            return new Cliente(cobranca, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(),
+            return new ClienteCobranca(cobranca, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(),
                 BuildTelefone(), BuildEndereco(), cartaoCredito);
         }
     }
@@ -95,7 +95,7 @@ namespace Collectio.Domain.Test
         {
             var cobrancaCartao = CobrancaBuilder.BuildCobrancaCartao();
             Assert.Throws<CobrancasComCartaoDevemPossuirClienteComCartaoCreditoVinculadoException>(()
-                => new Cliente(cobrancaCartao, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(), 
+                => new ClienteCobranca(cobrancaCartao, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(), 
                     ClienteCobrancaBuilder.BuildTelefone(), ClienteCobrancaBuilder.BuildEndereco(), null));
         }
 
@@ -104,7 +104,7 @@ namespace Collectio.Domain.Test
         {
             var cobrancaCartao = CobrancaBuilder.BuildCobrancaBoleto();
             Assert.Throws<CobrancaBoletoNaoDeveConterCartaoNoClienteException>(()
-                => new Cliente(cobrancaCartao, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(),
+                => new ClienteCobranca(cobrancaCartao, "Bla bla", "cpf", "emailbla@email", Guid.NewGuid().ToString(),
                     ClienteCobrancaBuilder.BuildTelefone(), ClienteCobrancaBuilder.BuildEndereco(), ClienteCobrancaBuilder.BuildCartaoCredito()));
         }
 
@@ -120,7 +120,7 @@ namespace Collectio.Domain.Test
             var tenantId = Guid.NewGuid().ToString();
             var cartaoCredito = ClienteCobrancaBuilder.BuildCartaoCredito();
 
-            var cliente = new Cliente(cobrancaCartao, nome, cpfCnpj, email, tenantId, telefone, endereco, cartaoCredito);
+            var cliente = new ClienteCobranca(cobrancaCartao, nome, cpfCnpj, email, tenantId, telefone, endereco, cartaoCredito);
 
 
             Assert.AreEqual(cliente.Nome, nome);

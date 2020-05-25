@@ -8,25 +8,26 @@ namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
     public class ConfiguracaoEmissao : BaseOwnerEntity, IAggregateRoot
     {
         public string NomeEmpresa { get; private set; }
-        public AgenciaContaValueObject AgenciaConta { get; private set; }
         public string CpfCnpj { get; private set; }
         public string Email { get; private set; }
         public Telefone Telefone { get; private set; }
-
+        public AgenciaConta AgenciaConta { get; private set; }
         public StatusConfiguracaoEmissaoValueObject Status { get; private set; }
 
-        public ConfiguracaoEmissao(string nomeEmpresa, string agencia, string conta, string cpfCnpj, string email, string telefone, string ddd)
+        private ConfiguracaoEmissao() {}
+
+        public ConfiguracaoEmissao(string nomeEmpresa, string cpfCnpj, string email, AgenciaConta agenciaConta, Telefone telefone)
         {
             NomeEmpresa = nomeEmpresa;
-            AgenciaConta = new AgenciaContaValueObject(agencia, conta);
+            AgenciaConta = agenciaConta;
             CpfCnpj = cpfCnpj;
             Email = email;
-            Telefone = new Telefone(ddd, telefone);
+            Telefone = telefone;
             Status = StatusConfiguracaoEmissaoValueObject.Processando();
             AddEvent(new ConfiguracaoEmissaoCriadaEvent(Id.ToString()));
         }
 
-        public ConfiguracaoEmissao Alterar(string nomeEmpresa, string agencia, string conta, string cpfCnpj, string email, string telefone, string ddd)
+        public ConfiguracaoEmissao Alterar(string nomeEmpresa, string cpfCnpj, string email, AgenciaConta agenciaConta, Telefone telefone)
         {
             if (Status.EstaProcessando)
                 throw new ImpossivelAlterarConfiguracaoEmissaoEmProcessamentoException();
@@ -41,10 +42,10 @@ namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
             
 
             NomeEmpresa = nomeEmpresa;
-            AgenciaConta = new AgenciaContaValueObject(agencia, conta);
+            AgenciaConta = agenciaConta;
             CpfCnpj = cpfCnpj;
             Email = email;
-            Telefone = new Telefone(ddd, telefone);
+            Telefone = telefone;
 
             Reprocessar();
             AddEvent(new ConfiguracaoEmissaoAlteradaEvent(Id.ToString(), nomeEmpresaAnterior, agenciaAnterior, cpfCnpjAnterior, contaAnterior, emailAnterior, telefoneAnterior, dddAnterior));

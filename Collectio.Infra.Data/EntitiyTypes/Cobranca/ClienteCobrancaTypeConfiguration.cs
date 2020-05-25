@@ -4,11 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Collectio.Infra.Data.EntitiyTypes.Cobranca
 {
-    public class ClienteTypeConfiguration : BaseTenantEntityTypeConfiguration<Domain.CobrancaAggregate.Cliente>
+    public class ClienteCobrancaTypeConfiguration : BaseOwnerEntityTypeConfiguration<Domain.CobrancaAggregate.ClienteCobranca>
     {
-        protected override void ConfigureEntity(EntityTypeBuilder<Domain.CobrancaAggregate.Cliente> builder)
+        protected override void ConfigureEntity(EntityTypeBuilder<Domain.CobrancaAggregate.ClienteCobranca> builder)
         {
-            builder.ToTable("ClienteCobranca");
             builder.Property(c => c.Nome).IsRequired();
             builder.Property(c => c.Email).IsRequired();
             builder.Property(c => c.CpfCnpj).IsRequired();

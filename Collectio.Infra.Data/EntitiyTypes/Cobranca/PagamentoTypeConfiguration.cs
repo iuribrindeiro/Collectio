@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Collectio.Infra.Data.EntitiyTypes.Cobranca
 {
-    public class PagamentoTypeConfiguration : BaseTenantEntityTypeConfiguration<Pagamento>
+    public class PagamentoTypeConfiguration : BaseOwnerEntityTypeConfiguration<Pagamento>
     {
         protected override void ConfigureEntity(EntityTypeBuilder<Pagamento> builder)
         {

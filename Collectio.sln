@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Collectio.Infra.CrossCuttin
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{539D53A2-CA18-4B50-BD0C-DCA7B7C0B9CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collectio.Domain.Test", "Collectio.Domain.Test\Collectio.Domain.Test.csproj", "{CD27C28D-3CD6-45D6-B409-2DEB4A2E928D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Collectio.Domain.Test", "Collectio.Domain.Test\Collectio.Domain.Test.csproj", "{CD27C28D-3CD6-45D6-B409-2DEB4A2E928D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

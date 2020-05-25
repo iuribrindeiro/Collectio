@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Collectio.Infra.Data.EntitiyTypes.Base
 {
-    public abstract class BaseTenantEntityTypeConfiguration<T> : BaseEntityTypeConfiguration<T> where T : BaseOwnerEntity
+    public abstract class BaseOwnerEntityTypeConfiguration<T> : BaseEntityTypeConfiguration<T> where T : BaseOwnerEntity
     {
         protected bool IsUnique = false;
 

@@ -42,13 +42,13 @@ namespace Collectio.Domain.Test
 
             Assert.AreEqual(novaCobranca.Valor, valor);
             Assert.AreEqual(novaCobranca.Vencimento, vencimento);
-            Assert.AreEqual(novaCobranca.Cliente.TenantId, tenantIdCliente);
-            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.TenantId, cartaoCreditoId);
-            Assert.AreEqual(novaCobranca.Cliente.Telefone.Ddd, telefoneCliente.Ddd);
-            Assert.AreEqual(novaCobranca.Cliente.Telefone.Numero, telefoneCliente.Numero);
-            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.Nome, cartaoCreditoCliente.Nome);
-            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.Numero, cartaoCreditoCliente.Numero);
-            Assert.AreEqual(novaCobranca.Cliente.CartaoCredito.TenantId, cartaoCreditoCliente.TenantId);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.TenantId, tenantIdCliente);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.TenantId, cartaoCreditoId);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.Telefone.Ddd, telefoneCliente.Ddd);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.Telefone.Numero, telefoneCliente.Numero);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.Nome, cartaoCreditoCliente.Nome);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.Numero, cartaoCreditoCliente.Numero);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.TenantId, cartaoCreditoCliente.TenantId);
             Assert.AreEqual(novaCobranca.ConfiguracaoEmissaoId, configuracaoEmissaoId);
         }
 

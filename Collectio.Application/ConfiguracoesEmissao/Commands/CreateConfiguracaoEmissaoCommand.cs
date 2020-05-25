@@ -1,26 +1,37 @@
 ﻿using AutoMapper;
 using Collectio.Application.Base.Commands;
-using Collectio.Application.Profiles;
-using Collectio.Domain.ConfiguracaoEmissaoAggregate;
 using Collectio.Application.Base.CommandValidators;
+using Collectio.Application.Base.ViewModels;
+using Collectio.Application.Profiles;
+using Collectio.Domain.Base.ValueObjects;
+using Collectio.Domain.ConfiguracaoEmissaoAggregate;
 using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Collectio.Application.ConfiguracoesEmissao.Commands
 {
     public class CreateConfiguracaoEmissaoCommand : ICommand<string>, IMapping
     {
+        [Required]
         public string NomeEmpresa { get; set; }
-        public string Agencia { get; set; }
-        public string Conta { get; set; }
+
+        [Required]
+        public AgenciaContaViewModel AgenciaConta { get; set; }
+        
+        [Required]
         public string CpfCnpj { get; set; }
+
+        [Required, EmailAddress]
         public string Email { get; set; }
-        public string Telefone { get; set; }
-        public string Ddd { get; set; }
+
+        [Required]
+        public TelefoneViewModel Telefone { get; set; }
 
         public void Mapping(Profile profile)
         {
             profile.CreateMap<CreateConfiguracaoEmissaoCommand, ConfiguracaoEmissao>()
-                .ConstructUsing(c => new ConfiguracaoEmissao(c.NomeEmpresa, c.Agencia, c.Conta, c.CpfCnpj, c.Email, c.Telefone, c.Ddd));
+                .ConstructUsing((c, context) 
+                    => new ConfiguracaoEmissao(c.NomeEmpresa, c.CpfCnpj, c.Email, context.Mapper.Map<AgenciaConta>(c.AgenciaConta),  context.Mapper.Map<Telefone>(c.Telefone)));
         }
     }
 
@@ -28,13 +39,11 @@ namespace Collectio.Application.ConfiguracoesEmissao.Commands
     {
         public CreateConfiguracaoEmissaoCommandValidator()
         {
-            RuleFor(c => c.NomeEmpresa).NotEmpty();
-            RuleFor(c => c.Agencia).NotEmpty().MaximumLength(6);
-            RuleFor(c => c.Conta).NotEmpty().MaximumLength(20);
-            RuleFor(c => c.CpfCnpj).NotEmpty().IsValidCpfOrCnpj();
-            RuleFor(c => c.Email).NotEmpty().EmailAddress();
-            RuleFor(c => c.Telefone).NotEmpty().IsValidTelefone();
-            RuleFor(c => c.Ddd).NotEmpty().IsValidDdd();
+            RuleFor(c => c.NomeEmpresa).NotEmpty().WithName("Nome da Empresa");
+            RuleFor(c => c.AgenciaConta).NotEmpty().WithName("Agencia/Conta").WithMessage("Informe a {PropertyName}").SetValidator(new AgenciaContaValidator());
+            RuleFor(c => c.CpfCnpj).NotEmpty().IsValidCpfOrCnpj().WithName("CPF/CNPJ");
+            RuleFor(c => c.Email).NotEmpty().EmailAddress().WithMessage("'{PropertyValue}' não é um email válido inválido");
+            RuleFor(c => c.Telefone).NotEmpty().SetValidator(new TelefoneValidator());
         }
     }
 }

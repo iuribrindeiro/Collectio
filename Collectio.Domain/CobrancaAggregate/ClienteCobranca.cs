@@ -5,7 +5,7 @@ using Collectio.Domain.CobrancaAggregate.Exceptions;
 
 namespace Collectio.Domain.CobrancaAggregate
 {
-    public class Cliente : BaseOwnerEntity
+    public class ClienteCobranca : BaseOwnerEntity
     {
         public string Nome { get; private set; }
         public string Email { get; private set; }
@@ -17,9 +17,9 @@ namespace Collectio.Domain.CobrancaAggregate
         public virtual Cobranca Cobranca { get; private set; }
         public Guid CobrancaId { get; private set; }
 
-        private Cliente() {}
+        private ClienteCobranca() {}
 
-        public Cliente(Cobranca cobranca, string nome, string cpfCnpj, 
+        public ClienteCobranca(Cobranca cobranca, string nome, string cpfCnpj, 
             string email, string tenantId, Telefone telefone, 
             Endereco endereco, CartaoCredito cartaoCredito)
         {
@@ -36,7 +36,7 @@ namespace Collectio.Domain.CobrancaAggregate
             ValidaDadosClienteEmissaoBoleto();
         }
 
-        public Cliente AlterarCartaoCredito(CartaoCredito cartaoCredito)
+        public ClienteCobranca AlterarCartaoCredito(CartaoCredito cartaoCredito)
         {
             ValidaAlteracaoCliente();
 
@@ -47,7 +47,7 @@ namespace Collectio.Domain.CobrancaAggregate
             return this;
         }
 
-        public Cliente Alterar(string tenantId, string nome, string cpfCnpj, string email, Telefone telefone, Endereco endereco)
+        public ClienteCobranca Alterar(string tenantId, string nome, string cpfCnpj, string email, Telefone telefone, Endereco endereco)
         {
             ValidaAlteracaoCliente();
             ValidaDadosClienteEmissaoBoleto();

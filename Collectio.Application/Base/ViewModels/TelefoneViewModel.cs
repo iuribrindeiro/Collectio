@@ -1,8 +1,9 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using Collectio.Application.Profiles;
 using Collectio.Domain.Base.ValueObjects;
 
-namespace Collectio.Application.Cobrancas.ViewModels
+namespace Collectio.Application.Base.ViewModels
 {
     public class TelefoneViewModel : IMapping
     {

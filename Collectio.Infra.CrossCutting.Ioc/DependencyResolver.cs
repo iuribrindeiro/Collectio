@@ -25,6 +25,7 @@ namespace Collectio.Infra.CrossCutting.Ioc
         public static void RegisterDependencies(this IServiceCollection serviceCollectio, IConfiguration configuration)
         {
             ValidatorOptions.LanguageManager.Culture = new CultureInfo("pt-BR");
+            ValidatorOptions.CascadeMode = CascadeMode.StopOnFirstFailure;
             serviceCollectio.AddScoped<IDatabaseMigrator, DatabaeMigrator>();
             serviceCollectio.AddValidatorsFromAssembly(typeof(CommandValidator<,>).Assembly);
             serviceCollectio.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipeline<,>));

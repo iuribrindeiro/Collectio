@@ -20,7 +20,7 @@ namespace Collectio.Domain.CobrancaAggregate
         public virtual bool FormaPagamentoCartao => Transacao.FormaPagamentoCartao;
         public Pagamento Pagamento { get; private set; }
         public Transacao Transacao { get; private set; }
-        public virtual Cliente Cliente { get; private set; }
+        public virtual ClienteCobranca ClienteCobranca { get; private set; }
         public string ConfiguracaoEmissaoId { get; private set; }
 
         private Cobranca(){}
@@ -36,7 +36,7 @@ namespace Collectio.Domain.CobrancaAggregate
         public static Cobranca Boleto(
             decimal valor, DateTime vencimento, string configuracaoEmissaoId, 
             string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, 
-            Endereco endercoCliente, string tenantIdCliente = null) 
+            Endereco endercoCliente, string tenantIdCliente = null)
             => new Cobranca(valor, vencimento, configuracaoEmissaoId, Transacao.Boleto(), 
                 nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, endercoCliente, tenantIdCliente);
 
@@ -48,7 +48,7 @@ namespace Collectio.Domain.CobrancaAggregate
             Vencimento = vencimento;
             ConfiguracaoEmissaoId = configuracaoEmissaoId;
             Transacao = transacao;
-            Cliente = new Cliente(this, nomeCliente, cpfCnpjCliente, emailCliente, tenantIdCliente, telefoneCliente, enderecoCliente, cartaoCredito);
+            ClienteCobranca = new ClienteCobranca(this, nomeCliente, cpfCnpjCliente, emailCliente, tenantIdCliente, telefoneCliente, enderecoCliente, cartaoCredito);
             AddEvent(new CobrancaCriadaEvent(Id.ToString()));
         }
 

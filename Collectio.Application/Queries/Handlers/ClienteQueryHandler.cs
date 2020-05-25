@@ -21,6 +21,6 @@ namespace Collectio.Application.Queries.Handlers
         }
 
         public async Task<IQueryable<ClienteViewModel>> Handle(ClienteQueryRequest request, CancellationToken cancellationToken)
-            => _mapper.ProjectTo<ClienteViewModel>(await _clientesRepository.ListAsync());
+            => _mapper.ProjectTo<ClienteViewModel>(_clientesRepository.ListAsync());
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Collectio.Domain.Base;
+using Collectio.Domain.ClienteAggregate;
 using Collectio.Infra.CrossCutting.Services;
 using Collectio.Infra.CrossCutting.Services.Interfaces;
 using Collectio.Infra.Data.EntitiyTypes.Base;

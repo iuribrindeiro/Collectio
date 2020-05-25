@@ -8,12 +8,33 @@ services:
       - SA_PASSWORD=Administrator*123
     ports:
       - "1434:1433"
-  collectio.presentation:
+  caronte.presentation:
+    image: carontepresentation:latest
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost/health"]
+        interval: 5s
+        timeout: 10s
+        retries: 3
+        start_period: 10s
     depends_on:
       - sql-server
     environment:
+      - ASPNETCORE_ConnectionStrings__DefaultConnection=Server=sql-server;Database=Caronte;User Id=sa;Password=Administrator*123;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - "80:80"
+      - "5003:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  collectio.presentation:
+    depends_on:
+      - sql-server
+      - caronte.presentation
+    environment:
       - ASPNETCORE_CollectioFrontUri=http://localhost:8080
-      - ASPNETCORE_IdentityServer__Authority=http://localhost:80
+      - ASPNETCORE_IdentityServer__Authority=http://caronte.presentation
       - ASPNETCORE_IdentityServer__RequireHttpsMetadata=false
       - ASPNETCORE_ConnectionStrings__DefaultConnection=Server=sql-server;Database=Collectio;User Id=sa;Password=Administrator*123
       - ASPNETCORE_ENVIRONMENT=Development
@@ -21,6 +42,12 @@ services:
     ports:
       - "5000:80"
       - "5001:443"
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost/health"]
+        interval: 5s
+        timeout: 10s
+        retries: 3
+        start_period: 10s
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
