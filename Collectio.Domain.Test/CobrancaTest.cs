@@ -37,10 +37,12 @@ namespace Collectio.Domain.Test
             var emailCliente = "asdadad22233@email.com";
             var telefoneCliente = new Telefone("ddd", "4477885522");
             var cartaoCreditoCliente = new CartaoCredito("Nome clçiente 12313213", "numero 4455888", cartaoCreditoId);
+            var descricao = "Teste Desc";
 
-            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, tenantIdCliente);
+            var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(descricao, valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, tenantIdCliente);
 
             Assert.AreEqual(novaCobranca.Valor, valor);
+            Assert.AreEqual(novaCobranca.Descricao, descricao);
             Assert.AreEqual(novaCobranca.Vencimento, vencimento);
             Assert.AreEqual(novaCobranca.ClienteCobranca.TenantId, tenantIdCliente);
             Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.TenantId, cartaoCreditoId);
@@ -351,24 +353,24 @@ namespace Collectio.Domain.Test
                 .FinalizaProcessamentoFormaPagamento();
 
         public static Cobranca BuildCobrancaBoleto() =>
-            Cobranca.Boleto(valor: 200, vencimento: DateTime.Today, configuracaoEmissaoId: Guid.NewGuid().ToString(), "Teste Nome", "12345678912", "email@email.com", 
+            Cobranca.Boleto(decricao: "TEste", valor: 200, vencimento: DateTime.Today, configuracaoEmissaoId: Guid.NewGuid().ToString(), "Teste Nome", "12345678912", "email@email.com", 
                 new Telefone("12", "123456782"), 
                 new Endereco("adasd", "132A", "123123Bairro", "1234568", "CE", "Teste"), 
                 tenantIdCliente: Guid.NewGuid().ToString());
 
         public static Cobranca BuildCobrancaCartao() =>
-            Cobranca.Cartao(valor: 200, vencimento: DateTime.Today, configuracaoEmissaoId: Guid.NewGuid().ToString(), 
+            Cobranca.Cartao(decricao: "teste", valor: 200, vencimento: DateTime.Today, configuracaoEmissaoId: Guid.NewGuid().ToString(), 
                 tenantIdCliente: Guid.NewGuid().ToString(), nomeCliente: "Teste Bla", cpfCnpjCliente: "44422255588", 
                 emailCliente: "email@email.com", telefoneCliente: new Telefone("12", "55887744"), 
                 cartaoCreditoCliente: new CartaoCredito("Teste nome", "1234", Guid.NewGuid().ToString()));
 
-        public static Cobranca BuildCobrancaCartao(decimal valor, DateTime vencimento, string configuracaoEmissaoId,
+        public static Cobranca BuildCobrancaCartao(string descricao, decimal valor, DateTime vencimento, string configuracaoEmissaoId,
             string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, CartaoCredito cartaoCreditoCliente, string tenantIdCliente)
-            => Cobranca.Cartao(valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, null, tenantIdCliente);
+            => Cobranca.Cartao(descricao, valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, null, tenantIdCliente);
 
-        public static Cobranca BuildCobrancaBoleto(decimal valor, DateTime vencimento, string clienteId,
+        public static Cobranca BuildCobrancaBoleto(string decricao, decimal valor, DateTime vencimento, string clienteId,
             string configuracaoEmissaoId, string nomeCliente, string cpfCnpjCliente, string emailCliente,
             Telefone telefoneCliente, Endereco enderecoCliente, string tenantIdCliente)
-            => Cobranca.Boleto(valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, enderecoCliente, tenantIdCliente);
+            => Cobranca.Boleto(decricao, valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, enderecoCliente, tenantIdCliente);
     }
 }

@@ -13,7 +13,7 @@ namespace Collectio.Application.CartoesCredito.CommandValidators
                 if (!Guid.TryParse(id, out Guid cartaoCreditoId))
                     return false;
 
-                return await cartaoCreditoRepository.Exists(cartaoCreditoId);
+                return await cartaoCreditoRepository.ExistsAsync(cartaoCreditoId);
             }).WithMessage("O cartão de crédito informado não existe");
         }
     }

@@ -7,7 +7,9 @@ namespace Collectio.Application.Base.ViewModels
 {
     public class TelefoneViewModel : IMapping
     {
+        [Required]
         public string Ddd { get; set; }
+        [Required]
         public string Numero { get; set; }
         public void Mapping(Profile profile)
         {

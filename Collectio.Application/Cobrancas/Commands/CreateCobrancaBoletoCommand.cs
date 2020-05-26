@@ -14,7 +14,7 @@ namespace Collectio.Application.Cobrancas.Commands
         public void Mapping(Profile profile) 
             => profile.CreateMap<CreateCobrancaBoletoCommand, Cobranca>()
                 .ConstructUsing((c, context) => Cobranca.Boleto(
-                    c.Valor, c.Vencimento, c.ConfiguracaoEmissorId, 
+                    c.Descricao, c.Valor, c.Vencimento, c.ConfiguracaoEmissorId, 
                     c.Cliente.Nome, c.Cliente.CpfCnpj, c.Cliente.Email,
                     context.Mapper.Map<Telefone>(c.Cliente.Telefone), 
                     context.Mapper.Map<Endereco>(c.Cliente.Endereco), c.Cliente.TenantId));

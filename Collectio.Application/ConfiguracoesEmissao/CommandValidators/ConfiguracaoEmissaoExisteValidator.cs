@@ -13,7 +13,7 @@ namespace Collectio.Application.ConfiguracoesEmissao.CommandValidators
                 if (!Guid.TryParse(id, out Guid configuracaoEmissaoId))
                     return false;
 
-                return await configuracaoEmissaoRepository.Exists(configuracaoEmissaoId);
+                return await configuracaoEmissaoRepository.ExistsAsync(configuracaoEmissaoId);
             }).WithMessage("A configuração de emissão informada não existe");
         }
     }

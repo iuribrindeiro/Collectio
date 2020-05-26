@@ -15,7 +15,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate
 
         public StatusCartaoValueObject Status { get; private set; }
 
-        public virtual bool CartaoProcessado 
+        public virtual bool ProcessamentoFinalizado 
             => Status.Status == StatusCartao.Processado;
         public string Numero { get; private set; }
 

@@ -21,11 +21,18 @@ namespace Collectio.Domain.CartaoCreditoAggregate.EventHandlers
         public async Task Handle(CobrancaCriadaEvent domainEvent, CancellationToken cancellationToken)
         {
             var cobranca = await _cobrancasRepository.FindAsync(Guid.Parse(domainEvent.CobrancaId));
-            if (cobranca.FormaPagamentoCartao)
+            if (cobranca.FormaPagamentoCartao &&
+                CartaoCreditoExiste(cobranca, out CartaoCredito cartaoCredito) && cartaoCredito.ProcessamentoFinalizado)
             {
-                var cartaoCredito = await _cartaoCreditoRepository.FindAsync(Guid.Parse(cobranca.ClienteCobranca.CartaoCredito.TenantId));
                 cartaoCredito.AddTransacao(cobranca.Id.ToString(), cobranca.ConfiguracaoEmissaoId, cobranca.Valor);
             }
+        }
+
+        private bool CartaoCreditoExiste(Cobranca cobranca, out CartaoCredito cartaoCredito)
+        {
+            cartaoCredito = null;
+            return Guid.TryParse(cobranca.ClienteCobranca.CartaoCredito.TenantId, out Guid cartaoCreditoId) &&
+                   _cartaoCreditoRepository.Exists(cartaoCreditoId, out cartaoCredito);
         }
     }
 }

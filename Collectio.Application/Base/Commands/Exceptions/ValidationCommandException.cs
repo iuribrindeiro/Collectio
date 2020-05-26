@@ -10,7 +10,7 @@ namespace Collectio.Application.Base.Commands.Exceptions
         private Dictionary<string, object> _errors;
         public IReadOnlyDictionary<string, object> Errors => _errors;
 
-        private ValidationCommandException() : base("Alguns dos campos que você informou não eram válidos") 
+        public ValidationCommandException() : base("Alguns dos campos que você informou não eram válidos") 
             => _errors = new Dictionary<string, object>();
 
         public ValidationCommandException(IEnumerable<ValidationFailure> failures) : this()

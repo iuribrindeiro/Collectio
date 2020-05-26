@@ -1,4 +1,5 @@
-﻿using Collectio.Application.ConfiguracoesEmissao.Commands;
+﻿using System;
+using Collectio.Application.ConfiguracoesEmissao.Commands;
 using Collectio.Presentation.Controllers.Base;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,10 @@ namespace Collectio.Presentation.Controllers
     public class ConfiguracoesEmissaoController : BaseController
     {
         [HttpPost]
-        public Task<IActionResult> Post([FromBody, Required] CreateConfiguracaoEmissaoCommand command)
-            => Send(command);
+        public async Task<IActionResult> Post([FromBody, Required] CreateConfiguracaoEmissaoCommand command)
+        {
+            var result = await Send(command);
+            return Created("created", result);
+        }
     }
 }

@@ -25,7 +25,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate
 
         public Transacao(string cobrancaId, string contaBancariaId, CartaoCredito cartaoCredito, decimal valor)
         {
-            if (!cartaoCredito.CartaoProcessado)
+            if (!cartaoCredito.ProcessamentoFinalizado)
                 throw new CartaoCreditoNaoProcessadoException();
 
             _cobrancaId = cobrancaId;

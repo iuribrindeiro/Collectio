@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Collectio.Domain.Base;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Collectio.Domain.Base;
-using Microsoft.EntityFrameworkCore;
 
 namespace Collectio.Infra.Data.Repositories.Base
 {
@@ -34,10 +34,16 @@ namespace Collectio.Infra.Data.Repositories.Base
         }
 
         public Task<T> FindAsync(Guid id) 
-            => _itens.Where(e => e.Id == id).FirstOrDefaultAsync();
+            => _applicationContext.FindAsync<T>(id).AsTask();
+        
+        public bool Exists(Guid id, out T entity)
+        {
+            entity = _applicationContext.Find<T>(id);
+            return entity;
+        }
 
-        public Task<bool> Exists(Guid id) 
-            => _itens.AnyAsync(e => e.Id == id);
+        public async Task<bool> ExistsAsync(Guid id) 
+            => await _applicationContext.FindAsync<T>(id).AsTask();
 
         public IQueryable<T> ListAsync() 
             => _itens.AsQueryable();

@@ -13,7 +13,7 @@ namespace Collectio.Application.Clientes.CommandValidators
                 if (!Guid.TryParse(id, out Guid clienteId))
                     return false;
 
-                return await clientesRepository.Exists(clienteId);
+                return await clientesRepository.ExistsAsync(clienteId);
             }).WithMessage("O cliente informado não existe");
         }
     }

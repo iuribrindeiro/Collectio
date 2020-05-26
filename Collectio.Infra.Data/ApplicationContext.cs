@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Collectio.Infra.Data.Exceptions;
 
 namespace Collectio.Infra.Data
 {
@@ -58,7 +59,13 @@ namespace Collectio.Infra.Data
                 entity.CurrentValues["DataAtualizacao"] = dataAtual;
                 entity.CurrentValues["DataCriacao"] = dataCriacaoOriginal != null && dataCriacaoOriginal != DateTime.MinValue ? dataCriacaoOriginal : dataAtual;
                 if (entity.Entity is BaseOwnerEntity)
+                {
+                    if (_ownerId == Guid.Empty)
+                        throw new OwnerIdNotDefinedException();
+
                     entity.CurrentValues["OwnerId"] = _ownerId;
+                }
+                    
             }
 
             await _domainEventEmitter.PublishAsync(PendingEvents().ToArray());

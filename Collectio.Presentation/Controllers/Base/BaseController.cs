@@ -4,6 +4,7 @@ using Collectio.Application.Base.Queries;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using Collectio.Application.Base.Commands.Exceptions;
 
 namespace Collectio.Presentation.Controllers.Base
 {
@@ -14,16 +15,20 @@ namespace Collectio.Presentation.Controllers.Base
         private ICommandQuerySender _commandQuerySender 
             => HttpContext.RequestServices.GetService<ICommandQuerySender>();
 
-        protected async Task<IActionResult> Send<R>(ICommand<R> command)
+        protected async Task<R> Send<R>(ICommand<R> command)
         {
-            var result = await _commandQuerySender.Send(command);
-            return Ok(result);
+            if (command is null)
+                throw new ValidationCommandException();
+
+            return await _commandQuerySender.Send(command);
         }
 
-        protected async Task<IActionResult> Send<R>(IQuery<R> query) where R : class
+        protected async Task<R> Send<R>(IQuery<R> query) where R : class
         {
-            var result = await _commandQuerySender.Send<IQuery<R>, R>(query);
-            return Ok(result);
+            if (query is null)
+                throw new ValidationCommandException();
+
+            return await _commandQuerySender.Send<IQuery<R>, R>(query);
         }
     }
 }

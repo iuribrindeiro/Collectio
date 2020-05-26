@@ -26,24 +26,25 @@ namespace Collectio.Domain.CobrancaAggregate
         private Cobranca(){}
 
         public static Cobranca Cartao(
-            decimal valor, DateTime vencimento, string configuracaoEmissaoId, string nomeCliente, 
+            string decricao, decimal valor, DateTime vencimento, string configuracaoEmissaoId, string nomeCliente, 
             string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, 
             CartaoCredito cartaoCreditoCliente, Endereco enderecoCliente = null, string tenantIdCliente = null) 
-            => new Cobranca(valor, vencimento, configuracaoEmissaoId, 
+            => new Cobranca(decricao, valor, vencimento, configuracaoEmissaoId, 
                 Transacao.Cartao(), nomeCliente, cpfCnpjCliente, emailCliente, 
                 telefoneCliente, enderecoCliente, tenantIdCliente, cartaoCreditoCliente);
 
         public static Cobranca Boleto(
-            decimal valor, DateTime vencimento, string configuracaoEmissaoId, 
+            string decricao, decimal valor, DateTime vencimento, string configuracaoEmissaoId, 
             string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, 
             Endereco endercoCliente, string tenantIdCliente = null)
-            => new Cobranca(valor, vencimento, configuracaoEmissaoId, Transacao.Boleto(), 
+            => new Cobranca(decricao, valor, vencimento, configuracaoEmissaoId, Transacao.Boleto(), 
                 nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, endercoCliente, tenantIdCliente);
 
-        private Cobranca(decimal valor, DateTime vencimento, string configuracaoEmissaoId, 
+        private Cobranca(string decricao, decimal valor, DateTime vencimento, string configuracaoEmissaoId, 
             Transacao transacao, string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente,
             Endereco enderecoCliente, string tenantIdCliente, CartaoCredito cartaoCredito = null)
         {
+            Descricao = decricao;
             Valor = valor;
             Vencimento = vencimento;
             ConfiguracaoEmissaoId = configuracaoEmissaoId;
