@@ -36,7 +36,7 @@ namespace Collectio.Domain.Test
             var cpfCnpjCliente = "123457822333";
             var emailCliente = "asdadad22233@email.com";
             var telefoneCliente = new Telefone("ddd", "4477885522");
-            var cartaoCreditoCliente = new CartaoCredito("Nome clçiente 12313213", "numero 4455888", cartaoCreditoId);
+            var cartaoCreditoCliente = new CartaoCreditoCobranca("Nome clçiente 12313213", "numero 4455888", cartaoCreditoId);
             var descricao = "Teste Desc";
 
             var novaCobranca = CobrancaBuilder.BuildCobrancaCartao(descricao, valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, tenantIdCliente);
@@ -45,12 +45,12 @@ namespace Collectio.Domain.Test
             Assert.AreEqual(novaCobranca.Descricao, descricao);
             Assert.AreEqual(novaCobranca.Vencimento, vencimento);
             Assert.AreEqual(novaCobranca.ClienteCobranca.TenantId, tenantIdCliente);
-            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.TenantId, cartaoCreditoId);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCreditoCobranca.TenantId, cartaoCreditoId);
             Assert.AreEqual(novaCobranca.ClienteCobranca.Telefone.Ddd, telefoneCliente.Ddd);
             Assert.AreEqual(novaCobranca.ClienteCobranca.Telefone.Numero, telefoneCliente.Numero);
-            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.Nome, cartaoCreditoCliente.Nome);
-            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.Numero, cartaoCreditoCliente.Numero);
-            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCredito.TenantId, cartaoCreditoCliente.TenantId);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCreditoCobranca.Nome, cartaoCreditoCliente.Nome);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCreditoCobranca.Numero, cartaoCreditoCliente.Numero);
+            Assert.AreEqual(novaCobranca.ClienteCobranca.CartaoCreditoCobranca.TenantId, cartaoCreditoCliente.TenantId);
             Assert.AreEqual(novaCobranca.ConfiguracaoEmissaoId, configuracaoEmissaoId);
         }
 
@@ -362,10 +362,10 @@ namespace Collectio.Domain.Test
             Cobranca.Cartao(decricao: "teste", valor: 200, vencimento: DateTime.Today, configuracaoEmissaoId: Guid.NewGuid().ToString(), 
                 tenantIdCliente: Guid.NewGuid().ToString(), nomeCliente: "Teste Bla", cpfCnpjCliente: "44422255588", 
                 emailCliente: "email@email.com", telefoneCliente: new Telefone("12", "55887744"), 
-                cartaoCreditoCliente: new CartaoCredito("Teste nome", "1234", Guid.NewGuid().ToString()));
+                cartaoCreditoCliente: new CartaoCreditoCobranca("Teste nome", "1234", Guid.NewGuid().ToString()));
 
         public static Cobranca BuildCobrancaCartao(string descricao, decimal valor, DateTime vencimento, string configuracaoEmissaoId,
-            string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, CartaoCredito cartaoCreditoCliente, string tenantIdCliente)
+            string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, CartaoCreditoCobranca cartaoCreditoCliente, string tenantIdCliente)
             => Cobranca.Cartao(descricao, valor, vencimento, configuracaoEmissaoId, nomeCliente, cpfCnpjCliente, emailCliente, telefoneCliente, cartaoCreditoCliente, null, tenantIdCliente);
 
         public static Cobranca BuildCobrancaBoleto(string decricao, decimal valor, DateTime vencimento, string clienteId,

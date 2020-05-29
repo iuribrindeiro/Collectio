@@ -1,9 +1,8 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Collectio.Application.Base.Commands;
 using Collectio.Domain.CartaoCreditoAggregate;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Collectio.Application.CartoesCredito.Commands
 {

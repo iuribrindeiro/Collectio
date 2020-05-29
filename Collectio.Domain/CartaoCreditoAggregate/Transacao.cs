@@ -1,65 +1,60 @@
-﻿using System;
-using Collectio.Domain.Base;
+﻿using Collectio.Domain.Base;
 using Collectio.Domain.CartaoCreditoAggregate.Events;
-using Collectio.Domain.ClienteAggregate.Events;
 using Collectio.Domain.ClienteAggregate.Exceptions;
+using System;
 
 namespace Collectio.Domain.CartaoCreditoAggregate
 {
     public class Transacao : BaseOwnerEntity
     {
-        private decimal _valor;
-        private StatusTransacaoCartaoValueObject _status;
-        private string _cobrancaId;
-        private Guid _cartaoId;
-        private CartaoCredito _cartaoCredito;
-        private string _contaBancariaId;
+        public string CobrancaId { get; private set; }
 
-        public string CobrancaId => _cobrancaId;
-        public decimal Valor => _valor;
-        public string ContaBancariaId => _contaBancariaId;
-        public Guid CartaoId => _cartaoId;
-        public virtual CartaoCredito CartaoCredito => _cartaoCredito;
+        public decimal Valor { get; private set; }
 
-        public StatusTransacaoCartaoValueObject Status => _status;
+        public Guid CartaoId { get; private set; }
 
-        public Transacao(string cobrancaId, string contaBancariaId, CartaoCredito cartaoCredito, decimal valor)
+        public virtual CartaoCredito CartaoCredito { get; private set; }
+
+        public StatusTransacaoCartaoValueObject Status { get; private set; }
+
+
+        private Transacao() {}
+
+        public Transacao(string cobrancaId, CartaoCredito cartaoCredito, decimal valor)
         {
             if (!cartaoCredito.ProcessamentoFinalizado)
                 throw new CartaoCreditoNaoProcessadoException();
 
-            _cobrancaId = cobrancaId;
-            _contaBancariaId = contaBancariaId;
-            _cartaoId = cartaoCredito.Id;
-            _valor = valor;
-            _status = StatusTransacaoCartaoValueObject.Processando();
+            CobrancaId = cobrancaId;
+            CartaoId = cartaoCredito.Id;
+            Valor = valor;
+            Status = StatusTransacaoCartaoValueObject.Processando();
             AddEvent(new TransacaoCartaoCriadaEvent(Id.ToString()));
         }
 
-        private Transacao(string cobrancaId, string contaBancariaId, decimal valor, StatusTransacaoCartaoValueObject statusTransacao, Transacao transacaoAnterior)
+        private Transacao(string cobrancaId, decimal valor, StatusTransacaoCartaoValueObject statusTransacao, Transacao transacaoAnterior)
         {
-            _cobrancaId = cobrancaId;
-            _contaBancariaId = contaBancariaId;
-            _valor = valor;
-            _status = statusTransacao;
+            CobrancaId = cobrancaId;
+            Valor = valor;
+            Status = statusTransacao;
             AddEvent(new ReprocessandoTransacaoCartaoEvent(this, transacaoAnterior));
         }
 
         public Transacao Aprovar()
         {
-            _status.Aprovar();
+            Status.Aprovar();
             AddEvent(new TransacaoCartaoAprovadaEvent(Id.ToString(), CobrancaId));
             return this;
         }
 
         public Transacao DefinirErro(string mensagemErro)
         {
-            _status.DefinirErro(mensagemErro);
+            Status.DefinirErro(mensagemErro);
             AddEvent(new ErroTransacaoCartaoEvent(Id.ToString()));
             return this;
         }
 
-        public Transacao Reprocessar(decimal valor, string contaBancariaId) 
-            => new Transacao(CobrancaId, contaBancariaId, valor, Status.Reprocessar(), this);
+        public Transacao Reprocessar(decimal valor) 
+            => new Transacao(CobrancaId, valor, Status.Reprocessar(), this);
     }
 }

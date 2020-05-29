@@ -28,7 +28,7 @@ namespace Collectio.Domain.CobrancaAggregate
         public static Cobranca Cartao(
             string decricao, decimal valor, DateTime vencimento, string configuracaoEmissaoId, string nomeCliente, 
             string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente, 
-            CartaoCredito cartaoCreditoCliente, Endereco enderecoCliente = null, string tenantIdCliente = null) 
+            CartaoCreditoCobranca cartaoCreditoCliente, Endereco enderecoCliente = null, string tenantIdCliente = null) 
             => new Cobranca(decricao, valor, vencimento, configuracaoEmissaoId, 
                 Transacao.Cartao(), nomeCliente, cpfCnpjCliente, emailCliente, 
                 telefoneCliente, enderecoCliente, tenantIdCliente, cartaoCreditoCliente);
@@ -42,14 +42,14 @@ namespace Collectio.Domain.CobrancaAggregate
 
         private Cobranca(string decricao, decimal valor, DateTime vencimento, string configuracaoEmissaoId, 
             Transacao transacao, string nomeCliente, string cpfCnpjCliente, string emailCliente, Telefone telefoneCliente,
-            Endereco enderecoCliente, string tenantIdCliente, CartaoCredito cartaoCredito = null)
+            Endereco enderecoCliente, string tenantIdCliente, CartaoCreditoCobranca cartaoCreditoCobranca = null)
         {
             Descricao = decricao;
             Valor = valor;
             Vencimento = vencimento;
             ConfiguracaoEmissaoId = configuracaoEmissaoId;
             Transacao = transacao;
-            ClienteCobranca = new ClienteCobranca(this, nomeCliente, cpfCnpjCliente, emailCliente, tenantIdCliente, telefoneCliente, enderecoCliente, cartaoCredito);
+            ClienteCobranca = new ClienteCobranca(this, nomeCliente, cpfCnpjCliente, emailCliente, tenantIdCliente, telefoneCliente, enderecoCliente, cartaoCreditoCobranca);
             AddEvent(new CobrancaCriadaEvent(Id.ToString()));
         }
 

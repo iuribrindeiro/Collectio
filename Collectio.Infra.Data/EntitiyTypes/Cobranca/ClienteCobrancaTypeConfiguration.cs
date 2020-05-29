@@ -13,7 +13,7 @@ namespace Collectio.Infra.Data.EntitiyTypes.Cobranca
             builder.Property(c => c.CpfCnpj).IsRequired();
             builder.Property(c => c.TenantId).IsRequired();
             builder.HasIndex(c => c.TenantId);
-            builder.OwnsOne(c => c.CartaoCredito, c =>
+            builder.OwnsOne(c => c.CartaoCreditoCobranca, c =>
             {
                 c.Property(p => p.TenantId).IsRequired(false);
                 c.Property(p => p.Nome).IsRequired();

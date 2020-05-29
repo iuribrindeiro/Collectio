@@ -65,9 +65,8 @@ namespace Collectio.Domain.Test
             var nome = "bla";
             var vencimento = DateTime.Today.AddDays(22);
             var dadosCartao = CartaoCreditoBuilder.BuildDadosCartao(numero, codigo, nome, vencimento);
-            var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito(cpfCnpjProprietario, clienteId, dadosCartao);
+            var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito(cpfCnpjProprietario, dadosCartao);
 
-            Assert.AreEqual(cartaoCredito.TenantId, clienteId);
             Assert.AreEqual(cartaoCredito.CpfCnpjProprietario, cpfCnpjProprietario);
             Assert.AreEqual(numero, dadosCartao.Numero);
             Assert.AreEqual(codigo, dadosCartao.CodigoSeguranca);
@@ -81,8 +80,8 @@ namespace Collectio.Domain.Test
         {
             var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito();
             var cartaoCreditoComErro = CartaoCreditoBuilder.BuildCartaoCredito().ComStatus(StatusCartao.Erro);
-            Assert.Throws<CartaoCreditoNaoProcessadoException>(() => cartaoCredito.AddTransacao(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 22));
-            Assert.Throws<CartaoCreditoNaoProcessadoException>(() => cartaoCreditoComErro.AddTransacao(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 22));
+            Assert.Throws<CartaoCreditoNaoProcessadoException>(() => cartaoCredito.AddTransacao(Guid.NewGuid().ToString(), 22));
+            Assert.Throws<CartaoCreditoNaoProcessadoException>(() => cartaoCreditoComErro.AddTransacao(Guid.NewGuid().ToString(), 22));
         }
 
         [Test]
@@ -90,9 +89,8 @@ namespace Collectio.Domain.Test
         {
             var cartaoCredito = CartaoCreditoBuilder.BuildCartaoCredito().ComStatus(StatusCartao.Processado);
             var cobId = Guid.NewGuid().ToString();
-            var contaBancaria = Guid.NewGuid().ToString();
             var valorCobranca = 22;
-            cartaoCredito.AddTransacao(cobId, contaBancaria, 22);
+            cartaoCredito.AddTransacao(cobId, 22);
             var transacao = cartaoCredito.Transacoes.SingleOrDefault();
             Assert.IsNotNull(transacao);
             Assert.AreEqual(transacao.CobrancaId, cobId);
@@ -145,13 +143,13 @@ namespace Collectio.Domain.Test
     public static class CartaoCreditoBuilder
     {
         public static CartaoCredito BuildCartaoCredito()
-            => new CartaoCredito("12345678921", Guid.NewGuid().ToString(), BuildDadosCartao());
+            => new CartaoCredito("12345678921", BuildDadosCartao());
 
         public static CartaoCredito BuildCartaoCredito(DadosCartaoValueObject dadosCartao)
-            => new CartaoCredito("12345678921", Guid.NewGuid().ToString(), dadosCartao);
+            => new CartaoCredito("12345678921", dadosCartao);
 
-        public static CartaoCredito BuildCartaoCredito(string cpfCnpj, string clienteId, DadosCartaoValueObject dadosCartaoValue)
-            => new CartaoCredito(cpfCnpj, clienteId, dadosCartaoValue);
+        public static CartaoCredito BuildCartaoCredito(string cpfCnpj, DadosCartaoValueObject dadosCartaoValue)
+            => new CartaoCredito(cpfCnpj, dadosCartaoValue);
 
         public static DadosCartaoValueObject BuildDadosCartao() 
             => new DadosCartaoValueObject("1234", "1234", "Teste name", DateTime.Today);

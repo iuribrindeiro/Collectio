@@ -11,7 +11,7 @@ namespace Collectio.Domain.CobrancaAggregate
         public string Email { get; private set; }
         public string CpfCnpj { get; private set; }
         public virtual Endereco Endereco { get; private set; }
-        public virtual CartaoCredito CartaoCredito { get; private set; }
+        public virtual CartaoCreditoCobranca CartaoCreditoCobranca { get; private set; }
         public virtual Telefone Telefone { get; private set; }
         public string TenantId { get; private set; }
         public virtual Cobranca Cobranca { get; private set; }
@@ -21,7 +21,7 @@ namespace Collectio.Domain.CobrancaAggregate
 
         public ClienteCobranca(Cobranca cobranca, string nome, string cpfCnpj, 
             string email, string tenantId, Telefone telefone, 
-            Endereco endereco, CartaoCredito cartaoCredito)
+            Endereco endereco, CartaoCreditoCobranca cartaoCreditoCobranca)
         {
             TenantId = tenantId;
             Nome = nome;
@@ -29,21 +29,21 @@ namespace Collectio.Domain.CobrancaAggregate
             Email = email;
             Telefone = telefone;
             Cobranca = cobranca;
-            CartaoCredito = cartaoCredito;
+            CartaoCreditoCobranca = cartaoCreditoCobranca;
             Endereco = endereco;
 
-            ValidaDadosClienteEmissaoCartao(cartaoCredito);
+            ValidaDadosClienteEmissaoCartao(cartaoCreditoCobranca);
             ValidaDadosClienteEmissaoBoleto();
         }
 
-        public ClienteCobranca AlterarCartaoCredito(CartaoCredito cartaoCredito)
+        public ClienteCobranca AlterarCartaoCredito(CartaoCreditoCobranca cartaoCreditoCobranca)
         {
             ValidaAlteracaoCliente();
 
             if (Cobranca.FormaPagamentoBoleto)
                 throw new CobrancaBoletoNaoDeveConterCartaoNoClienteException();
 
-            CartaoCredito = cartaoCredito;
+            CartaoCreditoCobranca = cartaoCreditoCobranca;
             return this;
         }
 
@@ -66,13 +66,13 @@ namespace Collectio.Domain.CobrancaAggregate
 
         private void ValidaDadosClienteEmissaoBoleto()
         {
-            if (CartaoCredito && Cobranca.FormaPagamentoBoleto)
+            if (CartaoCreditoCobranca && Cobranca.FormaPagamentoBoleto)
                 throw new CobrancaBoletoNaoDeveConterCartaoNoClienteException();
         }
 
-        private void ValidaDadosClienteEmissaoCartao(CartaoCredito cartaoCredito)
+        private void ValidaDadosClienteEmissaoCartao(CartaoCreditoCobranca cartaoCreditoCobranca)
         {
-            if (!cartaoCredito && Cobranca.FormaPagamentoCartao)
+            if (!cartaoCreditoCobranca && Cobranca.FormaPagamentoCartao)
                 throw new CobrancasComCartaoDevemPossuirClienteComCartaoCreditoVinculadoException(Cobranca, this);
         }
 

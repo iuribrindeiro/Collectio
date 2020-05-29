@@ -24,14 +24,14 @@ namespace Collectio.Domain.CartaoCreditoAggregate.EventHandlers
             if (cobranca.FormaPagamentoCartao &&
                 CartaoCreditoExiste(cobranca, out CartaoCredito cartaoCredito) && cartaoCredito.ProcessamentoFinalizado)
             {
-                cartaoCredito.AddTransacao(cobranca.Id.ToString(), cobranca.ConfiguracaoEmissaoId, cobranca.Valor);
+                cartaoCredito.AddTransacao(cobranca.Id.ToString(), cobranca.Valor);
             }
         }
 
         private bool CartaoCreditoExiste(Cobranca cobranca, out CartaoCredito cartaoCredito)
         {
             cartaoCredito = null;
-            return Guid.TryParse(cobranca.ClienteCobranca.CartaoCredito.TenantId, out Guid cartaoCreditoId) &&
+            return Guid.TryParse(cobranca.ClienteCobranca.CartaoCreditoCobranca.TenantId, out Guid cartaoCreditoId) &&
                    _cartaoCreditoRepository.Exists(cartaoCreditoId, out cartaoCredito);
         }
     }

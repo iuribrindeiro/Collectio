@@ -4,17 +4,13 @@ namespace Collectio.Domain.CartaoCreditoAggregate
 {
     public class StatusTransacaoCartaoValueObject
     {
-        private StatusTransacaoCartao _status;
-        private string _mensagemErro;
+        public string MensagemErro { get; private set; }
+        public StatusTransacaoCartao Status { get; private set; }
 
-        public string MensagemErro => _mensagemErro;
-        public StatusTransacaoCartao Status => _status;
-
-        private StatusTransacaoCartaoValueObject()
-            => _status = StatusTransacaoCartao.Procesando;
+        private StatusTransacaoCartaoValueObject() {}
 
         public static StatusTransacaoCartaoValueObject Processando()
-            => new StatusTransacaoCartaoValueObject();
+            => new StatusTransacaoCartaoValueObject() { Status = StatusTransacaoCartao.Procesando };
 
         public StatusTransacaoCartaoValueObject Reprocessar()
         {
@@ -29,7 +25,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate
             if (Status != StatusTransacaoCartao.Procesando)
                 throw new ImpossivelAprovarTransacaoException();
 
-            _status = StatusTransacaoCartao.Aprovada;
+            Status = StatusTransacaoCartao.Aprovada;
             return this;
         }
 
@@ -38,8 +34,8 @@ namespace Collectio.Domain.CartaoCreditoAggregate
             if (Status != StatusTransacaoCartao.Procesando)
                 throw new ImpossivelDefinirErroTransacaoException();
 
-            _status = StatusTransacaoCartao.Erro;
-            _mensagemErro = mensagemErro;
+            Status = StatusTransacaoCartao.Erro;
+            MensagemErro = mensagemErro;
             return this;
         }
     }

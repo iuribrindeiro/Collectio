@@ -9,30 +9,34 @@ namespace Collectio.Domain.CartaoCreditoAggregate
     {
         private List<Transacao> _transacoes;
 
-        public string TenantId { get; private set; }
-
         public string CpfCnpjProprietario { get; private set; }
 
         public StatusCartaoValueObject Status { get; private set; }
 
-        public virtual bool ProcessamentoFinalizado 
-            => Status.Status == StatusCartao.Processado;
         public string Numero { get; private set; }
+
+        public string Nome { get; private set; }
+
+        public virtual bool ProcessamentoFinalizado
+            => Status.Status == StatusCartao.Processado;
 
         public IReadOnlyCollection<Transacao> Transacoes => _transacoes;
 
-        public CartaoCredito(string cpfCnpjProprietario, string tenantId, DadosCartaoValueObject dadosCartao)
+
+        private CartaoCredito() {}
+
+        public CartaoCredito(string cpfCnpjProprietario, DadosCartaoValueObject dadosCartao)
         {
             CpfCnpjProprietario = cpfCnpjProprietario;
-            TenantId = tenantId;
             _transacoes = new List<Transacao>();
+            Nome = dadosCartao.NomeProprietario;
             Status = StatusCartaoValueObject.Processando();
             AddEvent(new CartaoCreditoCriadoEvent(dadosCartao, Id.ToString()));
         }
 
-        public CartaoCredito AddTransacao(string cobrancaId, string contaBancariaId, decimal valor)
+        public CartaoCredito AddTransacao(string cobrancaId, decimal valor)
         {
-            var transacao = new Transacao(cobrancaId, contaBancariaId, this, valor);
+            var transacao = new Transacao(cobrancaId, this, valor);
             _transacoes.Add(transacao);
             return this;
         }

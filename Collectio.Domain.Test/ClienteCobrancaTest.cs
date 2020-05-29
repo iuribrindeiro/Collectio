@@ -50,8 +50,8 @@ namespace Collectio.Domain.Test
         public static Endereco BuildEndereco() 
             => new Endereco("aa", "12331", "bairro", "1232313", "DE", "bla");
 
-        public static CartaoCredito BuildCartaoCredito() 
-            => new CartaoCredito("Bla bla", "12314", Guid.NewGuid().ToString());
+        public static CartaoCreditoCobranca BuildCartaoCredito() 
+            => new CartaoCreditoCobranca("Bla bla", "12314", Guid.NewGuid().ToString());
 
         public static ClienteCobranca BuildCliente(Cobranca cobranca)
         {
@@ -83,7 +83,7 @@ namespace Collectio.Domain.Test
             var nome = Guid.NewGuid().ToString();
             var numero = Guid.NewGuid().ToString();
 
-            var cartaoCredito = new CartaoCredito(nome, numero, tenantId);
+            var cartaoCredito = new CartaoCreditoCobranca(nome, numero, tenantId);
 
             Assert.AreEqual(cartaoCredito.Numero, numero);
             Assert.AreEqual(cartaoCredito.TenantId, tenantId);
@@ -129,9 +129,9 @@ namespace Collectio.Domain.Test
             Assert.AreEqual(cliente.TenantId, tenantId);
             Assert.AreSame(cliente.Telefone, telefone);
             Assert.AreSame(cliente.Endereco, endereco);
-            Assert.AreEqual(cliente.CartaoCredito.TenantId, cartaoCredito.TenantId);
-            Assert.AreEqual(cliente.CartaoCredito.Nome, cartaoCredito.Nome);
-            Assert.AreEqual(cliente.CartaoCredito.Numero, cartaoCredito.Numero);
+            Assert.AreEqual(cliente.CartaoCreditoCobranca.TenantId, cartaoCredito.TenantId);
+            Assert.AreEqual(cliente.CartaoCreditoCobranca.Nome, cartaoCredito.Nome);
+            Assert.AreEqual(cliente.CartaoCreditoCobranca.Numero, cartaoCredito.Numero);
         }
 
         [Test]
@@ -140,7 +140,7 @@ namespace Collectio.Domain.Test
             var cliente = ClienteCobrancaBuilder.BuildCliente(FormaPagamento.Cartao);
 
             Assert.Throws<ImpossivelAlterarDadosClienteQuandoCobrancaEstaEmProcessamentoException>(() 
-                => cliente.AlterarCartaoCredito(new CartaoCredito("bla bla", "123", Guid.NewGuid().ToString())));
+                => cliente.AlterarCartaoCredito(new CartaoCreditoCobranca("bla bla", "123", Guid.NewGuid().ToString())));
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace Collectio.Domain.Test
 
             var cliente = ClienteCobrancaBuilder.BuildCliente(cobranca);
 
-            Assert.Throws<ImpossivelAlterarDadosClienteQuandoCobrancaJaEstaPagaException>(() => cliente.AlterarCartaoCredito(new CartaoCredito("bla", "bla", "bla")));
+            Assert.Throws<ImpossivelAlterarDadosClienteQuandoCobrancaJaEstaPagaException>(() => cliente.AlterarCartaoCredito(new CartaoCreditoCobranca("bla", "bla", "bla")));
         }
 
         [Test]
@@ -160,7 +160,7 @@ namespace Collectio.Domain.Test
 
             var cliente = ClienteCobrancaBuilder.BuildCliente(cobranca);
 
-            Assert.Throws<CobrancaBoletoNaoDeveConterCartaoNoClienteException>(() => cliente.AlterarCartaoCredito(new CartaoCredito("bla", "bla", "bla")));
+            Assert.Throws<CobrancaBoletoNaoDeveConterCartaoNoClienteException>(() => cliente.AlterarCartaoCredito(new CartaoCreditoCobranca("bla", "bla", "bla")));
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace Collectio.Domain.Test
             var novoCartaoCredito = ClienteCobrancaBuilder.BuildCartaoCredito();
 
             cliente.AlterarCartaoCredito(novoCartaoCredito);
-            Assert.AreSame(cliente.CartaoCredito, novoCartaoCredito);
+            Assert.AreSame(cliente.CartaoCreditoCobranca, novoCartaoCredito);
         }
 
         [Test]

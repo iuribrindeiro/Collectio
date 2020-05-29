@@ -31,7 +31,14 @@ namespace Collectio.Infra.CrossCutting.Ioc
             serviceCollectio.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipeline<,>));
             serviceCollectio.AddTransient(typeof(IPipelineBehavior<,>), typeof(CommandValidator<,>));
             serviceCollectio.AddMediatR(typeof(LoggingPipeline<,>).Assembly, typeof(IDomainEventHandler<>).Assembly);
-            serviceCollectio.AddAutoMapper(typeof(MappingProfile).Assembly);
+            serviceCollectio.AddAutoMapper(e =>
+            {
+                e.ShouldMapProperty = p =>
+                {
+                    var setMethod = p.GetSetMethod(true);
+                    return !(setMethod == null || setMethod.IsPrivate || setMethod.IsFamily);
+                };
+            }, typeof(MappingProfile).Assembly);
             serviceCollectio.AddScoped<ICommandQuerySender, CommandQuerySender>();
             serviceCollectio.AddDbContext<ApplicationContext>(e => e.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             serviceCollectio.AddScoped<IUnitOfWork, ApplicationContext>(e => e.GetService<ApplicationContext>());

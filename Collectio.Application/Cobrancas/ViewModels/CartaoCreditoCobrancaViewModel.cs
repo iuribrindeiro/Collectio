@@ -12,8 +12,8 @@ namespace Collectio.Application.Cobrancas.ViewModels
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<CartaoCreditoCobrancaViewModel, CartaoCredito>()
-                .ConstructUsing(vm => new CartaoCredito(vm.Nome, vm.Numero, vm.TenantId));
+            profile.CreateMap<CartaoCreditoCobrancaViewModel, CartaoCreditoCobranca>()
+                .ConstructUsing(vm => new CartaoCreditoCobranca(vm.Nome, vm.Numero, vm.TenantId));
         }
     }
 }
