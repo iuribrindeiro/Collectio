@@ -10,9 +10,9 @@ namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
         public string NomeEmpresa { get; private set; }
         public string CpfCnpj { get; private set; }
         public string Email { get; private set; }
-        public Telefone Telefone { get; private set; }
-        public AgenciaConta AgenciaConta { get; private set; }
-        public StatusConfiguracaoEmissaoValueObject Status { get; private set; }
+        public virtual Telefone Telefone { get; private set; }
+        public virtual AgenciaConta AgenciaConta { get; private set; }
+        public virtual StatusConfiguracaoEmissaoValueObject Status { get; private set; }
 
         private ConfiguracaoEmissao() {}
 

@@ -1,8 +1,8 @@
 ﻿using Collectio.Domain.Base;
-using Collectio.Domain.ClienteAggregate;
 using Collectio.Infra.CrossCutting.Services;
 using Collectio.Infra.CrossCutting.Services.Interfaces;
 using Collectio.Infra.Data.EntitiyTypes.Base;
+using Collectio.Infra.Data.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -12,7 +12,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Collectio.Infra.Data.Exceptions;
 
 namespace Collectio.Infra.Data
 {
@@ -55,9 +54,11 @@ namespace Collectio.Infra.Data
             var dataAtual = DateTime.Now;
             foreach (var entity in ModifiedAndAddedEntities())
             {
-                var dataCriacaoOriginal = (entity.OriginalValues["DataCriacao"] as DateTime?);
-                entity.CurrentValues["DataAtualizacao"] = dataAtual;
-                entity.CurrentValues["DataCriacao"] = dataCriacaoOriginal != null && dataCriacaoOriginal != DateTime.MinValue ? dataCriacaoOriginal : dataAtual;
+                if (entity.State == EntityState.Added)
+                    entity.CurrentValues["DataCriacao"] = dataAtual;
+                else
+                    entity.CurrentValues["DataAtualizacao"] = dataAtual;
+
                 if (entity.Entity is BaseOwnerEntity)
                 {
                     if (_ownerId == Guid.Empty)

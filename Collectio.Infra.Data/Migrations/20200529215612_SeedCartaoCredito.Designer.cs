@@ -4,14 +4,16 @@ using Collectio.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Collectio.Infra.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20200529215612_SeedCartaoCredito")]
+    partial class SeedCartaoCredito
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,7 +31,7 @@ namespace Collectio.Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("DataAtualizacao")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
@@ -57,9 +59,10 @@ namespace Collectio.Infra.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5dd3e230-85af-4b98-aa11-14da9026e6be"),
+                            Id = new Guid("658b8bd5-de12-4c94-9bc9-c81bd1c3ac89"),
                             CpfCnpjProprietario = "71536108049",
-                            DataCriacao = new DateTime(2020, 5, 29, 0, 0, 0, 0, DateTimeKind.Local),
+                            DataAtualizacao = new DateTime(2020, 5, 29, 18, 56, 12, 386, DateTimeKind.Local).AddTicks(230),
+                            DataCriacao = new DateTime(2020, 5, 29, 18, 56, 12, 385, DateTimeKind.Local).AddTicks(1093),
                             Nome = "Proprietario C. Credito",
                             Numero = "5211********2071",
                             OwnerId = new Guid("ef2ccc70-c4f5-4f32-bb24-f9316013901c")
@@ -79,7 +82,7 @@ namespace Collectio.Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("DataAtualizacao")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
@@ -115,7 +118,7 @@ namespace Collectio.Infra.Data.Migrations
                     b.Property<string>("CpfCnpj")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DataAtualizacao")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
@@ -150,7 +153,7 @@ namespace Collectio.Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DataAtualizacao")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
@@ -193,7 +196,7 @@ namespace Collectio.Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("DataAtualizacao")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
@@ -230,7 +233,7 @@ namespace Collectio.Infra.Data.Migrations
                     b.Property<Guid>("CobrancaId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("DataAtualizacao")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
@@ -262,7 +265,7 @@ namespace Collectio.Infra.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DataAtualizacao")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
@@ -284,17 +287,6 @@ namespace Collectio.Infra.Data.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("ConfiguracaoEmissao");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("5a18db9b-90bb-42a6-9bb2-f3602a90dbb4"),
-                            CpfCnpj = "71536108049",
-                            DataCriacao = new DateTime(2020, 5, 29, 0, 0, 0, 0, DateTimeKind.Local),
-                            Email = "email@email.com",
-                            NomeEmpresa = "Empresa Teste",
-                            OwnerId = new Guid("ef2ccc70-c4f5-4f32-bb24-f9316013901c")
-                        });
                 });
 
             modelBuilder.Entity("Collectio.Domain.CartaoCreditoAggregate.CartaoCredito", b =>
@@ -320,7 +312,7 @@ namespace Collectio.Infra.Data.Migrations
                             b1.HasData(
                                 new
                                 {
-                                    CartaoCreditoId = new Guid("5dd3e230-85af-4b98-aa11-14da9026e6be"),
+                                    CartaoCreditoId = new Guid("658b8bd5-de12-4c94-9bc9-c81bd1c3ac89"),
                                     Status = 1
                                 });
                         });
@@ -497,14 +489,6 @@ namespace Collectio.Infra.Data.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ConfiguracaoEmissaoId");
-
-                            b1.HasData(
-                                new
-                                {
-                                    ConfiguracaoEmissaoId = new Guid("5a18db9b-90bb-42a6-9bb2-f3602a90dbb4"),
-                                    Agencia = "3238",
-                                    Conta = "52841"
-                                });
                         });
 
                     b.OwnsOne("Collectio.Domain.Base.ValueObjects.Telefone", "Telefone", b1 =>
@@ -526,14 +510,6 @@ namespace Collectio.Infra.Data.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ConfiguracaoEmissaoId");
-
-                            b1.HasData(
-                                new
-                                {
-                                    ConfiguracaoEmissaoId = new Guid("5a18db9b-90bb-42a6-9bb2-f3602a90dbb4"),
-                                    Ddd = "85",
-                                    Numero = "996422022"
-                                });
                         });
 
                     b.OwnsOne("Collectio.Domain.ConfiguracaoEmissaoAggregate.StatusConfiguracaoEmissaoValueObject", "Status", b1 =>
@@ -553,13 +529,6 @@ namespace Collectio.Infra.Data.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ConfiguracaoEmissaoId");
-
-                            b1.HasData(
-                                new
-                                {
-                                    ConfiguracaoEmissaoId = new Guid("5a18db9b-90bb-42a6-9bb2-f3602a90dbb4"),
-                                    Status = 1
-                                });
                         });
                 });
 #pragma warning restore 612, 618

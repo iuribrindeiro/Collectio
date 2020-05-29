@@ -18,7 +18,7 @@ namespace Collectio.Domain.Base
 
         public DateTime DataCriacao { get; private set; }
 
-        public DateTime DataAtualizacao { get; private set; }
+        public DateTime? DataAtualizacao { get; private set; }
 
         public virtual IReadOnlyCollection<IDomainEvent> Events => _events;
 

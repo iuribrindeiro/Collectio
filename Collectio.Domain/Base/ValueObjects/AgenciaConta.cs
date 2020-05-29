@@ -2,16 +2,15 @@
 {
     public class AgenciaConta
     {
-        private string _agencia;
-        private string _conta;
+        public string Conta { get; private set; }
+        public string Agencia { get; private set; }
 
-        public string Conta => _conta;
-        public string Agencia => _agencia;
+        private AgenciaConta() {}
 
         public AgenciaConta(string agencia, string conta)
         {
-            _agencia = agencia;
-            _conta = conta;
+            Agencia = agencia;
+            Conta = conta;
         }
     }
 }

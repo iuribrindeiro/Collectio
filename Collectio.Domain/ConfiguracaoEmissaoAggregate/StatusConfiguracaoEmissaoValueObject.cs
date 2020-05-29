@@ -1,8 +1,9 @@
-﻿using Collectio.Domain.ConfiguracaoEmissaoAggregate.Exceptions;
+﻿using Collectio.Domain.Base.ValueObjects;
+using Collectio.Domain.ConfiguracaoEmissaoAggregate.Exceptions;
 
 namespace Collectio.Domain.ConfiguracaoEmissaoAggregate
 {
-    public class StatusConfiguracaoEmissaoValueObject
+    public class StatusConfiguracaoEmissaoValueObject : ValueObject
     {
         public StatusConfiguracaoEmissao Status { get; private set; }
         public string MensagemErro { get; private set; }

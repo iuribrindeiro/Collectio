@@ -1,4 +1,5 @@
-﻿using Collectio.Infra.Data.EntitiyTypes.Base;
+﻿using System;
+using Collectio.Infra.Data.EntitiyTypes.Base;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Collectio.Infra.Data.EntitiyTypes.ConfiguracaoEmissao
@@ -14,17 +15,22 @@ namespace Collectio.Infra.Data.EntitiyTypes.ConfiguracaoEmissao
             {
                 t.Property(t => t.Numero).IsRequired();
                 t.Property(t => t.Ddd).IsRequired();
+                t.Seed();
             });
             builder.OwnsOne(c => c.Status, s =>
             {
                 s.Property(p => p.MensagemErro).IsRequired(false);
                 s.Property(p => p.Status).IsRequired();
+                s.Seed();
             });
             builder.OwnsOne(c => c.AgenciaConta, ac =>
             {
                 ac.Property(p => p.Agencia).IsRequired();
                 ac.Property(p => p.Conta).IsRequired();
+                ac.Seed();
             });
+
+            builder.Seed();
         }
     }
 }

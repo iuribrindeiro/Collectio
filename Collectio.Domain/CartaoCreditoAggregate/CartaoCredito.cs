@@ -11,7 +11,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate
 
         public string CpfCnpjProprietario { get; private set; }
 
-        public StatusCartaoValueObject Status { get; private set; }
+        public virtual StatusCartaoValueObject Status { get; private set; }
 
         public string Numero { get; private set; }
 
@@ -30,6 +30,7 @@ namespace Collectio.Domain.CartaoCreditoAggregate
             CpfCnpjProprietario = cpfCnpjProprietario;
             _transacoes = new List<Transacao>();
             Nome = dadosCartao.NomeProprietario;
+            Numero = $"{dadosCartao.Numero.Substring(0, 4)}********{dadosCartao.Numero.Substring(12, 4)}";
             Status = StatusCartaoValueObject.Processando();
             AddEvent(new CartaoCreditoCriadoEvent(dadosCartao, Id.ToString()));
         }
@@ -41,11 +42,10 @@ namespace Collectio.Domain.CartaoCreditoAggregate
             return this;
         }
 
-        public CartaoCredito Processado(string numero)
+        public CartaoCredito Processado()
         {
             Status.Processado();
-            Numero = numero;
-            AddEvent(new CartaoCreditoProcessadoEvent(Id.ToString(), numero));
+            AddEvent(new CartaoCreditoProcessadoEvent(Id.ToString()));
             return this;
         }
 
